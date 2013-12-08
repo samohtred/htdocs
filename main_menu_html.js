@@ -1,0 +1,22 @@
+document.write('  <ul id="Main_Menu">');
+document.write('    <li class="topmenu"><a>Element</a>	');
+document.write('      <ul>		');
+document.write('        <li class="submenu"><a onclick=\"return window.main_input_dispatcher.clicked_at(\'main_menu\', \'input_item\')\">Neu (Alt-N)</a></li>');
+document.write('        <li class="submenu"><a onclick=\"return window.main_input_dispatcher.clicked_at(\'main_menu\', \'change_item\')\">&Auml;ndern (F2)</a></li>');
+document.write('        <li class="submenu"><a onclick=\"return window.main_input_dispatcher.clicked_at(\'main_menu\', \'delete_item\')\">L&ouml;schen (Del)</a></li>');          
+document.write('      </ul>		');
+document.write('    </li>		');
+document.write('    <li class="topmenu"><a>Favoriten</a>');
+document.write('      <ul>		');
+document.write('        <li class="submenu"><a>Als Favorit ablegen (tbd)</a></li>	');
+document.write('        <li class="submenu"><a>Favoriten verwalten (tbd)</a></li>	');
+document.write('      </ul>		');
+document.write('    </li>		');
+document.write('    <li class="topmenu"><a>Hilfe</a>');
+document.write('      <ul>		');
+document.write('        <li class="submenu"><a>Tutorial (tbd)</a></li>	');
+document.write('        <li class="submenu"><a onclick=alert(plugin_name+\'\\n\'+\'\\n\'+plugin_version+\'\\n\'+plugin_date)>aktuelle Version</a></li> ');
+document.write('      </ul>		');
+document.write('    </li>		');
+document.write('  </ul>			');
+
