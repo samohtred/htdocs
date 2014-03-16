@@ -32,7 +32,8 @@ following list provides an overview of other future key features :
 -----------------------------------
 
 - GUI is pretty close to the desired look-and-feel
-- items of the topic tree can be created, erased and renamed through keyboard or by using the menu
+- items of the topic tree can be created, erased, cut&paste and renamed through keyboard or by using the menu
+- several element types can be applied
 - in the help folder of the menu the current version can be displayed
 
 
@@ -47,15 +48,16 @@ setup_main_tree.css
   -> style sheet for topic tree
 global_setups.js
   -> globally used setups such as version, debug mode and database URL can be put in there
-     to make them accessible to all other modules
+     to make them accessible to all other modules; currently also important global functions
+     are hosted there
 input_dispatcher.js
   -> central input processing unit (all <A> tags and all keyboard inputs are 
-     handed over to the right modules and functions)
+     handed over to the proper modules and functions)
 main_table.js
   -> auxiliary table functions such as init, resize and add keyboard listener
 main_tree.js
   -> elementary topic tree GUI functions
 main_menu_html.js
   -> HTML text of main menu is output through Javascript
-symbol_topic.gif
-  -> symbol before every topic entry
+symbol_xxxxxxxxxxxx.gif
+  -> symbols for different element types

@@ -19,12 +19,21 @@ var plugin_name = "X-Tree-M";
  * 				eleganter Code)
  * V0.0.0.15    2013/11/11      Version wird unter Hilfe-Menü angezeigt
  * V0.0.0.16    2013/11/13      IE Keyboard access didn't work on server -> fixed
+ * V0.0.0.17    2013/12/16      db_intelligence : create and delete works fine
+ * V0.0.0.18    2014/02/04      incompatibility to IE but database can be stored on
+ *                              Server, cut and paste was added, rename is integrated
+ * V0.0.0.19    2014/02/19      load / save to webserver now even working with caching
+ *                              switched on; several element types introduced (working)
+ * V0.0.0.20    2014/02/21      compatibility to IE reestablished
+ * V0.0.0.21    2014/03/11      multiple selection if CTRL is kept down
+ * V0.0.0.22    2014/03/16      Item sort by element type and alphabet; 'idea' as new 
+ *                              element type
  * ---------------------------------------------------------------------------------------
  */
 
 
-var plugin_version = "version : 0.0.0.16";
-var plugin_date = "created : 2013/11/13";
+var plugin_version = "version : 0.0.0.22";
+var plugin_date = "created : 2014/03/16";
 
 
 // ---------------------------------------------------------------------------------------
@@ -35,9 +44,13 @@ var databaseUrl = "http://test-disco.merkstduwas.de";
 
 var debugMode = false;
 
+//var xmlDataUrl = window.location.protocol + "//" + window.location.host + "/db_init.xml";
+var xmlDataUrl = "db_init.xml";
+var uploadPhpUrl = window.location.protocol + "//" + window.location.host + "/upload.php";
+var downloadPhpUrl = window.location.protocol + "//" + window.location.host + "/download.php";
 
-
-
+var elemTypeList    = ["Thema"            , "Fakt"            , "Pro-Arg"           , "Kontra-Arg"        , "Frage"               , "Problem"           , "Idee"            , "Ziel"          , "Region"            ]; // Attention ! No more than 13 Elements to prevent Alt-N from being removed
+var elemSymbolList  = ["symbol_topic.gif" , "symbol_fact.gif" , "symbol_pro_arg.gif", "symbol_con_arg.gif", "symbol_question.gif" , "symbol_problem.gif", "symbol_idea.gif" , "symbol_aim.gif", "symbol_region.gif" ]; // Attention ! No more than 13 Elements to prevent Alt-N from being removed
 
 // #######################################################################################
 
@@ -71,3 +84,89 @@ if (!Function.prototype.bind) {
     return fBound;
   };
 }
+
+function getChildren(myObj)
+{
+  if (myObj.children != null)
+    return myObj.children;
+  else
+    return myObj.childNodes;
+}
+
+function getDBElementById(domObj, id) 
+{
+  var myChildNodes = getChildren(getChildren(domObj)[0]);
+
+  for (var i = 0; i < myChildNodes.length; i++) 
+  {
+    if (myChildNodes[i].attributes != null)
+    {
+      if (myChildNodes[i].attributes.length != 0)
+      {
+        if (myChildNodes[i].attributes["id"] != undefined)
+        {
+          if (myChildNodes[i].attributes["id"].value == id) 
+            return myChildNodes[i];
+        }
+      }
+    }
+  }
+  return undefined;
+}
+
+
+
+function getXMLElementById(domObj, id) 
+{
+  var myChildNodes = domObj.children;
+
+  for (var i = 0; i < myChildNodes.length; i++) 
+  {
+    if (myChildNodes[i].attributes.length != 0)
+    {
+      if (myChildNodes[i].attributes["id"] != undefined)
+      {
+        if (myChildNodes[i].attributes["id"].value == id) 
+          return myChildNodes[i];
+      }
+    }
+    
+    return getXMLElementById(myChildNodes[i], id);
+  }
+  return undefined;
+}
+
+
+function setInnerHTML(myObj, content)
+{
+  if (myObj.innerHTML != null)
+    myObj.innerHTML = content;
+  else
+    myObj.textContent = content;
+}
+
+
+function getInnerHTML(myObj)
+{
+  if (myObj.innerHTML != null)
+    return myObj.innerHTML;
+  else
+    return myObj.textContent;
+}
+
+
+
+/*
+ onclickAttr = button.attributes["onclick"];
+            alert ("The value of the onclick attribute: " + onclickAttr.value);
+
+
+  if (domObj.getElementById) 
+  {
+    var test = domObj.getElementById(id);
+    if (typeof(test)!== 'undefined') 
+      return test;
+  }
+  return findID(domObj, id);
+} 
+*/
