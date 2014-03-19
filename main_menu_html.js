@@ -13,7 +13,7 @@ document.write('    <li class="topmenu"><a>ElemTyp</a>');
 document.write('      <ul id="ul_elem_type">');
 for (var i=0; i<elemTypeList.length; i++)
 {
-  document.write('      <li class="submenu"><a onclick=\"return window.main_input_dispatcher.clicked_at(\'main_menu_elem_type\', \'' + i + '\')\">' + elemTypeList[i] + ' (Ctrl-' + i + ')</a></li>');
+  document.write('      <li class="submenu"><a onclick=\"return window.main_input_dispatcher.clicked_at(\'main_menu_elem_type\', \'' + i + '\')\">' + elemTypeList[i] + ' (Alt-' + i + ')</a></li>');
 }
 document.write('      </ul>		');
 document.write('    </li>		');
