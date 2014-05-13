@@ -193,11 +193,12 @@ function db_intelligence_delete_tree_item(itemId)
 function db_intelligence_get_tree_item_parents(itemId)
 {
   var currItem = getDBElementById(this.db_buffer, itemId);
+  var parentLinks = currItem.getElementsByTagName("referred_from");
 
-  if (currItem != undefined)
+  if ((currItem != undefined)&&(parentLinks.length > 0)) 
   {
                                     // get all parents ...
-    var linksToParents = getChildren(currItem.getElementsByTagName("referred_from")[0]);
+    var linksToParents = getChildren(parentLinks[0]);
     var parentIds = [];
     for (var i=0; i<linksToParents.length; i++)
     {  
@@ -206,7 +207,7 @@ function db_intelligence_get_tree_item_parents(itemId)
     return parentIds;
   }
   else
-    alert("Item doesn't exist");
+//    alert("Item doesn't exist");
   return undefined
 }
 

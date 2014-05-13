@@ -28,12 +28,19 @@ var plugin_name = "X-Tree-M";
  * V0.0.0.21    2014/03/11      multiple selection if CTRL is kept down
  * V0.0.0.22    2014/03/16      Item sort by element type and alphabet; 'idea' as new 
  *                              element type
+ * V0.0.0.23    2014/04/27      old text can now be recycled at renaming; the mouseover
+ *                              is a little slower through timer; selection is much 
+ *                              more stable; adjustable number of parent and child levels
+ *                              (no setup in GUI so far)
+ * V0.0.0.24    2014/05/04      Topic-Lock implemented (unfortunately the main tree is
+ *                              not painted properly after erasure -> reload helps)  
+ * V0.0.0.25    2014/05/13      Delete-Problem fixed
  * ---------------------------------------------------------------------------------------
  */
 
 
-var plugin_version = "version : 0.0.0.22";
-var plugin_date = "created : 2014/03/16";
+var plugin_version = "version : 0.0.0.25";
+var plugin_date = "created : 2014/05/13";
 
 
 // ---------------------------------------------------------------------------------------
@@ -51,6 +58,9 @@ var downloadPhpUrl = window.location.protocol + "//" + window.location.host + "/
 
 var elemTypeList    = ["Thema"            , "Fakt"            , "Pro-Arg"           , "Kontra-Arg"        , "Frage"               , "Problem"           , "Idee"            , "Ziel"          , "Region"            ]; // Attention ! No more than 13 Elements to prevent Alt-N from being removed
 var elemSymbolList  = ["symbol_topic.gif" , "symbol_fact.gif" , "symbol_pro_arg.gif", "symbol_con_arg.gif", "symbol_question.gif" , "symbol_problem.gif", "symbol_idea.gif" , "symbol_aim.gif", "symbol_region.gif" ]; // Attention ! No more than 13 Elements to prevent Alt-N from being removed
+
+var treeMaxParentDepth = 1; // -1 = unendlich
+var treeMaxChildDepth = -1;  // -1 = unendlich
 
 // #######################################################################################
 

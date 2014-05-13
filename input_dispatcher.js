@@ -12,11 +12,12 @@ function input_dispatcher(main_tree_context)
   this.print_subtree_get_symbol = input_dispatcher_print_subtree_get_symbol.bind(this);     
   this.quick_sort = input_dispatcher_quick_sort.bind(this);
   this.item_sort = input_dispatcher_item_sort.bind(this);
+  this.print_subtree_aux = input_dispatcher_print_subtree_aux.bind(this);
   this.print_subtree = input_dispatcher_print_subtree.bind(this);
 
 
   // private variables
-  var my_main_tree_context = main_tree_context;
+  this.main_tree_context = main_tree_context;
   this.ctrl_pressed = false;
   this.shift_pressed = false;
   this.currently_selected=["root"];
@@ -31,6 +32,7 @@ function input_dispatcher(main_tree_context)
   this.my_db_intelligence = my_db_intelligence;
   this.saved_item_id = "";
   this.saved_item_name = "";
+  this.locked_topic = "root";
 
   // constructor
   this.create_tree();
@@ -41,9 +43,8 @@ function input_dispatcher(main_tree_context)
 
 function input_dispatcher_create_tree()
 {
-  var maxDepth = 10;
   this.my_db_intelligence.create_tree(xmlDataUrl);
-  this.my_db_intelligence.set_latest_id(this.print_subtree(undefined, "root", maxDepth) + 1);
+  this.my_db_intelligence.set_latest_id(this.print_subtree("root", this.locked_topic, treeMaxParentDepth, treeMaxChildDepth) + 1);
   this.my_main_tree.markup_item(this.currently_selected[0], true);
 }
 
@@ -143,9 +144,34 @@ function input_dispatcher_item_sort(my_item_list)
 }
 
 
-
 // recursively print tree or part of a tree until maximum depth is reached
-function input_dispatcher_print_subtree(parentId, itemId, maxDepth)
+function input_dispatcher_print_subtree(itemId, lockId, treeMaxParentDepth, treeMaxChildDepth)
+{
+                                    // clear old Main Tree
+  this.main_tree_context.innerHTML = '';
+                                    // print new Main Tree
+  var max_id = 0;
+  if (itemId == "root")
+    max_id = this.print_subtree_aux(undefined, itemId, lockId, treeMaxParentDepth, treeMaxChildDepth);
+  else
+    max_id = this.print_subtree_aux(this.my_db_intelligence.get_tree_item_parents(itemId)[0], itemId, lockId, treeMaxParentDepth, treeMaxChildDepth);
+                                    // restore selection
+  for (var i=0; i<this.currently_selected.length; i++)
+  {
+    this.my_main_tree.markup_item(this.currently_selected[i], true);
+  }
+                                    // restore cut markup
+  for (var i=0; i<this.currently_cut.length; i++)
+  {
+    this.my_main_tree.mark_item_as_cut(this.currently_cut[i], true);
+  }
+  document.getElementById(this.currently_selected[0]+"_div").focus(); //.scrollIntoView(true);
+  return max_id;
+}
+
+
+// auxiliary function that belongs to 'input_dispatcher_print_subtree'
+function input_dispatcher_print_subtree_aux(parentId, itemId, lockId, treeMaxParentDepth, treeMaxChildDepth)
 {
                                     // Init
   var curr_level = 1;
@@ -156,23 +182,51 @@ function input_dispatcher_print_subtree(parentId, itemId, maxDepth)
   var itemName = this.my_db_intelligence.get_tree_item_field(itemId, "name");
   var elemType = this.my_db_intelligence.get_tree_item_field(itemId, "type");
   var mySymbol = this.print_subtree_get_symbol(elemType);
-                                    // print myself in tree
-  this.my_main_tree.print_item(parentId, itemId, itemName, mySymbol);
-                                    // get my children and apply same function again
-  var myChildren = this.my_db_intelligence.get_tree_item_children(itemId);
-  if ((myChildren.length > 0) && (maxDepth != 0))
+  
+  if ((treeMaxParentDepth == 0) || (itemId == lockId))
   {
-    myChildren= this.item_sort(myChildren);
-    for (var i=0; i<myChildren.length; i++)
+    if (itemId == lockId)
+      this.my_main_tree.print_item(true, parentId, itemId, itemName, mySymbol);
+    else
+      this.my_main_tree.print_item(false, parentId, itemId, itemName, mySymbol);
+                                    // get my children and apply same function again
+    var myChildren = this.my_db_intelligence.get_tree_item_children(itemId);
+    if ((myChildren.length > 0) && (treeMaxChildDepth != 0))
     {
-      curr_child_id = parseInt(this.print_subtree(itemId, myChildren[i].toString(), maxDepth-1));
-      if (curr_child_id != NaN)
-        if (curr_child_id > max_id)
-          max_id = curr_child_id;
+      myChildren= this.item_sort(myChildren);
+      for (var i=0; i<myChildren.length; i++)
+      {
+        if (treeMaxChildDepth > 0)
+          curr_child_id = parseInt(this.print_subtree_aux(itemId, myChildren[i].toString(), lockId, 0, treeMaxChildDepth-1));
+        else
+          curr_child_id = parseInt(this.print_subtree_aux(itemId, myChildren[i].toString(), lockId, 0, treeMaxChildDepth));
+        if (curr_child_id != NaN)
+          if (curr_child_id > max_id)
+            max_id = curr_child_id;
+      }
     }
-  }
 //  if (itemId == "root")
 //    alert("Print Subtree");
+  }
+  else
+  {                           
+    var myParents = this.my_db_intelligence.get_tree_item_parents(itemId);
+    var myGrannies = this.my_db_intelligence.get_tree_item_parents(myParents[0]);
+    var addChild = 1;
+    if (treeMaxChildDepth < 0)
+      addChild = 0;
+    if (treeMaxParentDepth<0)
+      if (myGrannies == undefined)
+        this.print_subtree_aux(undefined, myParents[0], lockId, treeMaxParentDepth, treeMaxChildDepth+addChild);      
+      else
+        this.print_subtree_aux(myGrannies[0], myParents[0], lockId, treeMaxParentDepth, treeMaxChildDepth+addChild);      
+    else
+      if ((treeMaxParentDepth == 1) || (myGrannies == undefined))
+        this.print_subtree_aux(undefined, myParents[0], lockId, treeMaxParentDepth-1, treeMaxChildDepth+addChild);
+      else
+        this.print_subtree_aux(myGrannies[0], myParents[0], lockId, treeMaxParentDepth-1, treeMaxChildDepth+addChild);
+
+  }
   return max_id;
 }
 
@@ -197,9 +251,10 @@ function input_dispatcher_key_event(e)
     if (e.type=='keydown')
       this.ctrl_pressed = true;
     else
-      this.ctrl_pressed = false;
+      this.ctrl_pressed = false; // wird komischerweise bei Loslassen von Ctrl-L nicht ausgelöst
   }
-  
+
+
   // Shift
   if(e.keyCode==16) 
   { 
@@ -219,6 +274,13 @@ function input_dispatcher_key_event(e)
       { 
 //        alert("STRG-C");
         this.clicked_at("main_menu", "copy_item");
+      }
+      
+      // STRG+Shift+Alt+L (
+      if ((e.keyCode==76) && (e.shiftKey) && (e.altKey))
+      { 
+//        alert("STRG-L");
+        this.clicked_at("main_menu", "lock_topic");
       }
 
       // STRG+X
@@ -309,16 +371,13 @@ function input_dispatcher_clicked_at(panel, item)
             else
               this.my_db_intelligence.change_tree_item_field(this.currently_selected[i], "type", elemTypeList[item_int]);
                                     // change element type on screen
-            this.my_main_tree.change_symbol(this.currently_selected[i], elemSymbolList[item_int]);
+//            this.my_main_tree.change_symbol(this.currently_selected[i], elemSymbolList[item_int]);
           }
         }
                                     // write changes to database
         this.my_db_intelligence.update_db(uploadPhpUrl);
-        this.print_subtree(undefined, "root", 100);
-        for (var i=0; i<this.currently_selected.length; i++)
-        {
-          this.my_main_tree.markup_item(this.currently_selected[i], true);
-        }
+        this.print_subtree(this.currently_selected[0], this.locked_topic, treeMaxParentDepth, treeMaxChildDepth);  
+                    
 //    alert("ALT-"+(e.keyCode-48));
       }
       this.currentItemType = item_int;
@@ -352,7 +411,7 @@ function input_dispatcher_clicked_at(panel, item)
       {
 	      this.saved_item_id = this.currently_selected[0];
 	      this.saved_item_name = this.my_db_intelligence.get_tree_item_field(this.currently_selected[0], "name");
-        this.my_main_tree.rename_item(this.currently_selected[0]);
+        this.my_main_tree.rename_item(this.currently_selected[0], this.saved_item_name);
       }
     }
     else
@@ -363,18 +422,24 @@ function input_dispatcher_clicked_at(panel, item)
   if (panel == "main_menu" && item == "delete_item")
     if (this.currently_selected.length!=0) 
     {
+      var old_sel0 = this.currently_selected[0];                                    
+      var new_sel0 = this.my_db_intelligence.get_tree_item_parents(old_sel0)[0];      
+
       for (var i=0; i<this.currently_selected.length; i++)
       {
         if (this.currently_selected[i]!="root") 
         {
-          this.my_main_tree.clear_item(this.currently_selected[i]);
+//          this.my_main_tree.clear_item(this.currently_selected[i]);
           this.my_db_intelligence.delete_tree_item(this.currently_selected[i]);
         }
       }
-                                    // clear selection and write to database
-      this.currently_selected=[];
-      this.select_idx = 0;
+                                    // write to database
       this.my_db_intelligence.update_db(uploadPhpUrl);
+                                    // update tree in GUI
+      this.currently_selected=[];
+      this.currently_selected[0]= new_sel0;
+      this.print_subtree(this.currently_selected[0], this.locked_topic, treeMaxParentDepth, treeMaxChildDepth);        
+      this.select_idx = 1; 
     }
     else
       alert("Nothing selected!");
@@ -407,18 +472,19 @@ function input_dispatcher_clicked_at(panel, item)
     if (this.currently_selected.length!=0) 
     {
       this.currently_cut = [];
+      this.currently_copied = "";      
       for (var i=0; i<this.currently_selected.length; i++)
       {
         if (this.currently_selected!="root") 
         {
 	        this.currently_cut[i] = this.currently_selected[i];
-          this.currently_copied = "";
-          this.my_main_tree.markup_item(this.currently_selected[i], false);
-          this.my_main_tree.mark_item_as_cut(this.currently_cut[i], true);  
         }
       }
+      var old_sel0 = this.currently_selected[0];
       this.currently_selected=[];
-      this.select_idx = 0;       
+      this.currently_selected[0]=this.my_db_intelligence.get_tree_item_parents(old_sel0)[0];
+      this.print_subtree(this.currently_selected[0], this.locked_topic, treeMaxParentDepth, treeMaxChildDepth);        
+      this.select_idx = 1;       
     }
     else
       alert("Nothing selected!");
@@ -445,9 +511,9 @@ function input_dispatcher_clicked_at(panel, item)
         }
                                     // update database
         this.my_db_intelligence.update_db(uploadPhpUrl); 
-        this.print_subtree(undefined, "root", 100); 
+        this.currently_selected = this.currently_cut; 
+        this.print_subtree(this.currently_selected[0], this.locked_topic, treeMaxParentDepth, treeMaxChildDepth);  
         this.currently_cut = [];  
-        this.currently_selected=[];    
       }
       else
         alert("Paste operation only possible if exactly one element is selected !");
@@ -456,8 +522,23 @@ function input_dispatcher_clicked_at(panel, item)
       alert("Nothing in memory !");
   }
 
+  // lock topic
+  if (panel == "main_menu" && item == "lock_topic")
+  {
+    if (this.currently_selected.length==1) 
+    {
+      if (this.locked_topic == this.currently_selected[0])
+        this.locked_topic = "root";
+      else  
+        this.locked_topic = this.currently_selected[0];
+      this.print_subtree(this.currently_selected[0], this.locked_topic, treeMaxParentDepth, treeMaxChildDepth);  
+    }
+    else
+      alert("Wrong selection !");  
+  }
+
   // select item
-  if (panel == "main_tree")
+  if ((panel == "main_tree")&&(item != undefined))
   {
     if (this.ctrl_pressed)
     {
@@ -474,19 +555,13 @@ function input_dispatcher_clicked_at(panel, item)
       }
       else
       {
-        if (this.currently_selected.length!=0)
-        {
-                                    // unmarkup previos selections
-          for (var i=0; i<this.currently_selected.length; i++)
-          { 
-            this.my_main_tree.markup_item(this.currently_selected[i], false);
-          }
-          this.currently_selected=[];
-        }
+                                    // clear old selection
+        this.currently_selected=[];
                                     // create new selection
         this.currently_selected[0]=(new String(item)).replace("_a", "");          
         this.select_idx = 1;
-        this.my_main_tree.markup_item(this.currently_selected[0], true);
+                                    // redraw Main Tree
+        this.print_subtree(this.currently_selected[0], this.locked_topic, treeMaxParentDepth, treeMaxChildDepth);  
       }    
     }
   }
@@ -519,6 +594,5 @@ function input_dispatcher_input_done()
     this.saved_item_id = "";
   }
   this.my_db_intelligence.update_db(uploadPhpUrl);  
-  this.print_subtree(undefined, "root", 100);
-  this.my_main_tree.markup_item(this.currently_selected[0], true);
+  this.print_subtree(this.currently_selected[0], this.locked_topic, treeMaxParentDepth, treeMaxChildDepth);  
 }

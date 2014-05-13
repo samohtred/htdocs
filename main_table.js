@@ -3,7 +3,8 @@ var win_width = 0;
 var win_height = 0;
 var panel_names = new Array("main_tree", "main_content", "main_features");
 var content_setups = new Array(new Array("10%","10%","10%"),new Array("20%","20%","20%"),new Array("30%","30%","30%")); 
-var last_item = 0;
+var last_item = 0; 
+var old_item = 0; 
 
 
 function get_total_width()
@@ -138,7 +139,7 @@ function main_table_resize()
   {
     elem1 = document.getElementById(panel_names[i]);
     elem2 = document.getElementById(panel_names[i]+"_child");
-    if (i==last_item)
+    if (i==window.last_item)
       {elem1.style.width = new_big_width; elem2.style.width = new_big_width;}
     else
       {elem1.style.width = new_small_width; elem2.style.width = new_small_width;}
@@ -151,23 +152,49 @@ function main_table_resize()
 }
 
 
+function main_table_content_resize_aux(setup_id)
+{
+  var elem;
+                                    // still same mouseover used ?
+  if (last_item==setup_id)
+  {
+//    alert("cresize1");
+    elem = document.getElementById(panel_names[old_item]);
+    elem.style.width = new String(Math.round((win_width-32) * 0.1)) + "px";
+    elem = document.getElementById(panel_names[old_item]+"_child");
+    elem.style.width = new String(Math.round((win_width-32) * 0.1)) + "px";
+//    alert("cresize2");
+    elem = document.getElementById(panel_names[setup_id]);
+    elem.style.width = new String(Math.round((win_width-32) * 0.8)) + "px";
+    elem = document.getElementById(panel_names[setup_id]+"_child");
+    elem.style.width = new String(Math.round((win_width-32) * 0.8)) + "px";
+    old_item = setup_id;
+  }
+}
+
+
 function main_table_content_resize(setup_id)
 {
   var elem;
-//  alert("cresize1");
-  elem = document.getElementById(panel_names[last_item]);
-  elem.style.width = new String(Math.round((win_width-32) * 0.1)) + "px";
-  elem = document.getElementById(panel_names[last_item]+"_child");
-  elem.style.width = new String(Math.round((win_width-32) * 0.1)) + "px";
-//  alert("cresize2");
-  elem = document.getElementById(panel_names[setup_id]);
-  elem.style.width = new String(Math.round((win_width-32) * 0.8)) + "px";
-  elem = document.getElementById(panel_names[setup_id]+"_child");
-  elem.style.width = new String(Math.round((win_width-32) * 0.8)) + "px";
-
+/*  {
+//    alert("cresize1");
+    elem = document.getElementById(panel_names[last_item]);
+    elem.style.width = new String(Math.round((win_width-32) * 0.1)) + "px";
+    elem = document.getElementById(panel_names[last_item]+"_child");
+    elem.style.width = new String(Math.round((win_width-32) * 0.1)) + "px";
+//    alert("cresize2");
+    elem = document.getElementById(panel_names[setup_id]);
+    elem.style.width = new String(Math.round((win_width-32) * 0.8)) + "px";
+    elem = document.getElementById(panel_names[setup_id]+"_child");
+    elem.style.width = new String(Math.round((win_width-32) * 0.8)) + "px";
+  }  
+  */
+//  main_table_content_resize_aux(setup_id);
+  setTimeout(function() {main_table_content_resize_aux(setup_id);},500); 
   last_item = setup_id;
-
 }
+
+
 
 
 function main_table_call_input_dispatcher(e)

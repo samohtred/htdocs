@@ -35,7 +35,7 @@ function topic_tree_gui(gui_context, cb_obj, cb_onchange_fcn, cb_onclicked_fcn)
 
 
 // create stub of a tree
-function topic_tree_create_tree(rootId, rootName)
+function topic_tree_create_tree(islocked, rootId, rootName)
 {
   // HTML-Code :
   // <DIV ... >
@@ -49,7 +49,10 @@ function topic_tree_create_tree(rootId, rootName)
   var newAItem = document.createElement("a");
     newAItem.name=rootId+'_a';
     newAItem.onclick=this.select_item; 
-    newAItem.innerHTML='<span>'+rootName+'</span>';
+    if (islocked)
+      newAItem.innerHTML='<span>['+rootName+']</span>';    
+    else
+      newAItem.innerHTML='<span>'+rootName+'</span>';
     newAItem.style.cssText = 'display: block; padding: 0.2em 1em;';
   var newUlRootItem = document.createElement("ul");
     newUlRootItem.id = rootId+"_ul";
@@ -62,36 +65,37 @@ function topic_tree_create_tree(rootId, rootName)
 
 
 // add a single item to the current tree (without input field)
-function topic_tree_print_item(parentId, itemId, itemName, SymbolFilePath)
+function topic_tree_print_item(islocked, parentId, itemId, itemName, SymbolFilePath)
 {
-  if (parentId == undefined)
+  if ((parentId == undefined) || (islocked))
   {
-    this.create_tree(itemId, itemName);
+    this.create_tree(islocked, itemId, itemName);
   }
   else
   {
-    var parentUlItem = document.getElementById(parentId+"_ul");
                                     // prepare input form GUI element for displaying
     var newLiItem = document.createElement("li");
         newLiItem.id = new String(itemId+"_li");
-	newLiItem.style.cssText = 'list-style: none; width:100%; margin: 0.1em; padding: 0; vertical-align: top; margin-left:-1.5em; padding: 0;';
+	      newLiItem.style.cssText = 'list-style: none; width:100%; margin: 0.1em; padding: 0; vertical-align: top; margin-left:-1.5em; padding: 0;';
     var newImgItem = document.createElement("img");
         newImgItem.id = itemId+"_sym";
         newImgItem.src = SymbolFilePath; 
         newImgItem.align = "left";
         newImgItem.width = 22;  
-	newImgItem.height = 22;
+	      newImgItem.height = 22;
     var newDivItem = document.createElement("div");
         newDivItem.id = new String(itemId+"_div");    
     var newAItem = document.createElement("a");
-	newAItem.name=itemId+'_a';
-	newAItem.onclick=this.select_item; 
-	newAItem.innerHTML='<span>'+itemName+'</span>';
-	newAItem.style.cssText = 'display: block; padding: 0.2em 1em;';
+	      newAItem.name=itemId+'_a';
+	      newAItem.onclick=this.select_item; 
+	      newAItem.innerHTML='<span>'+itemName+'</span>';	    
+	      newAItem.style.cssText = 'display: block; padding: 0.2em 1em;';
     var newUlItem = document.createElement("ul");
         newUlItem.id = itemId+"_ul";
                                     // connect items
     newDivItem.appendChild(newAItem);
+
+    var parentUlItem = document.getElementById(parentId+"_ul");    
     newLiItem.appendChild(newImgItem);    
     newLiItem.appendChild(newDivItem);
     newLiItem.appendChild(newUlItem);
@@ -272,7 +276,7 @@ function topic_tree_change_symbol(item_id, symbol_path)
     alert("Tree item not found !");
 }
 
-function topic_tree_rename_item(item_id)
+function topic_tree_rename_item(item_id, initText)
 {
   var curr_div = document.getElementById(item_id+"_div");
     curr_div.innerHTML = "";
@@ -280,6 +284,7 @@ function topic_tree_rename_item(item_id)
     newInputItem.id = "give_name_input";
     newInputItem.name = "new_name";
     newInputItem.type = "text";
+    newInputItem.value = initText;
     newInputItem.onchange=this.cb_onchange_fcn;
   curr_div.appendChild(newInputItem);
   var mySym = document.getElementById(item_id+"_sym");

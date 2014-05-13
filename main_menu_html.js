@@ -7,6 +7,7 @@ document.write('        <li class="submenu"><a onclick=\"return window.main_inpu
 document.write('        <li class="submenu"><a onclick=\"return window.main_input_dispatcher.clicked_at(\'main_menu\', \'copy_item\')\">Kopieren (tbd)</a></li>');
 document.write('        <li class="submenu"><a onclick=\"return window.main_input_dispatcher.clicked_at(\'main_menu\', \'cut_item\')\">Ausschneiden (Strg-X)</a></li>');
 document.write('        <li class="submenu"><a onclick=\"return window.main_input_dispatcher.clicked_at(\'main_menu\', \'paste_item\')\">Einf&uumlgen (Strg-V)</a></li>');
+document.write('        <li class="submenu"><a onclick=\"return window.main_input_dispatcher.clicked_at(\'main_menu\', \'lock_topic\')\">Thema festhalten (Strg-Shift-Alt-L)</a></li>');
 document.write('      </ul>		');
 document.write('    </li>		');
 document.write('    <li class="topmenu"><a>ElemTyp</a>');
