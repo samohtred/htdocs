@@ -35,12 +35,20 @@ var plugin_name = "X-Tree-M";
  * V0.0.0.24    2014/05/04      Topic-Lock implemented (unfortunately the main tree is
  *                              not painted properly after erasure -> reload helps)  
  * V0.0.0.25    2014/05/13      Delete-Problem fixed
+ * V0.0.0.26    2014/05/20      Headline in Content Pad works and graphical News and Dates 
+ *                              info features added without underlying functionality
+ * V0.0.0.27    2014/06/03      Tree element description as GUI item (not connected to data
+ *                              yet); local Cookie saves the last item so the user can 
+ *                              continue where he has finished last
+ * V0.0.0.28    2014/06/09      Cookie extended to save structure
+ * V0.0.0.29    2014/06/19      Content now coupled to database and News / Dates Ticker 
+ *                              working
  * ---------------------------------------------------------------------------------------
  */
 
 
-var plugin_version = "version : 0.0.0.25";
-var plugin_date = "created : 2014/05/13";
+var plugin_version = "version : 0.0.0.29";
+var plugin_date = "created : 2014/06/19";
 
 
 // ---------------------------------------------------------------------------------------

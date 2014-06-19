@@ -15,6 +15,8 @@ function input_dispatcher(main_tree_context)
   this.print_subtree_aux = input_dispatcher_print_subtree_aux.bind(this);
   this.print_subtree = input_dispatcher_print_subtree.bind(this);
 
+  this.content_desc_save = input_dispatcher_content_desc_save.bind(this);
+
 
   // private variables
   this.main_tree_context = main_tree_context;
@@ -26,10 +28,13 @@ function input_dispatcher(main_tree_context)
   this.currently_copied="";
   this.currentItemType = 0;
   this.new_tree_item_input = false;
-  var my_main_tree = new topic_tree_gui(main_tree_context, this, this.input_done, this.clicked_at);
-  this.my_main_tree = my_main_tree;
-  var my_db_intelligence = new db_intelligence(document.getElementById("main_features_pad"));
-  this.my_db_intelligence = my_db_intelligence;
+  this.my_db_intelligence = new db_intelligence(document.getElementById("main_bookmark_child"));
+  this.setup_user = new setup_user();
+  this.my_main_tree = new topic_tree_gui(main_tree_context, this, this.input_done, this.clicked_at);
+  var main_content_context = 'main_content_pad';
+  this.my_main_content = new main_content_gui(main_content_context);
+  var main_features_context = 'main_features_pad';
+  this.my_main_features = new main_features(main_features_context, this.my_db_intelligence.get_tree_item_children, this.my_db_intelligence.get_tree_item_field, this.setup_user.getNewsElem(), this.setup_user.getDateElem());
   this.saved_item_id = "";
   this.saved_item_name = "";
   this.locked_topic = "root";
@@ -39,13 +44,21 @@ function input_dispatcher(main_tree_context)
 }
 
 
-
+function input_dispatcher_content_desc_save()
+{
+  this.my_db_intelligence.change_tree_item_field(this.currently_selected[0], "content", this.my_main_content.get_fulltext()); 
+  this.my_db_intelligence.update_db(uploadPhpUrl);  
+//  alert("saving content !");
+}
 
 function input_dispatcher_create_tree()
 {
   this.my_db_intelligence.create_tree(xmlDataUrl);
-  this.my_db_intelligence.set_latest_id(this.print_subtree("root", this.locked_topic, treeMaxParentDepth, treeMaxChildDepth) + 1);
+//  alert("1");
+  this.currently_selected[0] = this.setup_user.initCookie();
+  this.my_db_intelligence.set_latest_id(this.print_subtree(this.currently_selected[0], this.locked_topic, treeMaxParentDepth, treeMaxChildDepth) + 1);
   this.my_main_tree.markup_item(this.currently_selected[0], true);
+  this.my_main_content.set_fulltext(this.my_db_intelligence.get_tree_item_field(this.currently_selected[0], "content"));          
 }
 
 
@@ -166,6 +179,7 @@ function input_dispatcher_print_subtree(itemId, lockId, treeMaxParentDepth, tree
     this.my_main_tree.mark_item_as_cut(this.currently_cut[i], true);
   }
   document.getElementById(this.currently_selected[0]+"_div").focus(); //.scrollIntoView(true);
+  this.my_main_content.set_headline(this.my_db_intelligence.get_tree_item_field(this.currently_selected[0], "name"));
   return max_id;
 }
 
@@ -537,8 +551,33 @@ function input_dispatcher_clicked_at(panel, item)
       alert("Wrong selection !");  
   }
 
+  // set currently selected Item as News source
+  if (panel == "main_menu" && item == "as_news")
+  {
+    if (this.currently_selected.length==1) 
+    {
+      this.setup_user.setNewsElem(this.currently_selected[0]);
+      this.my_main_features.update_news_ticker(this.currently_selected[0]);
+    }
+    else
+      alert("Wrong selection !");  
+  }
+
+  // set currently selected Item as News source
+  if (panel == "main_menu" && item == "as_date")
+  {
+    if (this.currently_selected.length==1) 
+    {
+      this.setup_user.setDateElem(this.currently_selected[0]);
+      this.my_main_features.update_date_ticker(this.currently_selected[0]);
+    }
+    else
+      alert("Wrong selection !");  
+  }
+
+
   // select item
-  if ((panel == "main_tree")&&(item != undefined))
+  if (((panel == "main_tree")&&(item != undefined))||(panel == "info_bar"))
   {
     if (this.ctrl_pressed)
     {
@@ -555,13 +594,49 @@ function input_dispatcher_clicked_at(panel, item)
       }
       else
       {
-                                    // clear old selection
-        this.currently_selected=[];
-                                    // create new selection
-        this.currently_selected[0]=(new String(item)).replace("_a", "");          
+        var curr_news_item = this.setup_user.getNewsElem();
+        var curr_date_item = this.setup_user.getDateElem();
+        
+        // display current news channel
+        if (item == "news_select")
+        {
+          if (curr_news_item != null)
+          {
+                                        // clear old selection
+            this.currently_selected=[];
+                                        // create new selection
+            this.currently_selected[0]=curr_news_item;          
+          }
+          else
+            return;
+        }
+        else
+        // display current date channel
+        if (item == "dates_select")
+        {
+          if (curr_date_item != null)
+          {
+                                        // clear old selection
+            this.currently_selected=[];
+                                        // create new selection
+            this.currently_selected[0]=curr_date_item;          
+          }
+          else
+            return;        
+        }
+        else
+        {
+                  
+                                      // clear old selection
+          this.currently_selected=[];
+                                      // create new selection
+          this.currently_selected[0]=(new String(item)).replace("_a", "");          
+        }
         this.select_idx = 1;
                                     // redraw Main Tree
         this.print_subtree(this.currently_selected[0], this.locked_topic, treeMaxParentDepth, treeMaxChildDepth);  
+        this.setup_user.setLastElem(this.currently_selected[0]);
+        this.my_main_content.set_fulltext(this.my_db_intelligence.get_tree_item_field(this.currently_selected[0], "content"));        
       }    
     }
   }

@@ -103,12 +103,12 @@ function db_intelligence_dump_tree()
   var dump_root = this.db_buffer.getElementsByTagName("db_root")[0];
 
   if (dump_root.innerHTML != null)
-    this.debug_window.innerHTML = '<textarea style="border: none;background-color:white;">' + dump_root.innerHTML + '</textarea>';
+    this.debug_window.innerHTML = '<textarea style="border: none;background-color:white;width=100%;">' + dump_root.innerHTML + '</textarea>';
   else
   {
     var serializer = new XMLSerializer();                       
 		var serialized = serializer.serializeToString(dump_root);    
-		this.debug_window.innerHTML = '<textarea style="border: none;background-color:white;">' + serialized + '</textarea>';
+//		this.debug_window.innerHTML = '<textarea style="border: none;background-color:white;width=100%;">' + serialized + '</textarea>';
   }
   
 }
@@ -359,13 +359,14 @@ function db_intelligence_change_tree_item_field(itemId, fieldId, content)
   if (currItem != undefined) 
   {
     var myItemField = currItem.getElementsByTagName(fieldId);
-    if (myItemField != undefined)
+    if ((myItemField != undefined) && (myItemField.length > 0))
     {
       setInnerHTML(myItemField[0], content);
     }
     else
     {
-      alert("Field \""+fieldId+"\" doesn't exist");
+      this.create_tree_item_field(itemId, fieldId, content);
+//      alert("Field \""+fieldId+"\" was created !");
     }
   }
   else
@@ -394,8 +395,15 @@ function db_intelligence_get_tree_item_field(itemId, fieldId)
     else
     { 
       if (fieldId == "type")
-        return elemTypeList[0];      
-//      alert("Field \""+fieldId+"\" doesn't exist");
+      {
+        this.create_tree_item_field(itemId, fieldId, elemTypeList[0]);
+        return elemTypeList[0];
+      }
+      else
+      {
+        this.create_tree_item_field(itemId, fieldId, "");
+        return "";
+      }
     }
   }
   else
