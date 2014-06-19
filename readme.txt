@@ -35,29 +35,42 @@ following list provides an overview of other future key features :
 - items of the topic tree can be created, erased, cut&paste and renamed through keyboard or by using the menu
 - several element types can be applied
 - in the help folder of the menu the current version can be displayed
+-> further implemented features can be seen in the file 'setup_global.js'
 
 
 3. File overview :
 ------------------
 
+db_init.xml
+  -> current database (currently not connected to DISCO)
+db_intelligence.js
+  -> access to the database as Library Class
 index.html
   -> global main file of the whole website
-setup_main_menu.css
-  -> stylesheet for main menu
-setup_main_tree.css
-  -> style sheet for topic tree
-global_setups.js
-  -> globally used setups such as version, debug mode and database URL can be put in there
-     to make them accessible to all other modules; currently also important global functions
-     are hosted there
 input_dispatcher.js
   -> central input processing unit (all <A> tags and all keyboard inputs are 
      handed over to the proper modules and functions)
+main_content.js
+  -> access to middle panel which contains the item content
+main_features.js
+  -> access to the additional features on the right hand side
+main_menu_html.js
+  -> HTML text of main menu is output through Javascript
 main_table.js
   -> auxiliary table functions such as init, resize and add keyboard listener
 main_tree.js
   -> elementary topic tree GUI functions
-main_menu_html.js
-  -> HTML text of main menu is output through Javascript
+setup_global.js
+  -> globally used setups such as version, debug mode and database URL can be put in there
+     to make them accessible to all other modules; currently also important global functions
+     are hosted there
+setup_main_menu.css
+  -> stylesheet for main menu
+setup_main_tree.css
+  -> style sheet for topic tree
+setup_user.js
+  -> to store user specific setups and infos (currently as Cookie)
 symbol_xxxxxxxxxxxx.gif
   -> symbols for different element types
+upload.php 
+  -> skript on webserver to help with the upload of data towards the database
