@@ -23,18 +23,19 @@ function input_dispatcher(main_tree_context)
   this.ctrl_pressed = false;
   this.shift_pressed = false;
   this.currently_selected=["root"];
+  this.currently_selected_favorite="";
   this.select_idx=0;
   this.currently_cut=[];
   this.currently_copied="";
   this.currentItemType = 0;
   this.new_tree_item_input = false;
-  this.my_db_intelligence = new db_intelligence(document.getElementById("main_bookmark_child"));
+  this.my_db_intelligence = new db_intelligence(document.getElementById("main_bookmark_child"), this.clicked_at);
   this.setup_user = new setup_user();
   this.my_main_tree = new topic_tree_gui(main_tree_context, this, this.input_done, this.clicked_at);
   var main_content_context = 'main_content_pad';
   this.my_main_content = new main_content_gui(main_content_context);
   var main_features_context = 'main_features_pad';
-  this.my_main_features = new main_features(main_features_context, this.my_db_intelligence.get_tree_item_children, this.my_db_intelligence.get_tree_item_field, this.setup_user.getNewsElem(), this.setup_user.getDateElem());
+  this.my_main_features = new main_features(main_features_context, this.clicked_at, this.my_db_intelligence.get_tree_item_path, this.my_db_intelligence.get_tree_item_children, this.my_db_intelligence.get_tree_item_field, this.setup_user.getNewsElem(), this.setup_user.getDateElem(), this.setup_user.getFavorites());
   this.saved_item_id = "";
   this.saved_item_name = "";
   this.locked_topic = "root";
@@ -56,7 +57,7 @@ function input_dispatcher_create_tree()
   this.my_db_intelligence.create_tree(xmlDataUrl);
 //  alert("1");
   this.currently_selected[0] = this.setup_user.initCookie();
-  this.my_db_intelligence.set_latest_id(this.print_subtree(this.currently_selected[0], this.locked_topic, treeMaxParentDepth, treeMaxChildDepth) + 1);
+  this.print_subtree(this.currently_selected[0], this.locked_topic, treeMaxParentDepth, treeMaxChildDepth);
   this.my_main_tree.markup_item(this.currently_selected[0], true);
   this.my_main_content.set_fulltext(this.my_db_intelligence.get_tree_item_field(this.currently_selected[0], "content"));          
 }
@@ -164,8 +165,10 @@ function input_dispatcher_print_subtree(itemId, lockId, treeMaxParentDepth, tree
   this.main_tree_context.innerHTML = '';
                                     // print new Main Tree
   var max_id = 0;
-  if (itemId == "root")
-    max_id = this.print_subtree_aux(undefined, itemId, lockId, treeMaxParentDepth, treeMaxChildDepth);
+  if (!this.my_db_intelligence.item_exists(itemId))
+    max_id = this.print_subtree_aux(undefined, "root", lockId, 0, treeMaxChildDepth);
+  else if (itemId == lockId)
+    max_id = this.print_subtree_aux(undefined, itemId, lockId, 0, treeMaxChildDepth);
   else
     max_id = this.print_subtree_aux(this.my_db_intelligence.get_tree_item_parents(itemId)[0], itemId, lockId, treeMaxParentDepth, treeMaxChildDepth);
                                     // restore selection
@@ -197,12 +200,19 @@ function input_dispatcher_print_subtree_aux(parentId, itemId, lockId, treeMaxPar
   var elemType = this.my_db_intelligence.get_tree_item_field(itemId, "type");
   var mySymbol = this.print_subtree_get_symbol(elemType);
   
-  if ((treeMaxParentDepth == 0) || (itemId == lockId))
+                                    // reached highest accessible parent level
+  if ((treeMaxParentDepth <= 0) || (itemId == lockId))
   {
-    if (itemId == lockId)
-      this.my_main_tree.print_item(true, parentId, itemId, itemName, mySymbol);
+                                    // print root item in current view
+    if (treeMaxParentDepth == 0)
+    {
+      itemName = this.my_db_intelligence.get_tree_item_path(lockId, itemId , true);
+      this.my_main_tree.print_item(this.my_main_tree.c_ITEM_ROOT, parentId, itemId, itemName, mySymbol);
+    }
+                                    // print children of root item in current view
     else
-      this.my_main_tree.print_item(false, parentId, itemId, itemName, mySymbol);
+      this.my_main_tree.print_item(this.my_main_tree.c_ITEM_OTHERS, parentId, itemId, itemName, mySymbol);        
+
                                     // get my children and apply same function again
     var myChildren = this.my_db_intelligence.get_tree_item_children(itemId);
     if ((myChildren.length > 0) && (treeMaxChildDepth != 0))
@@ -211,9 +221,9 @@ function input_dispatcher_print_subtree_aux(parentId, itemId, lockId, treeMaxPar
       for (var i=0; i<myChildren.length; i++)
       {
         if (treeMaxChildDepth > 0)
-          curr_child_id = parseInt(this.print_subtree_aux(itemId, myChildren[i].toString(), lockId, 0, treeMaxChildDepth-1));
-        else
-          curr_child_id = parseInt(this.print_subtree_aux(itemId, myChildren[i].toString(), lockId, 0, treeMaxChildDepth));
+          curr_child_id = parseInt(this.print_subtree_aux(itemId, myChildren[i].toString(), lockId, -1, treeMaxChildDepth - 1));
+        else           
+          curr_child_id = parseInt(this.print_subtree_aux(itemId, myChildren[i].toString(), lockId, treeMaxParentDepth - 1, treeMaxChildDepth));
         if (curr_child_id != NaN)
           if (curr_child_id > max_id)
             max_id = curr_child_id;
@@ -222,6 +232,7 @@ function input_dispatcher_print_subtree_aux(parentId, itemId, lockId, treeMaxPar
 //  if (itemId == "root")
 //    alert("Print Subtree");
   }
+                                    // search for root in current view before printing the tree
   else
   {                           
     var myParents = this.my_db_intelligence.get_tree_item_parents(itemId);
@@ -236,9 +247,9 @@ function input_dispatcher_print_subtree_aux(parentId, itemId, lockId, treeMaxPar
         this.print_subtree_aux(myGrannies[0], myParents[0], lockId, treeMaxParentDepth, treeMaxChildDepth+addChild);      
     else
       if ((treeMaxParentDepth == 1) || (myGrannies == undefined))
-        this.print_subtree_aux(undefined, myParents[0], lockId, treeMaxParentDepth-1, treeMaxChildDepth+addChild);
+        this.print_subtree_aux(undefined, myParents[0], lockId, treeMaxParentDepth - 1, treeMaxChildDepth+addChild);
       else
-        this.print_subtree_aux(myGrannies[0], myParents[0], lockId, treeMaxParentDepth-1, treeMaxChildDepth+addChild);
+        this.print_subtree_aux(myGrannies[0], myParents[0], lockId, treeMaxParentDepth - 1, treeMaxChildDepth+addChild);
 
   }
   return max_id;
@@ -399,184 +410,228 @@ function input_dispatcher_clicked_at(panel, item)
   }
 
 
-  // input new item
-  if (panel == "main_menu" && item == "input_item")
-  {
-    if (this.currently_selected.length==1)
-    {
-      this.new_tree_item_input = true;
-      this.my_main_tree.input_item(this.currently_selected[0], elemSymbolList[this.currentItemType]);
-    }
-    else
-      alert("New items can only be created if exactly one element is selected !");
-  }
-
-
   // cancel new item
   if (item == "cancel_item")
     this.my_main_tree.cancel_item(this.new_tree_item_input, this.saved_item_id, this.saved_item_name);
 
-
-  // change item
-  if (panel == "main_menu" && item == "change_item")
-    if (this.currently_selected.length==1) 
-    {
-      if (this.currently_selected[0]!="root") 
-      {
-	      this.saved_item_id = this.currently_selected[0];
-	      this.saved_item_name = this.my_db_intelligence.get_tree_item_field(this.currently_selected[0], "name");
-        this.my_main_tree.rename_item(this.currently_selected[0], this.saved_item_name);
-      }
-    }
-    else
-      alert("Renaming can only be applied to exactly one selected element !");
-
-
-  // delete item
-  if (panel == "main_menu" && item == "delete_item")
-    if (this.currently_selected.length!=0) 
-    {
-      var old_sel0 = this.currently_selected[0];                                    
-      var new_sel0 = this.my_db_intelligence.get_tree_item_parents(old_sel0)[0];      
-
-      for (var i=0; i<this.currently_selected.length; i++)
-      {
-        if (this.currently_selected[i]!="root") 
-        {
-//          this.my_main_tree.clear_item(this.currently_selected[i]);
-          this.my_db_intelligence.delete_tree_item(this.currently_selected[i]);
-        }
-      }
-                                    // write to database
-      this.my_db_intelligence.update_db(uploadPhpUrl);
-                                    // update tree in GUI
-      this.currently_selected=[];
-      this.currently_selected[0]= new_sel0;
-      this.print_subtree(this.currently_selected[0], this.locked_topic, treeMaxParentDepth, treeMaxChildDepth);        
-      this.select_idx = 1; 
-    }
-    else
-      alert("Nothing selected!");
-
-
-  // copy item (by link) -> later : for double parent link
-  if (panel == "main_menu" && item == "copy_item")
-    if (this.currently_selected!="") 
-    {
-      if (this.currently_selected!="root") 
-      {
-        if (this.currently_cut.length != 0)
-// ==========================================================================
-          for (var i=0; i<this.currently_cut.length; i++)
-            this.my_main_tree.mark_item_as_cut(this.currently_cut[i], false);  
-// ==========================================================================
-        if (this.currently_selected.length == 1)
-          this.currently_copied = this.currently_selected[0];
-        else
-          alert("You cannot copy (by link) more than one item at once !");
-//        this.currently_cut = [];  -> later reactivated
-      }
-    }
-    else
-      alert("Nothing selected!");
-
-
-  // cut item
-  if (panel == "main_menu" && item == "cut_item")
-    if (this.currently_selected.length!=0) 
-    {
-      this.currently_cut = [];
-      this.currently_copied = "";      
-      for (var i=0; i<this.currently_selected.length; i++)
-      {
-        if (this.currently_selected!="root") 
-        {
-	        this.currently_cut[i] = this.currently_selected[i];
-        }
-      }
-      var old_sel0 = this.currently_selected[0];
-      this.currently_selected=[];
-      this.currently_selected[0]=this.my_db_intelligence.get_tree_item_parents(old_sel0)[0];
-      this.print_subtree(this.currently_selected[0], this.locked_topic, treeMaxParentDepth, treeMaxChildDepth);        
-      this.select_idx = 1;       
-    }
-    else
-      alert("Nothing selected!");
-
-
-  // paste cut item (later also copied item)
-  if (panel == "main_menu" && item == "paste_item")
+  // command from menu
+  if (panel == "main_menu")
   {
-    if (this.currently_cut.length!=0) 
+    // input new item
+    if (item == "input_item")
     {
       if (this.currently_selected.length==1)
       {
-        var newParentId = this.currently_selected;
-
-        for (var i=0; i<this.currently_cut.length; i++)
-        {
-          var itemId = this.currently_cut[i]; 
-          var oldParentId = this.my_db_intelligence.get_tree_item_parents(itemId)[0];
-          var itemName = this.my_db_intelligence.get_tree_item_field(itemId, "name");
-                                    // create new link (DB, GUI)
-          this.my_db_intelligence.attach_to_parent(newParentId, itemId);
-                                    // destroy old link (DB, GUI)
-          this.my_db_intelligence.detach_from_parent(oldParentId, itemId);
-        }
-                                    // update database
-        this.my_db_intelligence.update_db(uploadPhpUrl); 
-        this.currently_selected = this.currently_cut; 
-        this.print_subtree(this.currently_selected[0], this.locked_topic, treeMaxParentDepth, treeMaxChildDepth);  
-        this.currently_cut = [];  
+        this.new_tree_item_input = true;
+        this.my_main_tree.input_item(this.currently_selected[0], elemSymbolList[this.currentItemType]);
       }
       else
-        alert("Paste operation only possible if exactly one element is selected !");
+        alert("New items can only be created if exactly one element is selected !");
     }
-    else
-      alert("Nothing in memory !");
-  }
 
-  // lock topic
-  if (panel == "main_menu" && item == "lock_topic")
-  {
-    if (this.currently_selected.length==1) 
+
+    // change item
+    if (item == "change_item")
+      if (this.currently_selected.length==1) 
+      {
+        if (this.currently_selected[0]!="root") 
+        {
+  	      this.saved_item_id = this.currently_selected[0];
+  	      this.saved_item_name = this.my_db_intelligence.get_tree_item_field(this.currently_selected[0], "name");
+          this.my_main_tree.rename_item(this.currently_selected[0], this.saved_item_name);
+        }
+      }
+      else
+        alert("Renaming can only be applied to exactly one selected element !");
+
+
+    // delete item
+    if (item == "delete_item")
+      if (this.currently_selected.length!=0) 
+      {
+        var old_sel0 = this.currently_selected[0];                                    
+        var new_sel0 = this.my_db_intelligence.get_tree_item_parents(old_sel0)[0];      
+  
+        for (var i=0; i<this.currently_selected.length; i++)
+        {
+          if (this.currently_selected[i]!="root") 
+          {
+  //          this.my_main_tree.clear_item(this.currently_selected[i]);
+            this.my_db_intelligence.delete_tree_item(this.currently_selected[i]);
+          }
+        }
+                                      // write to database
+        this.my_db_intelligence.update_db(uploadPhpUrl);
+                                      // update tree in GUI
+        this.currently_selected=[];
+        this.currently_selected[0]= new_sel0;
+        this.print_subtree(this.currently_selected[0], this.locked_topic, treeMaxParentDepth, treeMaxChildDepth);        
+        this.select_idx = 1; 
+      }
+      else
+        alert("Nothing selected!");
+
+
+    // copy item (by link) -> later : for double parent link
+    if (item == "copy_item")
+      if (this.currently_selected!="") 
+      {
+        if (this.currently_selected!="root") 
+        {
+          if (this.currently_cut.length != 0)
+  // ==========================================================================
+            for (var i=0; i<this.currently_cut.length; i++)
+              this.my_main_tree.mark_item_as_cut(this.currently_cut[i], false);  
+  // ==========================================================================
+          if (this.currently_selected.length == 1)
+            this.currently_copied = this.currently_selected[0];
+          else
+            alert("You cannot copy (by link) more than one item at once !");
+  //        this.currently_cut = [];  -> later reactivated
+        }
+      }
+      else
+        alert("Nothing selected!");
+
+
+    // cut item
+    if (item == "cut_item")
+      if (this.currently_selected.length!=0) 
+      {
+        this.currently_cut = [];
+        this.currently_copied = "";      
+        for (var i=0; i<this.currently_selected.length; i++)
+        {
+          if (this.currently_selected!="root") 
+          {
+  	        this.currently_cut[i] = this.currently_selected[i];
+          }
+        }
+        var old_sel0 = this.currently_selected[0];
+        this.currently_selected=[];
+        this.currently_selected[0]=this.my_db_intelligence.get_tree_item_parents(old_sel0)[0];
+        this.print_subtree(this.currently_selected[0], this.locked_topic, treeMaxParentDepth, treeMaxChildDepth);        
+        this.select_idx = 1;       
+      }
+      else
+        alert("Nothing selected!");
+
+
+    // paste cut item (later also copied item)
+    if (item == "paste_item")
     {
-      if (this.locked_topic == this.currently_selected[0])
-        this.locked_topic = "root";
-      else  
-        this.locked_topic = this.currently_selected[0];
-      this.print_subtree(this.currently_selected[0], this.locked_topic, treeMaxParentDepth, treeMaxChildDepth);  
+      if (this.currently_cut.length!=0) 
+      {
+        if (this.currently_selected.length==1)
+        {
+          var newParentId = this.currently_selected;
+  
+          for (var i=0; i<this.currently_cut.length; i++)
+          {
+            var itemId = this.currently_cut[i]; 
+            var oldParentId = this.my_db_intelligence.get_tree_item_parents(itemId)[0];
+            var itemName = this.my_db_intelligence.get_tree_item_field(itemId, "name");
+                                      // create new link (DB, GUI)
+            this.my_db_intelligence.attach_to_parent(newParentId, itemId);
+                                      // destroy old link (DB, GUI)
+            this.my_db_intelligence.detach_from_parent(oldParentId, itemId);
+          }
+                                      // update database
+          this.my_db_intelligence.update_db(uploadPhpUrl); 
+          this.currently_selected = this.currently_cut; 
+          this.print_subtree(this.currently_selected[0], this.locked_topic, treeMaxParentDepth, treeMaxChildDepth);  
+          this.currently_cut = [];  
+        }
+        else
+          alert("Paste operation only possible if exactly one element is selected !");
+      }
+      else
+        alert("Nothing in memory !");
     }
-    else
-      alert("Wrong selection !");  
-  }
 
-  // set currently selected Item as News source
-  if (panel == "main_menu" && item == "as_news")
-  {
-    if (this.currently_selected.length==1) 
+    // lock topic
+    if (item == "lock_topic")
     {
-      this.setup_user.setNewsElem(this.currently_selected[0]);
-      this.my_main_features.update_news_ticker(this.currently_selected[0]);
+      if (this.currently_selected.length==1) 
+      {
+        if (this.locked_topic == this.currently_selected[0])
+          this.locked_topic = "root";
+        else  
+          this.locked_topic = this.currently_selected[0];
+        this.print_subtree(this.currently_selected[0], this.locked_topic, treeMaxParentDepth, treeMaxChildDepth);  
+      }
+      else
+        alert("Wrong selection !");  
     }
-    else
-      alert("Wrong selection !");  
-  }
 
-  // set currently selected Item as News source
-  if (panel == "main_menu" && item == "as_date")
-  {
-    if (this.currently_selected.length==1) 
+    // set currently selected Item as News source
+    if (item == "as_news")
     {
-      this.setup_user.setDateElem(this.currently_selected[0]);
-      this.my_main_features.update_date_ticker(this.currently_selected[0]);
+      if (this.currently_selected.length==1) 
+      {
+        this.setup_user.setNewsElem(this.currently_selected[0]);
+        this.my_main_features.update_news_ticker(this.currently_selected[0]);
+      }
+      else
+        alert("Wrong selection !");  
     }
-    else
-      alert("Wrong selection !");  
+
+    // set currently selected Item as News source
+    if (item == "as_date")
+    {
+      if (this.currently_selected.length==1) 
+      {
+        this.setup_user.setDateElem(this.currently_selected[0]);
+        this.my_main_features.update_date_ticker(this.currently_selected[0]);
+      }
+      else
+        alert("Wrong selection !");  
+    }
+    
+    // save currently selected tree item as favorite
+    if (item == "save_favorite")
+    {
+      if (this.currently_selected.length==1) 
+      {
+        this.setup_user.setFavorite(this.currently_selected[0]);
+        this.my_main_features.load_favorites(this.setup_user.getFavorites());
+      }
+      else
+        alert("Wrong selection !");  
+    }
+    
+    // load currently selected favorite as selected tree item
+    if (item == "load_favorite")
+    {
+      if (this.currently_selected_favorite!="") 
+      {
+        this.clicked_at("main_tree", this.currently_selected_favorite + "_a") 
+      }
+      else
+        alert("Wrong selection !");  
+    }
+    
+    // delete currently selected favorite
+    if (item == "delete_favorite")
+    {
+      if (this.currently_selected_favorite!="") 
+      {
+        this.setup_user.delSingleFavorite(this.currently_selected_favorite);
+        this.my_main_features.load_favorites(this.setup_user.getFavorites());              
+      }
+      else
+        alert("Wrong selection !");  
+    }
+
+    // delete all favorites
+    if (item == "deleteall_favorites")
+    {
+      this.setup_user.delAllFavorites();
+      this.my_main_features.load_favorites(this.setup_user.getFavorites());      
+    }
   }
 
-
-  // select item
+  // select tree item
   if (((panel == "main_tree")&&(item != undefined))||(panel == "info_bar"))
   {
     if (this.ctrl_pressed)
@@ -640,6 +695,25 @@ function input_dispatcher_clicked_at(panel, item)
       }    
     }
   }
+  
+  // select feature item
+  if ((panel == "main_features")&&(item != undefined))
+  {
+    var old_item = this.currently_selected_favorite;
+                                        // create new selection
+    this.currently_selected_favorite=(new String(item)).replace("_fa", "");     
+                                        // same item : select / deselect alternatively
+    if (old_item == this.currently_selected_favorite)
+    {
+      this.my_main_features.markup_item(this.currently_selected_favorite, false);
+      this.currently_selected_favorite = "";
+    }
+    else
+    {
+      this.my_main_features.markup_item(old_item, false);      
+      this.my_main_features.markup_item(this.currently_selected_favorite, true);
+    }    
+  }  
 }
 
 

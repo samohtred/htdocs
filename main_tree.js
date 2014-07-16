@@ -3,6 +3,9 @@
 // Class 'topic_tree_gui'
 function topic_tree_gui(gui_context, cb_obj, cb_onchange_fcn, cb_onclicked_fcn)
 {
+  this.c_ITEM_LOCKED = 0;
+  this.c_ITEM_ROOT = 1;
+  this.c_ITEM_OTHERS = 2;
   this.topic_tree_gui_context = gui_context;
   this.cb_obj = cb_obj;
   this.cb_onchange_fcn = cb_onchange_fcn;
@@ -35,7 +38,7 @@ function topic_tree_gui(gui_context, cb_obj, cb_onchange_fcn, cb_onclicked_fcn)
 
 
 // create stub of a tree
-function topic_tree_create_tree(islocked, rootId, rootName)
+function topic_tree_create_tree(itemPosition, rootId, rootName)
 {
   // HTML-Code :
   // <DIV ... >
@@ -46,17 +49,13 @@ function topic_tree_create_tree(islocked, rootId, rootName)
   var rootDiv = document.createElement("div");
   var newDivItem = document.createElement("div");
     newDivItem.id = rootId+'_div';
-  var newAItem = document.createElement("a");
-    newAItem.name=rootId+'_a';
-    newAItem.onclick=this.select_item; 
-    if (islocked)
-      newAItem.innerHTML='<span>['+rootName+']</span>';    
+    if (itemPosition == this.c_ITEM_LOCKED)
+      newDivItem.innerHTML='['+rootName+']';    
     else
-      newAItem.innerHTML='<span>'+rootName+'</span>';
-    newAItem.style.cssText = 'display: block; padding: 0.2em 1em;';
+      newDivItem.innerHTML=rootName;
+    newDivItem.style.cssText = 'display: block; padding-top: 0.2em; padding-left: 0.3em;';
   var newUlRootItem = document.createElement("ul");
     newUlRootItem.id = rootId+"_ul";
-  newDivItem.appendChild(newAItem);
   rootDiv.appendChild(newDivItem);
   rootDiv.appendChild(newUlRootItem);
   this.topic_tree_gui_context.innerHTML = '';
@@ -65,11 +64,11 @@ function topic_tree_create_tree(islocked, rootId, rootName)
 
 
 // add a single item to the current tree (without input field)
-function topic_tree_print_item(islocked, parentId, itemId, itemName, SymbolFilePath)
+function topic_tree_print_item(itemPosition, parentId, itemId, itemName, SymbolFilePath)
 {
-  if ((parentId == undefined) || (islocked))
+  if ((itemPosition == this.c_ITEM_ROOT) || (itemPosition == this.c_ITEM_LOCKED))
   {
-    this.create_tree(islocked, itemId, itemName);
+    this.create_tree(itemPosition, itemId, itemName);
   }
   else
   {

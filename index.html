@@ -1,97 +1,99 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 5.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html style="margin-top:0.8em; margin-right:1.1em; height:100%; width=100%; overflow: hidden;">
-    <head>
-        <link href="setup_main_menu.css" rel="stylesheet" type="text/css">        
-        <link href="setup_main_tree.css" rel="stylesheet" type="text/css">
-        <script src="setup_global.js"></script>          
-        <script src="setup_user.js"></script>          
-        <script src="db_intelligence.js"></script>
-	      <script src="input_dispatcher.js"></script>
-        <script src="main_table.js"></script>
-        <script src="main_tree.js"></script>
-        <script src="main_content.js"></script>
-        <script src="main_features.js"></script>        
-    </head>
-    <body onload="main_table_init();" onresize="main_table_resize();" style="background-color: #6060FF; width:100%; height:100%;">
-      <div style="margin-left:0.2em; width:100%; height:20px;">
-        <script type="text/javascript" src="main_menu_html.js"> </script>
-      </div>	
 
-      <div style="margin-top:-0.6em; margin-bottom:0em; width:100%; height:25px;">
-	<table>
-	    <tr id='my_info_row' style="white-space:nowrap; color: white; width:100%; height:25px;">
-	  	<td id='info_row_back_td' width=6%><A id='info_row_back_div'><B>&larr;&nbsp;Vor</B></A></td>
-	  	<td id='info_row_back_td' width=11%><A id='info_row_back_div'><B>&nbsp;&nbsp;|&nbsp;&nbsp;Zurueck&nbsp;&rarr;</B></A></td>
-	  	<td id='info_row_curr_item_td' width=20%><B>&nbsp;&nbsp;|&nbsp;&nbsp;Element-Typ : </B><A id='info_row_curr_elem_type_div'>Thema</A></td>
-	  	<td id='info_row_curr_region_td' width=20%><B>&nbsp;&nbsp;|&nbsp;&nbsp;Aktuelle Region : </B><A id='info_row_curr_region_div'><U>Global</U></A></td>
-	  	<td id='info_row_other_filters_td' width=20%><A>&nbsp;&nbsp;|&nbsp;&nbsp;<U>Andere Filter</U></A></td>
-		<td width=100%></td>
-            </tr>
-	</table>
-      </div>
+  <head>
+    <link href="setup_main_menu.css" rel="stylesheet" type="text/css">        
+    <link href="setup_main_tree.css" rel="stylesheet" type="text/css">
+    <script src="setup_global.js"></script>          
+    <script src="setup_user.js"></script>          
+    <script src="db_intelligence.js"></script>
+    <script src="input_dispatcher.js"></script>
+    <script src="main_table.js"></script>
+    <script src="main_tree.js"></script>
+    <script src="main_content.js"></script>
+    <script src="main_features.js"></script>        
+  </head>
 
-      <div id='content_table' style="height:400px;">	
-	<table>		
-            <tr>
-                <td id='topic_tree_col' onMouseOver=main_table_content_resize(0) >
-		  <div id='main_tree' style="background-color:#FFFFFF; width:800px; height:400px;">
-		    <div class="discard" style="background-color:#0000D0; color:#B0B0FF; padding-left:0.3em;  height:20px;">
-			<B>Tree</B>
-		    </div>
-		    <div id='main_tree_child' style="background-color:#DFEFFF; height:380px; overflow:auto; overflow-x:auto;">
-              	      <div id='main_tree_pad' style="color:#3030C0; width:100%; height:100%; overflow:visible; white-space:nowrap;">
-              	        Loading Data. Please wait ...
-              	      </div>
-              	    </div>
-                  </div>
-                </td>
-                <td id='content_col' onMouseOver=main_table_content_resize(1)>
-            	  <div id='main_content' style="background-color:#FFFFFF; width:100px; height:400px;">		    
-		    <div class="discard" style="background-color:#0000D0; color:#B0B0FF; padding-left:0.3em; height:20px;">
-		        <B>Content</B>
-		    </div>
-		    <div id='main_content_child' style="background-color:#DFEFFF; height:380px; overflow:auto;">
-          <div id='main_content_pad' style="color:#3030C0; width:100%; height:100%; overflow:hidden; white-space:nowrap;">		  
-            <H2><div id='main_content_headline' style="padding-left:0.5em; margin-top:-0.6em; margin-bottom:0.0em;"></div></H2>
-            <div id='main_content_description' style="margin-left:0.7em; margin-top:-1.0em; padding-left:0.1em; padding-right:0.1em; padding-bottom:0.1em; width:944px; height:300px; border-width:0.2em; border-style:solid; border-color:#C0C0F0;">
-              <textarea id='main_content_fulltext' onblur="main_input_dispatcher.content_desc_save();" name="myname" wrap=physical style="width:100%; height:100%; border-style:none;">
-                Loading Data. Please wait ...
-              </textarea>
+  <body onload="main_table_init();" onresize="main_table_resize();" style="background-color: #6060FF; width:100%; height:100%;">
+
+    <div style="margin-left:0.2em; width:100%; height:20px;">
+      <script type="text/javascript" src="main_menu_html.js"> </script>
+    </div>  
+
+    <div style="margin-top:-0.6em; margin-bottom:0em; width:100%; height:25px;">
+      <table>
+        <tr id='my_info_row' style="white-space:nowrap; color: white; width:100%; height:25px;">
+          <td id='info_row_back_td' width=6%><A id='info_row_back_div'><B>&larr;&nbsp;Vor</B></A></td>
+          <td id='info_row_back_td' width=11%><A id='info_row_back_div'><B>&nbsp;&nbsp;|&nbsp;&nbsp;Zurueck&nbsp;&rarr;</B></A></td>
+          <td id='info_row_curr_item_td' width=20%><B>&nbsp;&nbsp;|&nbsp;&nbsp;Element-Typ : </B><A id='info_row_curr_elem_type_div'>Thema</A></td>
+          <td id='info_row_curr_region_td' width=20%><B>&nbsp;&nbsp;|&nbsp;&nbsp;Aktuelle Region : </B><A id='info_row_curr_region_div'><U>Global</U></A></td>
+          <td id='info_row_other_filters_td' width=20%><A>&nbsp;&nbsp;|&nbsp;&nbsp;<U>Andere Filter</U></A></td>
+          <td width=100%></td>
+        </tr>
+      </table>
+    </div>
+
+    <div id='content_table' style="height:400px;">  
+      <table>    
+        <tr>
+          <td id='topic_tree_col' onMouseOver=main_table_content_resize(0) >
+            <div id='main_tree' style="background-color:#FFFFFF; width:800px; height:400px;">
+              <div class="discard" style="background-color:#0000D0; color:#B0B0FF; padding-left:0.3em;  height:20px;">
+                <B>Baum</B>
+              </div>
+              <div id='main_tree_child' style="background-color:#DFEFFF; height:380px; overflow:auto; overflow-x:auto;">
+                <div id='main_tree_pad' style="color:#3030C0; width:100%; height:100%; overflow:visible; white-space:nowrap;">
+                  Loading Data. Please wait ...
+                </div>
+              </div>
             </div>
-		      </div>
-		    </div>
-		  </div>
-                </td>
-                <td id='features_col'>
-              	  <div id='main_features' style="background-color:#FFFFFF; width:100px; height:400px;">
-		    <div class="discard" style="background-color:#0000D0; color:#B0B0FF; padding-left:0.3em; height:20px;">
-			    <B>Info-Pool</B>
-		    </div>
-		    <div id='main_features_child' style="background-color:#DFEFFF; height:380px; overflow:auto; overflow-x:auto;">
-   	      <div id='main_features_pad' style="color:#3030C0; width:100%; height:100%; overflow:visible; white-space:nowrap;">	
-            &nbsp<a onclick="return window.main_input_dispatcher.clicked_at('info_bar', 'news_select')"><u>News</u></a><br>
-            &nbsp<marquee bgcolor=#0000AA scrollamount="2" scrolldelay="5"><font color=#BBBBBB><div id='scrolltext_news'>+++ Sie haben noch keinen Eintrag ausgewählt, dessen Inhalt hier als aktuelle Nachrichten dargestellt werden können ! +++ Selektieren Sie dazu bitte einen Eintrag im Baum und wählen Sie Element\als News-Rubrik etc. ! +++</div></font></marquee><br>
-            &nbsp<a onclick="return window.main_input_dispatcher.clicked_at('info_bar', 'dates_select')"><u>Termine</u></a><br>            
-            &nbsp<marquee bgcolor=#0000AA scrollamount="2" scrolldelay="5"><font color=#BBBBBB><div id='scrolltext_dates'>+++ Sie haben noch keinen Eintrag ausgewählt, dessen Inhalt hier als aktuelle Termine dargestellt werden können ! +++ Selektieren Sie dazu bitte einen Eintrag im Baum und wählen Sie Element\als Termin-Rubrik etc. ! +++</div></font></marquee><br>            
-		      </div>
-		    </div>
-		  </div>
-                </td>
-            </tr>
-        </table>
-      </div>
-      <div id='main_bookmark' style="margin-top:0.3em; margin-bottom:0em; width:100%; height:70px;"> 
-	<table>
-             <tr>
-	      <td>
-                  <div id='main_bookmark_child' style="background-color:#DFEFFF; color:#3030C0; width:100%; height:70px; overflow:auto;">
-                     	bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) bookmark (tbd) 
+          </td>
+          <td id='content_col' onMouseOver=main_table_content_resize(1)>
+            <div id='main_content' style="background-color:#FFFFFF; width:100px; height:400px;">        
+              <div class="discard" style="background-color:#0000D0; color:#B0B0FF; padding-left:0.3em; height:20px;">
+                <B>Inhalt</B>
+              </div>
+              <div id='main_content_child' style="background-color:#DFEFFF; height:380px; overflow:auto;">
+                <div id='main_content_pad' style="color:#3030C0; width:100%; height:100%; overflow:visible; white-space:nowrap;">      
+                  <H2><div id='main_content_headline' style="padding-left:0.5em; margin-top:-0.6em; margin-bottom:0.0em;"></div></H2>
+                  <div id='main_content_description' style="margin-left:0.7em; margin-top:-1.0em; padding-left:0.1em; padding-right:0.1em; padding-bottom:0.1em; width:944px; height:300px; border-width:0.2em; border-style:solid; border-color:#C0C0F0;">
+                    <textarea id='main_content_fulltext' onblur="main_input_dispatcher.content_desc_save();" name="myname" wrap=physical style="width:100%; height:100%; border-style:none;">
+                      Loading Data. Please wait ...
+                    </textarea>
                   </div>
-              </td>
-            </tr>
-        </table>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td id='features_col'>
+            <div id='main_features' style="background-color:#FFFFFF; width:100px; height:400px;">
+              <div class="discard" style="background-color:#0000D0; color:#B0B0FF; padding-left:0.3em; height:20px;">
+                <B>Infos</B>
+              </div>
+              <div id='main_features_child' style="background-color:#DFEFFF; height:380px; overflow:auto; overflow-x:auto;">
+                <div id='main_features_pad' style="color:#3030C0; width:100%; height:100%; overflow:visible; white-space:nowrap;">  
+                  &nbsp<a onclick="return window.main_input_dispatcher.clicked_at('info_bar', 'news_select')"><u>News</u></a><br>
+                  &nbsp<marquee bgcolor=#0000AA scrollamount="2" scrolldelay="5"><font color=#BBBBBB><div id='scrolltext_news'>+++ Sie haben noch keinen Eintrag ausgewählt, dessen Inhalt hier als aktuelle Nachrichten dargestellt werden können ! +++ Selektieren Sie dazu bitte einen Eintrag im Baum und wählen Sie Element\als News-Rubrik etc. ! +++</div></font></marquee><br>
+                  &nbsp<a onclick="return window.main_input_dispatcher.clicked_at('info_bar', 'dates_select')"><u>Termine</u></a><br>            
+                  &nbsp<marquee bgcolor=#0000AA scrollamount="2" scrolldelay="5"><font color=#BBBBBB><div id='scrolltext_dates'>+++ Sie haben noch keinen Eintrag ausgewählt, dessen Inhalt hier als aktuelle Termine dargestellt werden können ! +++ Selektieren Sie dazu bitte einen Eintrag im Baum und wählen Sie Element\als Termin-Rubrik etc. ! +++</div></font></marquee><br>            
+                </div>
+              </div>
+            </div>
+          </td>
+        </tr>
+      </table>
+    </div>
+    <div id='main_favorites' style="margin-top:0.3em; margin-left : 0.2em; margin-right : 0.2em; margin-bottom:0.7em; background-color:#FFFFFF; height:80px;">
+      <div class="discard" style="background-color:#0000D0; color:#B0B0FF; padding-left:0.3em;  height:20px;">
+        <B>Favoriten</B>
       </div>
-    </body>
+      <div id='main_bookmark_child' style="background-color:#DFEFFF; height:100%; overflow:auto;">
+        <div id='main_bookmark_pad' style="color:#3030C0; width:100%; height:100%; overflow:visible; white-space:nowrap;">
+          Loading Data. Please wait ...
+        </div>        
+      </div>      
+    </div>
+  </body>
 </html>
 
 

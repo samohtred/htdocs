@@ -14,6 +14,10 @@ function setup_user()
   this.getNewsElem = setup_user_getNewsElem.bind(this);
   this.setDateElem = setup_user_setDateElem.bind(this);
   this.getDateElem = setup_user_getDateElem.bind(this);
+  this.setFavorite = setup_user_setFavorite.bind(this);
+  this.delSingleFavorite = setup_user_delSingleFavorite.bind(this);
+  this.delAllFavorites = setup_user_delAllFavorites.bind(this);
+  this.getFavorites = setup_user_getFavorites.bind(this);
 
   
   this.initCookie = setup_user_initCookie.bind(this);
@@ -43,7 +47,9 @@ function setup_user_setDateElem(dateElem)
 function setup_user_getDateElem()
 {
   this.cookie_val = this.readCookie();
-  if (this.cookie_val == null)
+  if (this.cookie_val == undefined)
+    return null;
+  else if (this.cookie_val.dateElem == undefined)
     return null;
   else
     return this.cookie_val.dateElem; 
@@ -61,13 +67,67 @@ function setup_user_setNewsElem(newsElem)
 function setup_user_getNewsElem()
 {
   this.cookie_val = this.readCookie();
-  if (this.cookie_val == null)
+  if (this.cookie_val == undefined)
+    return null;
+  else if (this.cookie_val.newsElem == undefined)
     return null;
   else
     return this.cookie_val.newsElem; 
 }
 
 
+function setup_user_setFavorite(favoriteElem)
+{
+  if ((this.cookie_val != {}) && (this.cookie_val != undefined))
+  {
+    if (this.cookie_val.favList == undefined)
+      this.cookie_val.favList = [];
+    if (this.cookie_val.favList.length == 0)
+    {
+      this.cookie_val.favList[0] = favoriteElem;
+    }
+    else
+    {
+      this.cookie_val.favList[this.cookie_val.favList.length] = favoriteElem;
+    }
+    this.writeCookie(this.cookie_val);
+  }
+}
+function setup_user_delSingleFavorite(item)
+{
+  if ((this.cookie_val != {}) && (this.cookie_val != undefined))
+  {
+    for(var i=0; i<this.cookie_val.favList.length; i++) 
+    {
+        if(this.cookie_val.favList[i] == item) 
+        {
+            this.cookie_val.favList.splice(i, 1);
+            i--;
+        }
+    }
+    this.writeCookie(this.cookie_val);
+  }  
+}
+function setup_user_delAllFavorites()
+{
+  if ((this.cookie_val != {}) && (this.cookie_val != undefined))
+  {
+    this.cookie_val.favList = [];
+    this.writeCookie(this.cookie_val);
+  }
+}
+function setup_user_getFavorites()
+{
+  this.cookie_val = this.readCookie();
+  if (this.cookie_val == undefined)
+    return null;
+  else if (this.cookie_val.favList == undefined)
+    return null;
+  else
+    return this.cookie_val.favList;          
+}
+                            
+                            
 function setup_user_initCookie()
 {
 //   alert("2");
@@ -90,7 +150,8 @@ function setup_user_initCookie()
 }
 
 
-function setup_user_writeCookie(value) {
+function setup_user_writeCookie(value) 
+{
 //  alert("4c");
 	var years = 1;
 	var date = new Date();
@@ -106,7 +167,8 @@ function setup_user_writeCookie(value) {
 
 
 
-function setup_user_readCookie() {  
+function setup_user_readCookie() 
+{  
 //  alert("2a");
 	var ca = document.cookie.split(';');
 //  alert("2b");	

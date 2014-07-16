@@ -14,9 +14,8 @@
 
 
 // Class 'db_intelligence'
-function db_intelligence(debug_window)
+function db_intelligence(debug_window, cb_click_at)
 {
-
 //  var this.gui_fields = ['Content', 'Chat', 'Voting'];
   this.debug_window = debug_window;
   this.bufferUrl = window.location.protocol + "//" + window.location.host + "/db_init.xml";
@@ -25,17 +24,20 @@ function db_intelligence(debug_window)
 
   // tree functions
   this.create_tree = db_intelligence_create_tree.bind(this);
+  this.get_children_max_id = db_intelligence_get_children_max_id.bind(this);
   this.update_db = db_intelligence_update_db.bind(this);
   this.set_latest_id = db_intelligence_set_latest_id.bind(this);
   this.dump_tree = db_intelligence_dump_tree.bind(this);
 
   // item functions
+  this.item_exists = db_intelligence_item_exists.bind(this);
   this.create_tree_item = db_intelligence_create_tree_item.bind(this);
   this.delete_tree_item = db_intelligence_delete_tree_item.bind(this);
   this.get_tree_item_parents = db_intelligence_get_tree_item_parents.bind(this);
   this.get_tree_item_children = db_intelligence_get_tree_item_children.bind(this);
   this.attach_to_parent = db_intelligence_attach_to_parent.bind(this);
   this.detach_from_parent = db_intelligence_detach_from_parent.bind(this);
+  this.get_tree_item_path = db_intelligence_get_tree_item_path.bind(this);
 
   // field functions
   this.create_tree_item_field = db_intelligence_create_tree_item_field.bind(this);
@@ -69,7 +71,30 @@ function db_intelligence_create_tree(bufferUrl)
   xmlhttp.send(null);
   this.db_buffer = xmlhttp.responseXML;
 
+  this.latest_id = this.get_children_max_id("root") + 1;
+
   this.dump_tree();
+}
+
+
+function db_intelligence_get_children_max_id(currItem)
+{
+  var childIds = this.get_tree_item_children(currItem);
+  if (currItem == "root")
+    var maxId = 0;
+  else
+    var maxId = Number(currItem);
+
+  if (childIds != undefined)
+  {
+    for (var i=0; i<childIds.length; i++)
+    {
+      var child_max_id = Number(this.get_children_max_id(childIds[i]));
+      if (maxId < child_max_id)
+        maxId = child_max_id;
+    }
+  }
+  return maxId;
 }
 
 
@@ -103,7 +128,9 @@ function db_intelligence_dump_tree()
   var dump_root = this.db_buffer.getElementsByTagName("db_root")[0];
 
   if (dump_root.innerHTML != null)
-    this.debug_window.innerHTML = '<textarea style="border: none;background-color:white;width=100%;">' + dump_root.innerHTML + '</textarea>';
+  {
+//    this.debug_window.innerHTML = '<textarea style="border: none;background-color:white;width=100%;">' + dump_root.innerHTML + '</textarea>';
+  }
   else
   {
     var serializer = new XMLSerializer();                       
@@ -118,6 +145,13 @@ function db_intelligence_dump_tree()
 //################################################################################################
 //### Item functions
 //################################################################################################
+
+// find out whether or not an item exists
+function db_intelligence_item_exists(itemId)
+{
+  var item = getDBElementById(this.db_buffer, itemId);
+  return item != undefined;
+}
 
 
 // create new tree item
@@ -413,3 +447,35 @@ function db_intelligence_get_tree_item_field(itemId, fieldId)
   this.dump_tree();
   return undefined;
 }
+
+
+//// return the path of the item as String
+function db_intelligence_get_tree_item_path(fromItemId, toItemId, as_link)
+{
+  var currItem = getDBElementById(this.db_buffer, toItemId);
+
+  if (currItem != undefined) 
+  {
+    var parentIds = this.get_tree_item_parents(toItemId);
+    if (fromItemId == toItemId)
+    {
+      if (as_link == true)
+        return "<span><a onclick=\"return window.main_input_dispatcher.clicked_at('main_tree', '" + toItemId + "')\">" + this.get_tree_item_field(toItemId, "name") + "</a></span>";
+      else
+        return ""; // "Alle Themen" is redundant für Favorites but is useful for the Explorer-Style-Path-Link
+    }
+    else
+    {
+      if (as_link == true)
+        return this.get_tree_item_path(fromItemId, parentIds[0], true) + " \\ <span><a onclick=\"return window.main_input_dispatcher.clicked_at('main_tree', '" + toItemId + "')\">" + this.get_tree_item_field(toItemId, "name") + "</a></span>";
+      else
+        return this.get_tree_item_path(fromItemId, parentIds[0], false) + " \\ " + this.get_tree_item_field(toItemId, "name");        
+    }
+  }  
+  else
+  { 
+//    alert("Item \""+toItemId+"\" doesn't exist");
+  }  
+  return undefined;
+}
+

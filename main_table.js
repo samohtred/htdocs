@@ -113,8 +113,8 @@ function main_table_resize()
 //  alert("resize1");
   win_width = get_total_width();
   win_height = get_total_height();
-  var new_content_height = Math.round((win_height - 75)*0.8);
-  var new_bookmark_height = Math.round((win_height - 75)*0.2);
+  var new_content_height = Math.round((win_height - 92)*0.8);
+  var new_bookmark_height = Math.round((win_height - 92)*0.2);
   var new_content_height_str = new String(new_content_height) + "px";
   var new_bookmark_height_str = new String(new_bookmark_height) + "px";
   var new_content_height_child_str = new String(new_content_height-20) + "px";
@@ -129,7 +129,7 @@ function main_table_resize()
   elem = document.getElementById("main_content_child"); elem.style.height = new_content_height_child_str;
   elem = document.getElementById("main_features"); elem.style.height = new_content_height_str;
   elem = document.getElementById("main_features_child"); elem.style.height = new_content_height_child_str;
-  elem = document.getElementById("main_bookmark"); elem.style.height = new_bookmark_height_str;
+  elem = document.getElementById("main_favorites"); elem.style.height = new_bookmark_height_str;
   elem = document.getElementById("main_bookmark_child"); elem.style.height = new_bookmark_height_str;
 //  alert("resize4");
 
@@ -146,7 +146,7 @@ function main_table_resize()
   }
 //  alert("resize5");
 
-  elem = document.getElementById("main_bookmark"); elem.style.height = new_bookmark_height_str;
+  elem = document.getElementById("main_favorites"); elem.style.height = new_bookmark_height_str;
   elem = document.getElementById("main_bookmark_child"); elem.style.height = new_bookmark_height_str;
 //  alert("resize6");
 }

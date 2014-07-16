@@ -21,9 +21,17 @@ for (var i=0; i<elemTypeList.length; i++)
 }
 document.write('      </ul>		');
 document.write('    </li>		');
+document.write('    <li class="topmenu"><a>Favoriten</a>	');
+document.write('      <ul>		');
+document.write('        <li class="submenu"><a onclick=\"return window.main_input_dispatcher.clicked_at(\'main_menu\', \'save_favorite\')\">Speichern</a></li>');
+document.write('        <li class="submenu"><a onclick=\"return window.main_input_dispatcher.clicked_at(\'main_menu\', \'load_favorite\')\">Laden</a></li>');
+document.write('        <li class="submenu"><a onclick=\"return window.main_input_dispatcher.clicked_at(\'main_menu\', \'delete_favorite\')\">Einzeln L&ouml;schen</a></li>');          
+document.write('        <li class="submenu"><a onclick=\"return window.main_input_dispatcher.clicked_at(\'main_menu\', \'deleteall_favorites\')\">Alle L&ouml;schen</a></li>');          
+document.write('      </ul>		');
+document.write('    </li>		');
 document.write('    <li class="topmenu"><a>Hilfe</a>');
 document.write('      <ul>		');
-document.write('        <li class="submenu"><a>Tutorial (tbd)</a></li>	');
+//document.write('        <li class="submenu"><a>Tutorial (tbd)</a></li>	');
 document.write('        <li class="submenu"><a onclick=alert(plugin_name+\'\\n\'+\'\\n\'+plugin_version+\'\\n\'+plugin_date)>aktuelle Version</a></li> ');
 document.write('      </ul>		');
 document.write('    </li>		');
