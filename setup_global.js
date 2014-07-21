@@ -45,7 +45,7 @@ var plugin_name = "X-Tree-M";
  *                              working
  * V0.0.0.30    2014/07/02      Favorites can be saved (permanently), loaded and the whole list can be 
  *                              erased -> individual deletions not yet available
- * V0.0.0.31    2014/07/16      Windows Explorer style path links; fixed error regarding the
+ * V0.0.0.31    2014/07/20      Windows Explorer style path links; fixed error regarding the
  *                              creation of new items; corrected scaling error of content
  *                              and bookmark area
  * ---------------------------------------------------------------------------------------
@@ -53,7 +53,7 @@ var plugin_name = "X-Tree-M";
 
 
 var plugin_version = "version : 0.0.0.31";
-var plugin_date = "created : 2014/07/16";
+var plugin_date = "created : 2014/07/20";
 
 
 // ---------------------------------------------------------------------------------------
