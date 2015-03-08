@@ -13,68 +13,53 @@
 
 
 
-// Class 'db_intelligence'
-function db_intelligence(debug_window, cb_click_at)
+// Class 'lib_data_xml'
+function lib_data_xml(data_src_path, data_src_params, default_parent_setup_obj)
 {
-//  var this.gui_fields = ['Content', 'Chat', 'Voting'];
-  this.debug_window = debug_window;
-  this.bufferUrl = window.location.protocol + "//" + window.location.host + "/db_init.xml";
-  this.db_buffer = "";
-  this.latest_id = 0;
-
+  // import params
+  this.data_src_path = data_src_path;
+  this.data_src_params = data_src_params;
+  this.default_parent_setup_obj = default_parent_setup_obj;
+  
   // tree functions
-  this.create_tree = db_intelligence_create_tree.bind(this);
+  this.load_db_obj = lib_data_xml_load_db_obj.bind(this);
   this.get_children_max_id = db_intelligence_get_children_max_id.bind(this);
-  this.update_db = db_intelligence_update_db.bind(this);
-  this.set_latest_id = db_intelligence_set_latest_id.bind(this);
-  this.dump_tree = db_intelligence_dump_tree.bind(this);
+  this.update_db = lib_data_xml_update_db.bind(this);
+  this.set_next_id = lib_data_xml_set_next_id.bind(this);
 
   // item functions
-  this.item_exists = db_intelligence_item_exists.bind(this);
-  this.create_tree_item = db_intelligence_create_tree_item.bind(this);
-  this.delete_tree_item = db_intelligence_delete_tree_item.bind(this);
-  this.get_tree_item_parents = db_intelligence_get_tree_item_parents.bind(this);
-  this.get_tree_item_children = db_intelligence_get_tree_item_children.bind(this);
-  this.attach_to_parent = db_intelligence_attach_to_parent.bind(this);
-  this.detach_from_parent = db_intelligence_detach_from_parent.bind(this);
-  this.get_tree_item_path = db_intelligence_get_tree_item_path.bind(this);
+  this.item_exists = lib_data_xml_item_exists.bind(this);
+  this.create_tree_item = lib_data_xml_create_tree_item.bind(this);
+  this.delete_tree_item = lib_data_xml_delete_tree_item.bind(this);
+  this.get_tree_item_parents = lib_data_xml_get_tree_item_parents.bind(this);
+  this.get_tree_item_children = lib_data_xml_get_tree_item_children.bind(this);
+  this.attach_to_parent = lib_data_xml_attach_to_parent.bind(this);
+  this.detach_from_parent = lib_data_xml_detach_from_parent.bind(this);
 
   // field functions
-  this.create_tree_item_field = db_intelligence_create_tree_item_field.bind(this);
-  this.change_tree_item_field = db_intelligence_change_tree_item_field.bind(this);
-  this.get_tree_item_field = db_intelligence_get_tree_item_field.bind(this);
+  this.create_tree_item_field = lib_data_xml_create_tree_item_field.bind(this);
+  this.change_tree_item_field = lib_data_xml_change_tree_item_field.bind(this);
+  this.get_tree_item_field = lib_data_xml_get_tree_item_field.bind(this);
+                    
+  this.dump_tree = lib_data_xml_dump_tree.bind(this);
+                    
+  // object variables
+  this.db_buffer = "";
+  this.next_id = 0;               // it's necessary to know which IDs can be created for new items
+
 
   // constructor call
-  this.create_tree(this.bufferUrl);
+  this.load_db_obj(this.bufferUrl);
 }
+
+
+
 
 
 //################################################################################################
 //### Tree functions
 //################################################################################################
 
-
-// Import tree stub from XML file
-function db_intelligence_create_tree(bufferUrl)
-{
-  if (window.XMLHttpRequest)
-  {// code for IE7+, Firefox, Chrome, Opera, Safari
-    var xmlhttp = new XMLHttpRequest();
-  }
-  else
-  {// code for IE6, IE5
-    var xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
-  }
-                                    // to make sure that the Browser doesn't use a cached version of the file
-  var myRandom = Math.random();
-  xmlhttp.open("GET",bufferUrl+"?n="+myRandom,false);
-  xmlhttp.send(null);
-  this.db_buffer = xmlhttp.responseXML;
-
-  this.latest_id = this.get_children_max_id("root") + 1;
-
-  this.dump_tree();
-}
 
 
 function db_intelligence_get_children_max_id(currItem)
@@ -98,8 +83,45 @@ function db_intelligence_get_children_max_id(currItem)
 }
 
 
+function lib_data_xml_load_db_obj()
+{
+  var path = "";
+  if (this.data_src_path.toLowerCase() == "local")
+  {
+    path = "http://" + window.location.host + "/" + this.data_src_params.db_name;
+  }
+  else
+  {
+    path = "http://" + this.data_src_path + "/" + this.data_src_params.db_name;
+  }
+  
+  if (window.XMLHttpRequest)
+  {// code for IE7+, Firefox, Chrome, Opera, Safari
+    var xmlhttp = new XMLHttpRequest();
+  }
+  else
+  {// code for IE6, IE5
+    var xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+  }
+                                    // to make sure that the Browser doesn't use a cached version of the file
+  var myRandom = Math.random();
+  xmlhttp.open("GET",path+"?n="+myRandom,false);
+  xmlhttp.send(null);
+  this.db_buffer = xmlhttp.responseXML;
+
+  if (this.db_buffer == null)  
+  {
+    alert(c_LANG_LIB_DATA_MSG_DATABASE_DOESNT_EXIST[global_setup.curr_lang]);
+  }
+  else
+  {
+    this.next_id = this.get_children_max_id("root") + 1;
+  }
+}
+
+
 // update XML data in database on webserver
-function db_intelligence_update_db(uploadUrl)
+function lib_data_xml_update_db()
 {
   if (window.XMLHttpRequest)
   {// code for IE7+, Firefox, Chrome, Opera, Safari
@@ -109,35 +131,46 @@ function db_intelligence_update_db(uploadUrl)
   {// code for IE6, IE5
     var xhr = new ActiveXObject("Microsoft.XMLHTTP");
   }
-  xhr.open("POST", uploadUrl, false);
-  var strContent = (new XMLSerializer()).serializeToString(this.db_buffer);
+  var path = "";
+  if (this.data_src_path.toLowerCase() == "local")
+  {
+    path = "http://" + window.location.host + "/" + this.data_src_params.php_name;
+  }
+  else
+  {
+    path = "http://" + this.data_src_path + "/" + this.data_src_params.php_name;
+  }
+  xhr.open("POST", path, true);
+//  var strContent = 'db_name=' + this.data_src_params.db_name + '&content=' + (new XMLSerializer()).serializeToString(this.db_buffer);
+  var strContent = (new XMLSerializer()).serializeToString(this.db_buffer);  
+  xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
   xhr.send(strContent);
 }
 
 
 // set next ID
-function db_intelligence_set_latest_id(latest_id)
+function lib_data_xml_set_next_id(next_id)
 {
-  this.latest_id = latest_id;
+  this.next_id = next_id;
 }
 
 
 // dump XML content
-function db_intelligence_dump_tree()
+function lib_data_xml_dump_tree()
 {
-  var dump_root = this.db_buffer.getElementsByTagName("db_root")[0];
-
-  if (dump_root.innerHTML != null)
-  {
-//    this.debug_window.innerHTML = '<textarea style="border: none;background-color:white;width=100%;">' + dump_root.innerHTML + '</textarea>';
-  }
-  else
-  {
-    var serializer = new XMLSerializer();                       
-		var serialized = serializer.serializeToString(dump_root);    
-//		this.debug_window.innerHTML = '<textarea style="border: none;background-color:white;width=100%;">' + serialized + '</textarea>';
-  }
-  
+//  var dump_root = this.db_buffer.getElementsByTagName("db_root")[0];
+//
+//  if (dump_root.innerHTML != null)
+//  {
+////    this.debug_window.innerHTML = '<textarea style="border: none;background-color:white;width=100%;">' + dump_root.innerHTML + '</textarea>';
+//  }
+//  else
+//  {
+//    var serializer = new XMLSerializer();                       
+//		var serialized = serializer.serializeToString(dump_root);    
+////		this.debug_window.innerHTML = '<textarea style="border: none;background-color:white;width=100%;">' + serialized + '</textarea>';
+//  }
+//  
 }
 
 
@@ -147,7 +180,7 @@ function db_intelligence_dump_tree()
 //################################################################################################
 
 // find out whether or not an item exists
-function db_intelligence_item_exists(itemId)
+function lib_data_xml_item_exists(itemId)
 {
   var item = getDBElementById(this.db_buffer, itemId);
   return item != undefined;
@@ -155,7 +188,7 @@ function db_intelligence_item_exists(itemId)
 
 
 // create new tree item
-function db_intelligence_create_tree_item(parentId, name, type)
+function lib_data_xml_create_tree_item(parentId, name, type)
 {
   var rootItem = this.db_buffer.getElementsByTagName("db_root")[0];
   var parentItem = getDBElementById(this.db_buffer, parentId);
@@ -164,7 +197,7 @@ function db_intelligence_create_tree_item(parentId, name, type)
   if (parentItem != undefined)
   {
     var currItem = this.db_buffer.createElement("item");
-      currItem.setAttribute("id",this.latest_id); 
+      currItem.setAttribute("id",this.next_id); 
     var nameField = this.db_buffer.createElement("name"); 
       setInnerHTML(nameField,name);
     var typeField = this.db_buffer.createElement("type"); 
@@ -184,13 +217,13 @@ function db_intelligence_create_tree_item(parentId, name, type)
       setInnerHTML(parentRefersToEntry, currItem.id);
     else
       setInnerHTML(parentRefersToEntry, currItem.getAttribute("id"));      
-    newId = this.latest_id+'';
-    this.latest_id = this.latest_id + 1;
+    newId = this.next_id+'';
+    this.next_id = this.next_id + 1;
     var referToItem = parentItem.getElementsByTagName("refers_to")[0];
     referToItem.appendChild(parentRefersToEntry);
   }
   else
-    alert("Parent item doesn't exist");
+    alert(c_LANG_WARNING_PARENT_MISSING[global_setup.curr_lang]);
   this.dump_tree();
   return newId;
 }
@@ -198,33 +231,36 @@ function db_intelligence_create_tree_item(parentId, name, type)
 
 
 // delete item and all of its children
-function db_intelligence_delete_tree_item(itemId)
+function lib_data_xml_delete_tree_item(itemId)
 {
-  var currItem = getDBElementById(this.db_buffer, itemId);
-  var myChildren = this.get_tree_item_children(itemId);
-
-  if (myChildren.length > 0)
+  if (itemId != "root")
   {
-    for (var i=0; i<myChildren.length; i++)
-    {
-      this.delete_tree_item(myChildren[i]);
-    }
-  }
-
-  this.detach_from_parent(this.get_tree_item_parents(itemId)[0], itemId);
-
-  if (currItem.outerHTML != null)
-    currItem.outerHTML = "";
-  else
-    currItem.parentNode.removeChild(currItem);               
+    var currItem = getDBElementById(this.db_buffer, itemId);
+    var myChildren = this.get_tree_item_children(itemId);
     
-  this.dump_tree();
+    if (myChildren.length > 0)
+    {
+      for (var i=0; i<myChildren.length; i++)
+      {
+        this.delete_tree_item(myChildren[i]);
+      }
+    }
+    
+    this.detach_from_parent(this.get_tree_item_parents(itemId)[0], itemId);
+    
+    if (currItem.outerHTML != null)
+      currItem.outerHTML = "";
+    else
+      currItem.parentNode.removeChild(currItem);               
+  }    
+  else
+    alert(c_LANG_LIB_DATA_ROOT_ITEM_NOT_ERASABLE[global_setup.curr_lang]);
 }
 
 
 
 // get Item's parent nodes
-function db_intelligence_get_tree_item_parents(itemId)
+function lib_data_xml_get_tree_item_parents(itemId)
 {
   var currItem = getDBElementById(this.db_buffer, itemId);
   var parentLinks = currItem.getElementsByTagName("referred_from");
@@ -241,14 +277,14 @@ function db_intelligence_get_tree_item_parents(itemId)
     return parentIds;
   }
   else
-//    alert("Item doesn't exist");
-  return undefined
+//    alert(c_LANG_WARNING_CURRENT_MISSING[global_setup.curr_lang]);
+  return [];
 }
 
 
 
 // get Item's child nodes
-function db_intelligence_get_tree_item_children(itemId)
+function lib_data_xml_get_tree_item_children(itemId)
 {
   var currItem = getDBElementById(this.db_buffer, itemId);
 
@@ -264,13 +300,13 @@ function db_intelligence_get_tree_item_children(itemId)
     return childIds;
   }
   else
-    alert("Item doesn't exist");
+    alert(c_LANG_WARNING_CURRENT_MISSING[global_setup.curr_lang]);
   return undefined;
 }
 
 
 // cut&paste operations (later : for copy by reference) 
-function db_intelligence_attach_to_parent(parentId, itemId)
+function lib_data_xml_attach_to_parent(parentId, itemId)
 {
   var parentItem = getDBElementById(this.db_buffer, parentId);
   var currentItem = getDBElementById(this.db_buffer, itemId);
@@ -304,13 +340,13 @@ function db_intelligence_attach_to_parent(parentId, itemId)
     }
   }
   else
-    alert("Item doesn't exist");
+    alert(c_LANG_WARNING_CURRENT_MISSING[global_setup.curr_lang]);
   this.dump_tree();
 }
 
 
 // cut&paste operations (later : for copy by reference) 
-function db_intelligence_detach_from_parent(parentId, itemId)
+function lib_data_xml_detach_from_parent(parentId, itemId)
 {
   var currItem = getDBElementById(this.db_buffer, itemId);
 
@@ -346,7 +382,7 @@ function db_intelligence_detach_from_parent(parentId, itemId)
     }
   }
   else
-    alert("Item doesn't exist");
+    alert(c_LANG_WARNING_CURRENT_MISSING[global_setup.curr_lang]);
   this.dump_tree();
 }
 
@@ -357,7 +393,7 @@ function db_intelligence_detach_from_parent(parentId, itemId)
 //################################################################################################
 
 // create fields of tree item
-function db_intelligence_create_tree_item_field(itemId, fieldId, content)
+function lib_data_xml_create_tree_item_field(itemId, fieldId, content)
 {
   var currItem = getDBElementById(this.db_buffer, itemId);
 
@@ -373,12 +409,12 @@ function db_intelligence_create_tree_item_field(itemId, fieldId, content)
     else
     {
                                         // output if field already exists	
-      alert("Field \""+fieldId+"\" already exists");
+      alert(c_LANG_WARNING_FIELD_REDUNDANCE[global_setup.curr_lang] + fieldId + " !");
     }
   }
   else
   { 
-    alert("Item \""+itemId+"\" doesn't exist");
+    alert(c_LANG_WARNING_ITEM_MISSING[global_setup.curr_lang] + itemId + " !");
   }
   this.dump_tree();
 }
@@ -386,7 +422,7 @@ function db_intelligence_create_tree_item_field(itemId, fieldId, content)
 
 
 // change fields of tree item
-function db_intelligence_change_tree_item_field(itemId, fieldId, content)
+function lib_data_xml_change_tree_item_field(itemId, fieldId, content)
 {
   var currItem = getDBElementById(this.db_buffer, itemId);
 
@@ -400,12 +436,12 @@ function db_intelligence_change_tree_item_field(itemId, fieldId, content)
     else
     {
       this.create_tree_item_field(itemId, fieldId, content);
-//      alert("Field \""+fieldId+"\" was created !");
+//      alert(c_LANG_MSG_FIELD_CREATED[global_setup.curr_lang] + fieldId + " !");
     }
   }
   else
   { 
-    alert("Item \""+itemId+"\" doesn't exist");
+    alert(c_LANG_WARNING_ITEM_MISSING[global_setup.curr_lang] + itemId + " !");
   }
   this.dump_tree();
 }
@@ -413,7 +449,7 @@ function db_intelligence_change_tree_item_field(itemId, fieldId, content)
 
 
 // get field content
-function db_intelligence_get_tree_item_field(itemId, fieldId)
+function lib_data_xml_get_tree_item_field(itemId, fieldId)
 {
 
   var currItem = getDBElementById(this.db_buffer, itemId);
@@ -442,40 +478,9 @@ function db_intelligence_get_tree_item_field(itemId, fieldId)
   }
   else
   { 
-    alert("Item \""+itemId+"\" doesn't exist");
+    alert(c_LANG_WARNING_ITEM_MISSING[global_setup.curr_lang] + itemId + " !");
   }
   this.dump_tree();
-  return undefined;
-}
-
-
-//// return the path of the item as String
-function db_intelligence_get_tree_item_path(fromItemId, toItemId, as_link)
-{
-  var currItem = getDBElementById(this.db_buffer, toItemId);
-
-  if (currItem != undefined) 
-  {
-    var parentIds = this.get_tree_item_parents(toItemId);
-    if (fromItemId == toItemId)
-    {
-      if (as_link == true)
-        return "<span><a onclick=\"return window.main_input_dispatcher.clicked_at('main_tree', '" + toItemId + "')\">" + this.get_tree_item_field(toItemId, "name") + "</a></span>";
-      else
-        return ""; // "Alle Themen" is redundant für Favorites but is useful for the Explorer-Style-Path-Link
-    }
-    else
-    {
-      if (as_link == true)
-        return this.get_tree_item_path(fromItemId, parentIds[0], true) + " \\ <span><a onclick=\"return window.main_input_dispatcher.clicked_at('main_tree', '" + toItemId + "')\">" + this.get_tree_item_field(toItemId, "name") + "</a></span>";
-      else
-        return this.get_tree_item_path(fromItemId, parentIds[0], false) + " \\ " + this.get_tree_item_field(toItemId, "name");        
-    }
-  }  
-  else
-  { 
-//    alert("Item \""+toItemId+"\" doesn't exist");
-  }  
   return undefined;
 }
 
