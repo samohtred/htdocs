@@ -183,6 +183,8 @@ function lib_data_dispatcher_get_tree(iparams)
     {
                                     // neue Kind-Knoten der aktuellen Parent-Knoten ermitteln
       var curr_item_child_ids = this.db_obj.get_tree_item_children(my_parents[a].elem_id);
+      if (curr_item_child_ids.length > 0)
+        my_parents[a].name = my_parents[a].name + ' &rsaquo;';
       curr_item_child_ids = this.sort(curr_item_child_ids);
       for(var b=0; b<curr_item_child_ids.length; b++)
       {

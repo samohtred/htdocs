@@ -69,6 +69,14 @@ var c_DEFAULT_GLOBAL_SETUP = {};
  *                              all items can now have several parent items + tree unfolds by hovering
  *                              over items; setup menu created; content can now also include special 
  *                              characters
+ * V0.1.1.1     2015/03/17      - inverted Explorer Path (root on the right hand side)
+ *                              - don't show children of sibling by default
+ *                              - set number of child levels to 10
+ *                              - arrow keys up / down / left /right now supported
+ *                              - hovering over images now for unfolding and folding
+ * V0.1.1.2     2015/04/07      - text recycling during rename
+ *                              - clean behaviour during arrow up / down in tree
+ *                              - arrow keys working in text boxes
  * ---------------------------------------------------------------------------------------
  */
 
@@ -76,8 +84,8 @@ var c_DEFAULT_GLOBAL_SETUP = {};
 main_version_hi = 0;
 main_version_lo = 1;
 sub_version_hi = 1;
-sub_version_lo = 0;
-var plugin_date = "2015/03/08";
+sub_version_lo = 2;
+var plugin_date = "2015/04/07";
                                     // Version Text for printing
 var plugin_version = main_version_hi + "." + main_version_lo + "." + sub_version_hi + "." + sub_version_lo;
 // ###### ===========> VERSION-SETUPS END <================= ######
@@ -94,7 +102,7 @@ c_DEFAULT_GLOBAL_SETUP.curr_lang = 1;
 c_DEFAULT_GLOBAL_SETUP.default_usecase = "uc_browsing";
 
 c_DEFAULT_GLOBAL_SETUP.tree_max_parent_depth = 1;                       
-c_DEFAULT_GLOBAL_SETUP.tree_max_child_depth = 3;
+c_DEFAULT_GLOBAL_SETUP.tree_max_child_depth = 10;
 
 c_DEFAULT_GLOBAL_SETUP.debugMode = false;
 

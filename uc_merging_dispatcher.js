@@ -459,7 +459,7 @@ function uc_browsing_dispatcher_process_fav_menu(item)
 }
 
 
-function uc_browsing_dispatcher_keyb_proc(my_key, my_extra_keys, e)
+function uc_browsing_dispatcher_keyb_proc(my_key, my_extra_keys)
 {
                                     // ... otherwise use these options
   switch (my_extra_keys)
@@ -502,19 +502,12 @@ function uc_browsing_dispatcher_keyb_proc(my_key, my_extra_keys, e)
           
           // arrow left
           case 37 :
-            if (this.text_focus == 0)
-            {
-              e.preventDefault();
               var curr_ul = document.getElementById(this.panel1_selected_items[0].gui_id + '_ul');
               curr_ul.style.display="none";
-            }
-          break;
+              break;
 
           // arrow up
           case 38 : 
-            if (this.text_focus == 0)
-            {
-              e.preventDefault();
                                     // unmark all selected items
               var new_selected_gui_id = this.tree_panel.get_next_visible_up(this.panel1_selected_items[0].gui_id);  
               if (new_selected_gui_id != null)
@@ -530,34 +523,21 @@ function uc_browsing_dispatcher_keyb_proc(my_key, my_extra_keys, e)
                 uc_browsing_setup.tree_last_selected = this.panel1_selected_items[0].elem_id;
                 this.save_setup();                
                                     // scroll into view
-                document.getElementById(this.panel1_selected_items[0].gui_id + '_div').scrollIntoView();  // $$$
+                document.getElementById(this.panel1_selected_items[0].gui_id + '_div').scrollIntoView();
                                     // load content
                 this.content_panel.load_item_content(this.db_obj.command(uc_browsing_setup.tree_last_selected, "get_content"));                
               }
               else
                 document.getElementById('div_panel1_content').scrollTop = 0;
-              window.scrollTo(0, 0);              
-            }
-            else
-              alert('Textmode');
-          break;
-           
+              break; 
           // arrow right
           case 39 :
-            if (this.text_focus == 0)
-            {
-              e.preventDefault();
               var curr_ul = document.getElementById(this.panel1_selected_items[0].gui_id + '_ul');
               curr_ul.style.display="block";
-            }
-          break;
+              break;
               
           // arrow down
           case 40 : 
-            if (this.text_focus == 0)
-            {
-              e.preventDefault();
-
               var new_selected_gui_id = this.tree_panel.get_next_visible_dn(this.panel1_selected_items[0].gui_id);  
               if (new_selected_gui_id != null)
               {
@@ -573,15 +553,11 @@ function uc_browsing_dispatcher_keyb_proc(my_key, my_extra_keys, e)
                 uc_browsing_setup.tree_last_selected = this.panel1_selected_items[0].elem_id;
                 this.save_setup();                
                                     // scroll into view
-                document.getElementById(this.panel1_selected_items[0].gui_id + '_div').scrollIntoView();  // $$$              
+                document.getElementById(this.panel1_selected_items[0].gui_id + '_div').scrollIntoView();                
                                     // load content
                 this.content_panel.load_item_content(this.db_obj.command(uc_browsing_setup.tree_last_selected, "get_content"));                
               }
-              window.scrollTo(0, 0);
-            }
-            else
-              alert('Textmode');
-          break;
+              break;
   
           
           default : 

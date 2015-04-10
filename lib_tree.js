@@ -21,6 +21,10 @@ function lib_tree(gui_headline_context, lang_headline, gui_tree_context, current
   this.get_item_data = lib_tree_get_item_data.bind(this); 
   this.get_gui_id = lib_tree_get_gui_id.bind(this);   
   this.input_item = lib_tree_input_item.bind(this);
+  this.get_prev_sibling = lib_tree_get_prev_sibling.bind(this);
+  this.get_next_sibling = lib_tree_get_next_sibling.bind(this);
+  this.get_next_visible_dn = lib_tree_get_next_visible_dn.bind(this);
+  this.get_next_visible_up = lib_tree_get_next_visible_up.bind(this);  
 
 //  this.cancel_item = topic_tree_cancel_item.bind(this);
 //  this.save_item = topic_tree_save_item.bind(this);
@@ -55,15 +59,20 @@ function lib_tree_print_title()
 
 
 // create stub of a tree
-function lib_tree_create_stub(rootDiv, curr_node, onclickStr)
+function lib_tree_create_stub(rootUl, curr_node, onclickStr, ul_hidden)
 {
   // HTML-Code :
+  // <LI>
   //   <IMG ... /IMG>  
   //   <DIV ...>
   //     <span><A .../A></span>
   //   </DIV>
   //   <UL .../UL>
+  // </LI>
   var gui_id = curr_node.gui_id + '_a';
+  var newLiItem = document.createElement("li");
+    newLiItem.id = curr_node.gui_id+"_li";
+    newLiItem.style.cssText = 'list-style: none; margin: 0; padding: 0;';    
   var newImgItem = document.createElement("img");
     if (curr_node.type != "none")
     {
@@ -77,12 +86,15 @@ function lib_tree_create_stub(rootDiv, curr_node, onclickStr)
     newDivItem.id = curr_node.gui_id+'_div';
     newDivItem.style.cssText = 'display: block; list-style: none; width:100%; margin: 0.1em; padding: 0; vertical-align: top; margin-left:-1.5em;';
     setInnerHTML(newDivItem, '<span><a id=\"' + gui_id + '\" onclick=\"' + onclickStr + '\" style=\"display: block; padding-top:0.2em; padding-left:1em;\">' + curr_node.name + '</a></span>');  
-  var newUlRootItem = document.createElement("ul");
-    newUlRootItem.id = curr_node.gui_id+"_ul";
-    newUlRootItem.style.cssText = 'margin: 0;';
-  rootDiv.appendChild(newImgItem);    
-  rootDiv.appendChild(newDivItem);
-  rootDiv.appendChild(newUlRootItem);
+  var newUlItem = document.createElement("ul");
+    newUlItem.id = curr_node.gui_id+"_ul";
+    newUlItem.style.cssText = 'margin: 0;';
+    if (ul_hidden)
+      newUlItem.className = "hide_ul";
+  newLiItem.appendChild(newImgItem);    
+  newLiItem.appendChild(newDivItem);
+  newLiItem.appendChild(newUlItem);
+  rootUl.appendChild(newLiItem);
 }
 
 
@@ -92,9 +104,10 @@ function lib_tree_print_tree(tree_obj, sel_elem_id)
                                     // save tree data object as local object variable
   this.curr_tree_obj = tree_obj;
                                     // initialize for Explorer Bar
-  var tree_elem_idx = 0;
-  var gui_context = document.getElementById(this.gui_tree_context);
   var exp_bar_html = "";
+  var k=0;
+  while (tree_obj.tree_nodes[k].elem_id != sel_elem_id) { k++; }
+  var selected_item_in_tree = tree_obj.tree_nodes[k];
 
   // part 1 : print Explorer Bar
   for(var i=tree_obj.explorer_path.length-1; i>=0; i--)
@@ -102,7 +115,7 @@ function lib_tree_print_tree(tree_obj, sel_elem_id)
                                     // prepare variables
     var gui_id = tree_obj.explorer_path[i].gui_id + "_a";
     var on_click_str = "return window." + this.cb_clicked_at_str + "(\'" + this.current_usecase + "\', \'" + this.current_panel + "\', \'explorer_select\', this.id, c_KEYB_MODE_NONE);";
-    var on_click_str_multi = "return window." + this.cb_clicked_at_str + "(\'" + this.current_usecase + "\', \'" + this.current_panel + "\', \'open_parent_menu\', this.id, c_KEYB_MODE_NONE);";          
+    var on_click_str_multi = "";  
                                     // root element (selected element is used as Explorer Bar)
     if (i == (tree_obj.explorer_path.length-1))
     {
@@ -110,44 +123,62 @@ function lib_tree_print_tree(tree_obj, sel_elem_id)
     }
     else  
     {
-                                    // normal multi-parent item
-      if ((tree_obj.explorer_path[i].isMultiPar == true) && (i < (tree_obj.explorer_path.length - 2)))
-                                    // menu button is printed together with parent item but current item
-                                    // is used for 'clicked at'
-        exp_bar_html = exp_bar_html + '&nbsp;<span><a id=\"' + gui_id + '\" onclick=\"' + on_click_str_multi + '\">{...}</a></span>&nbsp;\\ <span><a id=\"' + gui_id + '\" onclick=\"' + on_click_str + '\">' + tree_obj.explorer_path[i].name + '</a></span>';      
-      else 
-                                    // normal items
-        exp_bar_html = exp_bar_html + ' \\ <span><a id=\"' + gui_id + '\" onclick=\"' + on_click_str + '\">' + tree_obj.explorer_path[i].name + '</a></span>';
-                                    // first multi-parent item above tree
-      if ((i==0) && (tree_obj.tree_nodes[0].isMultiPar == true) && (tree_obj.explorer_path.length > 1))
+      var gui_id_mult = tree_obj.explorer_path[i].gui_id + "_pmenu_a";      
+      var predecessor = {};
+                                    // first multi-parent item above tree      
+      if (i==0)
       {
-        gui_id_mult = "E0" + "_a";
-        on_click_str_multi = "return window." + this.cb_clicked_at_str + "(\'" + this.current_usecase + "\', \'" + this.current_panel + "\', \'open_parent_menu\', \'T0_a\', c_KEYB_MODE_NONE);"; 
-        exp_bar_html = exp_bar_html + '&nbsp;<span><a id=\"' + gui_id_mult + '\" onclick=\"' + on_click_str_multi + '\">{...}</a></span>&nbsp;';                      
+        predecessor = selected_item_in_tree;
+        on_click_str_multi = "return window." + this.cb_clicked_at_str + "(\'" + this.current_usecase + "\', \'" + this.current_panel + "\', \'open_parent_menu\', \'" + selected_item_in_tree.gui_id + "_a\', c_KEYB_MODE_NONE);";       
+      }
+      else
+      {
+        predecessor = tree_obj.explorer_path[i-1];
+        on_click_str_multi = "return window." + this.cb_clicked_at_str + "(\'" + this.current_usecase + "\', \'" + this.current_panel + "\', \'open_parent_menu\', \'" + tree_obj.explorer_path[i-1].gui_id + "_a\', c_KEYB_MODE_NONE);";          
+      }
+
+                                    // multi-parent item
+      if (predecessor.isMultiPar == true)
+      {
+        exp_bar_html = '<span><a id=\"' + gui_id + '\" onclick=\"' + on_click_str + '\">' + tree_obj.explorer_path[i].name + '</a></span>&nbsp;<span><a id=\"' + gui_id_mult + '\" onclick=\"' + on_click_str_multi + '\">{...}</a></span> \\&nbsp;' + exp_bar_html;                      
+      }
+      else
+      {
+                                    // normal items
+        exp_bar_html = '<span><a id=\"' + gui_id + '\" onclick=\"' + on_click_str + '\">' + tree_obj.explorer_path[i].name + '</a></span> \\&nbsp;' + exp_bar_html;
       }
     }
-  } 
+  }                        
+  // add Explorer Path to GUI
+  var gui_context = document.getElementById(this.gui_tree_context);  
   if (tree_obj.explorer_path.length > 0)
     setInnerHTML(gui_context, "&nbsp;" + exp_bar_html);
   else
     setInnerHTML(gui_context, "");
   
   // part 2 : print child elements as tree
-  var treeRootDiv = document.createElement("div"); 
   var retval = {};
-  treeRootDiv.id = 'gui_root_div';
+  var treeRootUl = document.createElement("ul"); 
+  treeRootUl.id = this.current_panel + '_root_ul';
+  var treeRootDiv = document.createElement("div");
+  treeRootDiv.style.cssText = 'margin-left:-2.3em; margin-top:-0.9em;';
   gui_context.appendChild(treeRootDiv);
+  treeRootDiv.appendChild(treeRootUl);
+
                                     // print stub elements
   var on_click_str = "return window." + this.cb_clicked_at_str + "(\'" + this.current_usecase + "\', \'" + this.current_panel + "\', \'tree_select\', this.id, c_KEYB_MODE_NONE );";
   var start_idx = 0;
   while (tree_obj.tree_nodes[start_idx].parent_gui_id == tree_obj.tree_nodes[0].parent_gui_id)
   {                                                     
-    this.create_stub(treeRootDiv, tree_obj.tree_nodes[start_idx], on_click_str);  
+
     if (tree_obj.tree_nodes[start_idx].elem_id == sel_elem_id)
     {
+      this.create_stub(treeRootUl, tree_obj.tree_nodes[start_idx], on_click_str, false);        
       this.markup_items(tree_obj.tree_nodes[start_idx].gui_id, true);
       retval = tree_obj.tree_nodes[start_idx];
     }
+    else
+      this.create_stub(treeRootUl, tree_obj.tree_nodes[start_idx], on_click_str, true);  
 
     if (++start_idx >= tree_obj.tree_nodes.length)
       break;
@@ -183,9 +214,12 @@ function lib_tree_print_tree(tree_obj, sel_elem_id)
                                     // hide all UL lists on init which have the classname ".hide_ul"
   $('#' + this.gui_tree_context).find('ul.hide_ul').hide(0); 
                                     // ... unfold them on first mouseover of according icon image
-  $('#' + this.gui_tree_context).find('img').hover(
+  $('#' + this.gui_tree_context).find('img').mouseenter(
     function () {
-      $(this).siblings('ul').show(0);
+      if ($(this).siblings('ul').css("display") == "none")
+        $(this).siblings('ul').show(100);
+      else
+        $(this).siblings('ul').hide(100);        
     }
   ); 
   
@@ -237,7 +271,7 @@ function lib_tree_get_gui_path(gui_id)
   var my_ul = document.getElementById(my_ul_id);
   
                                     // climb up element-wise until GUI root
-  while (my_ul.parentNode.id != 'gui_root_div')
+  while (my_ul.parentNode.parentNode.id != this.current_panel + '_root_ul')
   {
     path_elem_list[path_elem_ct] = {};
     var curr_item = this.get_item_data(gui_id);
@@ -345,6 +379,7 @@ function lib_tree_input_item(is_new, gui_id, item_type)
   //   <UL ... /UL>  
   // </LI>
   var my_gui_id = gui_id;
+  var new_content = "";
                                     // handle input init for new item
   if (is_new)
   {
@@ -353,16 +388,129 @@ function lib_tree_input_item(is_new, gui_id, item_type)
                                     // use "print_item" to create new item ...
     this.print_item(parent_gui_id, my_gui_id, "", item_type);
   }
+
                                     // get a tag element for modification
   var a_item = document.getElementById(my_gui_id + "_a");
+
+                                    // recycle old text
+  if (!is_new)
+  {
+    new_content = getInnerHTML(a_item);
+  }
                                     // create new input item            
   var newInputItem = document.createElement("input");     
   	newInputItem.id = my_gui_id + "_input";
   	newInputItem.name = my_gui_id + "_name";
   	newInputItem.type = "text";
+  	newInputItem.value = new_content;
                                     // replace <A> item by <INPUT> item
   a_item.parentNode.replaceChild(newInputItem, a_item);             
-                                    // put a focus on input item
+                                    // put a focus on input item and select default text
   document.getElementById(my_gui_id + "_input").focus();
+  document.getElementById(my_gui_id + "_input").select();
 }      
 
+
+function lib_tree_get_prev_sibling(curr_div_id)
+{
+  var retval = null;
+                                    // get all <LI> elements of next parental <UL> list
+  var my_siblings = document.getElementById(curr_div_id).parentNode.parentNode.childNodes;
+  for (var i=0; i<my_siblings.length; i++)
+  {
+                                    // find own div to know at what array
+                                    // position to find the next previous sibling
+    if ((my_siblings[i].childNodes[1].id == curr_div_id) && (i>0))
+      return my_siblings[i-1].childNodes[1].id;
+  }
+  return retval;
+}
+
+
+
+function lib_tree_get_next_sibling(curr_div_id)
+{
+  var retval = null;
+                                    // get all <LI> elements of next parental <UL> list  
+  var my_siblings = document.getElementById(curr_div_id).parentNode.parentNode.childNodes;
+  for (var i=0; i<my_siblings.length; i++)
+  {
+                                    // find own div to know at what array
+                                    // position to find the next previous sibling
+    if ((my_siblings[i].childNodes[1].id == curr_div_id) && (i<(my_siblings.length - 1)))
+      return my_siblings[i+1].childNodes[1].id;
+  }
+  return retval;
+}
+
+
+
+function lib_tree_get_next_visible_dn(curr_gui_id)
+{
+  var retval = null;
+  
+  var curr_ul = document.getElementById(curr_gui_id + "_ul");  
+                                    // first check children of current element if this is
+                                    // the next neighbour
+  while ((curr_ul.childNodes.length != 0) && (curr_ul.style.display != 'none'))
+  {
+    curr_ul = curr_ul.childNodes[0].childNodes[2];
+  }
+                                    // if no child has fit the loop ...
+  if (curr_ul.id == (curr_gui_id + "_ul"))
+  {
+                                    // ... check next sibling ...
+    var next_sibling = this.get_next_sibling(curr_gui_id + "_div");
+    if (next_sibling != null)
+      return next_sibling.substring(0, next_sibling.indexOf("_div"));  
+    else
+    {
+      var curr_div = curr_ul.parentNode.childNodes[1];
+                                    // ... or walk up until any parent node has a valid next sibling
+      while (curr_div.parentNode.parentNode.id != this.current_panel + '_root_ul')
+      {
+        curr_div = curr_div.parentNode.parentNode.parentNode.childNodes[1];
+        if ((next_sibling = this.get_next_sibling(curr_div.id)) != null)
+          return next_sibling;
+      } 
+    }
+  }
+  else 
+  {
+    return curr_ul.id.substring(0, curr_ul.id.indexOf("_ul"));
+  }   
+  return retval; 
+}
+
+
+function lib_tree_get_next_visible_up(curr_gui_id)
+{
+  var retval = null;
+                                    // get previous (upper) sibling
+  var upper_neighbour_div_id = this.get_prev_sibling(curr_gui_id + "_div");
+                                    // check if this sibling exists
+  if (upper_neighbour_div_id != null)                                                                        
+  {
+                                    // walk through all child UL lists (always
+                                    // last LI element) to find empty or invisible
+                                    // UL list
+    var curr_ul = document.getElementById(upper_neighbour_div_id).parentNode.childNodes[2];
+    while ((curr_ul.childNodes.length != 0) && (curr_ul.style.display != 'none'))
+    {
+      curr_ul = curr_ul.lastChild.childNodes[2];
+    }
+                                    // return clean gui_id ready for clicking
+    return curr_ul.id.substring(0, curr_ul.id.indexOf("_ul"));  
+  }
+  else
+  {
+    var curr_ul = document.getElementById(curr_gui_id + "_li").parentNode;
+    var my_bla = (this.current_panel + '_root_ul');
+    if (curr_ul.id != (this.current_panel + '_root_ul'))
+    {
+
+      return curr_ul.id.substring(0, curr_ul.id.indexOf("_ul")); 
+    }
+  }
+  return retval;
+}

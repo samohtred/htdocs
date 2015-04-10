@@ -10,6 +10,11 @@ function global_dispatcher_key_processing(e)
     var e = window.event;
   }
 
+                                      // suppress default scrolling of cursor keys
+//  if([37, 38, 39, 40].indexOf(e.keyCode) > -1) {
+//        e.preventDefault();
+//  }
+
   extra_keys = c_KEYB_MODE_NONE;
 
   if (e.shiftKey)
@@ -26,7 +31,7 @@ function global_dispatcher_key_processing(e)
     {
       if (my_key != 16 && my_key != 17 && my_key != 18 && my_key < 115)
       {                 
-        this.curr_uc_dispatcher.keyb_proc(my_key, extra_keys);
+        this.curr_uc_dispatcher.keyb_proc(my_key, extra_keys, e);
       }
     }
   }
@@ -248,6 +253,7 @@ function global_dispatcher_load_setup()
             {
                                     // copy all values which are changeable
               global_setup.curr_lang = setup_data.curr_lang;
+//              global_setup.tree_max_child_depth = setup_data.tree_max_child_depth; 
               global_status.global_setup_loaded = true;
               break;
             }
