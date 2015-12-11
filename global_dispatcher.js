@@ -1,4 +1,5 @@
 var extra_keys = c_KEYB_MODE_NONE;
+var my_path = "";
 
 function global_dispatcher_key_processing(e)
 {
@@ -169,7 +170,7 @@ function global_dispatcher_save_setup()
     switch (global_status.actual_setup_src_type)
     {
       case c_DATA_SOURCE_TYPE_ID_COOKIE :
-            var setup_cookie = new lib_data_cookie(plugin_name, global_status.actual_setup_src_path);
+            var setup_cookie = new lib_data_cookie(plugin_name, my_path, global_status.actual_setup_src_path);
             setup_cookie.write("data", global_setup);
           break;
       default :
@@ -183,7 +184,7 @@ function global_dispatcher_load_setup()
 {
   // ### part 1 - try to find the path to the Global Setup
                                     // create Setup Source Cookie Object and read it
-  var setup_src_cookie = new lib_data_cookie(plugin_name, c_DEFAULT_SETUP_SOURCE_COOKIE_NAME);
+  var setup_src_cookie = new lib_data_cookie(plugin_name, my_path, c_DEFAULT_SETUP_SOURCE_COOKIE_NAME);
   var setup_src_data = setup_src_cookie.read("data");
   var setup_src_type = null;
   var setup_src_path = null;  
@@ -245,7 +246,7 @@ function global_dispatcher_load_setup()
         }
         else
         {
-          var setup_cookie = new lib_data_cookie(plugin_name, setup_src_path);
+          var setup_cookie = new lib_data_cookie(plugin_name, my_path, setup_src_path);
           var setup_data = setup_cookie.read("data");
           if ((setup_data != null) && (setup_data != undefined))
           {
@@ -290,7 +291,9 @@ function global_dispatcher_load_setup()
 function global_dispatcher_init()
 {
 //  alert("init0");
-
+                                    // get Sub-Directory name of instance and delete all slashes
+  var my_path_raw = window.location.pathname;
+  my_path = my_path_raw.replace(/\//g,''); 
                                     // adjust all sizes initially
   global_dispatcher_win_resize();
                                     // init global setup

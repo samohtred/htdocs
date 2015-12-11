@@ -1,0 +1,59 @@
+webschoko@gmx.de
+
+To-Do's :
+=========
+
+- Favoriten klappen noch nicht
+  - Alle Löschen und Laden klappt nicht
+  - Problematisch : gespeicherter Fav-Items könnten unterhalb von LockID liegen
+- schauen, warum Pfeil hoch/runter manchmal wild zwischen den Items hin und herspringt
+  -> wildes Springen nicht mehr vorhanden, aber wenn man Item ausklappt und dann Pfeil nach unten macht, 
+      verschwindet Markierung    
+- XML-Library in Ordnung bringen
+  - Einstellungen anbieten (Auswahl Datenpfad und Datenbank-Typ)
+- Export nach XML und Import von XML (noch ohne Mergen) realisieren (jeweils als Teilbaum)
+  -> Mergen ggf. später einführen
+  -> ggf. vorher schon JSON-Export / -Import
+  -> http://tutorialzine.com/2011/05/generating-files-javascript-php/
+  -> http://stackoverflow.com/questions/2897619/using-html5-javascript-to-generate-and-save-a-file
+  -> https://blogs.adobe.com/cantrell/archives/2012/01/how-to-download-data-as-a-file-from-javascript.html
+  
+- qKonsens integrieren
+- Probble integrieren
+
+- Scrolling mit Ctrl und hoch / runter / links / rechts
+  - jquery.animate
+    http://www.w3schools.com/jquery/eff_animate.asp
+  - scrollintoview()
+  - scrollBy()
+  - 3. Möglichkeit :
+      $("#scrolldownbut").click(function()
+      { 
+          var q=$("#theframe").scrollTop();
+      
+          q=q+100;
+          $("#theframe").scrollTop(q);
+      
+          return false;  
+      });  
+  - http://flesler.blogspot.de/2007/10/jqueryscrollto.html
+    Bsp : $("#block cinframe").scrollTo( '-=340px', { axis:'y' } );
+
+- Video fehlt noch als Hilfe
+  -> ggf. auch X-Tree-M-Einführung erstellen
+
+
+
+Ideen :
+  - Entschleuningung :
+    - Aktionen werden zeitversetzt durchgeführt, so daß alle die Möglichkeit haben, 
+      darüber abzustimmen (z.B. einen Tag später)
+    - Traffik-Begrenzung (nur n Posts pro Tag)
+    
+  - Schnelligkeit im Notfall :
+    - die höchstbewerteten Leute können Situation für kritisch erklären und auf eigene
+      Faust Änderungen durchführen, aber das ganze läßt sich jeden Tag für die letzten 
+      24h wieder zurückrollen durch die Community und auch auf einzelne Aktionen kann
+      per Kommentar Einfluß genommen werden; div. Begrenzungen werden in krit. Situation
+      aufgehoben bzw. gelockert
+      

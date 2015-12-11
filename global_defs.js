@@ -23,8 +23,8 @@ var c_DATA_TYPE_CONTENT = 1;
 
 
 var xmlDataUrl = "db_init.xml";
-var uploadPhpUrl = window.location.protocol + "//" + window.location.host + "/upload.php";
-var downloadPhpUrl = window.location.protocol + "//" + window.location.host + "/download.php";
+var uploadPhpUrl = window.location.protocol + "//" + window.location.host + window.location.pathname + "upload.php";
+var downloadPhpUrl = window.location.protocol + "//" + window.location.host + window.location.pathname + "download.php";
 
 var treeMaxParentDepth = 1; // -1 = unendlich
 var treeMaxChildDepth = -1;  // -1 = unendlich

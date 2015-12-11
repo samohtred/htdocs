@@ -68,6 +68,10 @@ var c_LANG_UC_BROWSING_TOOLBAR_OTHER_FILTERS =
 ["do_nothing"           ,"Other Filters"                              ,"Andere Filter"                      ];
 
 
+var c_LANG_UC_BROWSING_TOOLBAR_BACK_TO_MSG =
+["do_nothing"           ,"Back to"                                    ,"Zurück zu"                          ];
+
+
 var c_LANG_UC_BROWSING_PANEL1_TITLE =
 ["do_nothing"           ,"Tree"                                       ,"Baum"];
 

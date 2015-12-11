@@ -381,7 +381,7 @@ function uc_browsing_dispatcher_process_type_menu(item)
         if (this.panel1_selected_items[i].elem_id != "root") 
         {
                                     // change type field in database
-          this.db_obj.command({elem_id:this.panel1_selected_items[i].elem_id, content:c_LANG_LIB_TREE_ELEMTYPE[item_int+1][2]}, "set_type");                                    
+          this.db_obj.command({elem_id:this.panel1_selected_items[i].elem_id, content:c_LANG_LIB_TREE_ELEMTYPE[item_int+1][0]}, "set_type");                                    
         }
       }
                                     // write changes to database
@@ -684,7 +684,7 @@ function uc_browsing_dispatcher_clicked_at(sender, submodule, item, mode)
                                     // get new name from lib_tree
           var item_name = document.getElementById("N0_input").value;
                                     // create item in database
-          this.db_obj.command({parent_elem_id:this.panel1_selected_items[0].elem_id, name:item_name, type:c_LANG_LIB_TREE_ELEMTYPE[this.panel1_elem_type+1][2]}, "create_item");
+          this.db_obj.command({parent_elem_id:this.panel1_selected_items[0].elem_id, name:item_name, type:c_LANG_LIB_TREE_ELEMTYPE[this.panel1_elem_type+1][0]}, "create_item");
                                     // reload tree from database
           this.select_by_id(this.panel1_selected_items[0].elem_id)                                    
                                     // clear flag

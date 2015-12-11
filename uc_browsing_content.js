@@ -39,6 +39,7 @@ function uc_browsing_content_init_gui()
   my_html = my_html + '                      ' + c_LANG_MSG_LOADING[global_setup.curr_lang];
   my_html = my_html + '                    </textarea>';
   my_html = my_html + '                  </div>';  
+//  my_html = my_html + '                  <H4><U><a id=\'' + this.current_panel + '_optional_cb_button\' href="" style=\"padding-left:0.7em; margin-top:-0.6em; margin-bottom:0.0em;\"></a></U></H4>';  
 
   setInnerHTML(document.getElementById(this.gui_content_context), my_html);
 }

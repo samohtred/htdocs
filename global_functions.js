@@ -231,3 +231,9 @@ function getInnerHTML(myObj)
       return myObj.value;
 */
 }
+
+
+Array.prototype.append = function(array)
+{                                       
+    this.push.apply(this, array)        
+}                                       

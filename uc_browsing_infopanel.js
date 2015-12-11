@@ -31,10 +31,9 @@ function uc_browsing_infopanel_print_title()
 
 function uc_browsing_infopanel_init_gui(iparams)
 {
-  // iparams.ticker1.elem_id
-  // iparams.ticker1.text
-  // iparams.ticker2.elem_id
-  // iparams.ticker2.text
+  // iparams[].elem_id
+  // iparams[].name
+  // iparams[].text
   
   var my_html = '';
                                     // find Menu Index of Ticker-Titles to avoid
@@ -52,32 +51,32 @@ function uc_browsing_infopanel_init_gui(iparams)
   if ((iparams != undefined) && (iparams != null))
   {
     // ticker1 - item link
-    if ((iparams.ticker1.elem_id != undefined) && (iparams.ticker1.elem_id != null))
+    if ((iparams[0].elem_id != undefined) && (iparams[0].elem_id != null))
     {
-      var on_click_str = "return window." + this.cb_clicked_at_str + "(\'" + this.current_usecase + "\', \'" + this.current_panel + "\', \'ticker_item_link\', \'" + iparams.ticker1.elem_id + "\', c_KEYB_MODE_NONE);";
+      var on_click_str = "return window." + this.cb_clicked_at_str + "(\'" + this.current_usecase + "\', \'" + this.current_panel + "\', \'ticker_item_link\', \'" + iparams[0].elem_id + "\', c_KEYB_MODE_NONE);";
       my_html = my_html + '                  &nbsp<u><a id=\'' + this.current_panel + '_ticker1_item_link\' onclick=\"' + on_click_str + '\">' + c_LANG_UC_BROWSING_PANEL3_TICKER1_TITLE[global_setup.curr_lang] + '</a></u><br>';      
     }
     else
       my_html = my_html + '                  &nbsp<a id=\'' + this.current_panel + '_ticker1_item_link\'><u id=\'' + this.current_panel + '_ticker1_title\'>' + c_LANG_UC_BROWSING_PANEL3_TICKER1_TITLE[global_setup.curr_lang] + '</u></a><br>';
 
     // ticker1 - text
-    if ((iparams.ticker1.text != undefined) && (iparams.ticker1.text != null))
-      my_html = my_html + '                  &nbsp<marquee bgcolor=#0000AA scrollamount=\"2\" scrolldelay=\"5\"><font color=#BBBBBB><div id=\'' + this.current_panel + '_ticker1_text\'>' + iparams.ticker1.text + ' +++ </div></font></marquee><br>';
+    if ((iparams[0].text != undefined) && (iparams[0].text != null))
+      my_html = my_html + '                  &nbsp<marquee bgcolor=#0000AA scrollamount=\"2\" scrolldelay=\"5\"><font color=#BBBBBB><div id=\'' + this.current_panel + '_ticker1_text\'>' + iparams[0].text + '</div></font></marquee><br>';
     else
       my_html = my_html + '                  &nbsp<marquee bgcolor=#0000AA scrollamount=\"2\" scrolldelay=\"5\"><font color=#BBBBBB><div id=\'' + this.current_panel + '_ticker1_text\'>' + c_LANG_TICKER_DEFAULT_TEXT[global_setup.curr_lang] + c_LANG_UC_BROWSING_MENUBAR[0][0][global_setup.curr_lang] + '\\' + c_LANG_UC_BROWSING_MENUBAR[0][as_news_idx][global_setup.curr_lang] + ' ! +++</div></font></marquee><br>';
 
     // ticker2 - item link
-    if ((iparams.ticker2.elem_id != undefined) && (iparams.ticker2.elem_id != null))
+    if ((iparams[1].elem_id != undefined) && (iparams[1].elem_id != null))
     {
-      var on_click_str = "return window." + this.cb_clicked_at_str + "(\'" + this.current_usecase + "\', \'" + this.current_panel + "\', \'ticker_item_link\', \'" + iparams.ticker2.elem_id + "\', c_KEYB_MODE_NONE);";
+      var on_click_str = "return window." + this.cb_clicked_at_str + "(\'" + this.current_usecase + "\', \'" + this.current_panel + "\', \'ticker_item_link\', \'" + iparams[1].elem_id + "\', c_KEYB_MODE_NONE);";
       my_html = my_html + '                  &nbsp<u><a id=\'' + this.current_panel + '_ticker2_item_link\' onclick=\"' + on_click_str + '\">' + c_LANG_UC_BROWSING_PANEL3_TICKER2_TITLE[global_setup.curr_lang] + '</a></u><br>';      
     }
     else
       my_html = my_html + '                  &nbsp<a id=\'' + this.current_panel + '_ticker2_item_link\'><u id=\'' + this.current_panel + '_ticker2_title\'>' + c_LANG_UC_BROWSING_PANEL3_TICKER2_TITLE[global_setup.curr_lang] + '</u></a><br>';
 
     // ticker2 - text
-    if ((iparams.ticker2.text != undefined) && (iparams.ticker2.text != null))
-      my_html = my_html + '                  &nbsp<marquee bgcolor=#0000AA scrollamount=\"2\" scrolldelay=\"5\"><font color=#BBBBBB><div id=\'' + this.current_panel + '_ticker2_text\'>' + iparams.ticker2.text + ' +++ </div></font></marquee><br>';
+    if ((iparams[1].text != undefined) && (iparams[1].text != null))
+      my_html = my_html + '                  &nbsp<marquee bgcolor=#0000AA scrollamount=\"2\" scrolldelay=\"5\"><font color=#BBBBBB><div id=\'' + this.current_panel + '_ticker2_text\'>' + iparams[1].text + '</div></font></marquee><br>';
     else
       my_html = my_html + '                  &nbsp<marquee bgcolor=#0000AA scrollamount=\"2\" scrolldelay=\"5\"><font color=#BBBBBB><div id=\'' + this.current_panel + '_ticker2_text\'>' + c_LANG_TICKER_DEFAULT_TEXT[global_setup.curr_lang] + c_LANG_UC_BROWSING_MENUBAR[0][0][global_setup.curr_lang] + '\\' + c_LANG_UC_BROWSING_MENUBAR[0][as_dates_idx][global_setup.curr_lang] + ' ! +++</div></font></marquee><br>';
   }

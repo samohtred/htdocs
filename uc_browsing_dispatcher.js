@@ -1,4 +1,4 @@
-function uc_browsing_dispatcher( cb_clicked_at_str )
+function uc_browsing_dispatcher( cb_clicked_at_str )    // notwendige DISCO-Änderungen am Ende !
 {
   // take over params into object
   this.cb_clicked_at_str = cb_clicked_at_str;
@@ -7,9 +7,6 @@ function uc_browsing_dispatcher( cb_clicked_at_str )
   this.select_by_id = uc_browsing_dispatcher_select_by_id.bind(this);
   this.select_item = uc_browsing_dispatcher_select_item.bind(this);
   this.select_parent = uc_browsing_dispatcher_select_parent.bind(this);
-  this.open_parent_menu = uc_browsing_dispatcher_open_parent_menu.bind(this);
-  this.extract_ticker_params = uc_browsing_dispatcher_extract_ticker_params.bind(this);
-  this.create_infopanel_iparams = uc_browsing_dispatcher_create_infopanel_iparams.bind(this);
   this.is_loop = uc_browsing_dispatcher_is_loop.bind(this);
   this.process_elem_menu = uc_browsing_dispatcher_process_elem_menu.bind(this);
   this.process_type_menu = uc_browsing_dispatcher_process_type_menu.bind(this);  
@@ -42,6 +39,7 @@ function uc_browsing_dispatcher( cb_clicked_at_str )
   this.panel1_new_tree_item_input = false;
   this.panel1_saved_rename_item = null;
   this.text_focus = 0;
+  this.my_path = "";
 
   // constructor call
   this.init();    
@@ -54,7 +52,7 @@ function uc_browsing_dispatcher_lang_change()
   this.tree_panel.print_title();
   this.content_panel.print_title();
   this.info_panel.print_title();
-  this.info_panel.init_gui(this.create_infopanel_iparams());
+  this.info_panel.init_gui([]);
   this.features_panel.print_title();
 }
 
@@ -62,33 +60,16 @@ function uc_browsing_dispatcher_lang_change()
 function uc_browsing_dispatcher_select_by_id(elem_id)
 {
                               // print whole tree + create new selection
-  var curr_tree_part = this.db_obj.command({elemId:elem_id, lock_id:uc_browsing_setup.tree_locked_item}, "get_tree");
+  var curr_tree_part = this.db_obj.command({}, "get_tree");
   this.panel1_selected_items = [];                            
   this.panel1_selected_items[0] = this.tree_panel.print_tree(curr_tree_part, elem_id);
   this.panel1_select_idx = 1;
-                              // markup cut items
-  for (var i=0; i<this.panel1_cut_items.length; i++)
-  {                                    
-                              // extract elem_id from cut items collected from (possibly) old tree
-    var my_elem_id = this.panel1_cut_items[i].elem_id;
-    var my_parent_elem_id = this.panel1_cut_items[i].parent_elem_id;    
-                              // get GUI Id's if element appears in current tree
-    var my_gui_id = this.tree_panel.get_gui_id(my_elem_id);
-                              // does element exist in current tree ?
-    if (my_gui_id.length > 0)
-    {
-      for (var j=0; j<my_gui_id.length; j++)
-      {
-        if (this.tree_panel.get_item_data(my_gui_id[j]).parent_elem_id == my_parent_elem_id)
-          document.getElementById(my_gui_id[j] + '_a').style.color = '#D0D0D0';
-      }
-    }
-  }
                               // save setup
   uc_browsing_setup.tree_last_selected = this.panel1_selected_items[0].elem_id;
   this.save_setup();
                               // load content of currently selected into Panel 2
-  this.content_panel.load_item_content(this.db_obj.command(uc_browsing_setup.tree_last_selected, "get_content"));
+                              // To-Do : Try to convince Paul and Marc to separate Title / Short Text from Full Text
+  this.content_panel.load_item_content(this.tree_panel.get_item_data(this.tree_panel.get_gui_id(uc_browsing_setup.tree_last_selected)[0])); 
 }
 
 
@@ -98,23 +79,30 @@ function uc_browsing_dispatcher_select_item(submodule, gui_id, mode)
   {
     case c_KEYB_MODE_CTRL_ONLY : 
         var add_item = true;        // false : 
-        for (var i=0; i<this.panel1_selected_items.length; i++)
+        var loop_num = this.panel1_selected_items.length;
+        var i=0;
+        do 
         {
+                                    // found selected item
           if (this.panel1_selected_items[i].gui_id == gui_id)
           {
             add_item = false;
-            if (i!=0)
             {
+                                    // deselect and remove from selected list
               this.tree_panel.markup_items(this.panel1_selected_items[i].gui_id, false);
               this.panel1_selected_items.splice(i, 1);
+              loop_num--;
             }
-          }       
-        }
+          }   
+          else    
+            i++;
+        } while ( i<loop_num);
+        this.panel1_select_idx = this.panel1_selected_items.length;
         if (add_item == true)                                              
         {
           this.panel1_selected_items[this.panel1_select_idx]=this.tree_panel.get_item_data(gui_id);
           this.tree_panel.markup_items(gui_id, true);      
-          this.panel1_select_idx=this.panel1_select_idx + 1;
+          this.panel1_select_idx++;
         }
     break;
 
@@ -124,11 +112,30 @@ function uc_browsing_dispatcher_select_item(submodule, gui_id, mode)
     
     case c_KEYB_MODE_NONE :
                                     // redraw Main Tree
-        if (submodule == 'tree_select')
+        this.db_obj.command(this.tree_panel.get_defpar_pairs(gui_id), "set_default_parents");                                      
+                                    // renew selection
+        var new_item = this.tree_panel.get_item_data(gui_id); 
+                                    // Siblings ? -> recycle tree data
+        if (new_item.parent_gui_id == this.panel1_selected_items[0].parent_gui_id)
         {
-          this.db_obj.command(this.tree_panel.get_gui_path(gui_id), "set_default_parents");                                      
+          for (var i=0; i<this.panel1_selected_items.length; i++)
+          {  
+            this.tree_panel.markup_items(this.panel1_selected_items[i].gui_id, false);
+          }
+          this.tree_panel.markup_items(new_item.gui_id, true);          
         }
-        this.select_by_id(this.tree_panel.get_item_data(gui_id).elem_id);
+                                    // otherwise : request tree data from database  
+        else
+        {
+          var on_click_str = "window." + this.cb_clicked_at_str + "(\'uc_browsing\', \'panel1\', \'show_tree\', \'T0_a\', c_KEYB_MODE_NONE);";    
+          this.db_obj.command({elemId:[this.tree_panel.get_item_data(gui_id).elem_id], lock_id:uc_browsing_setup.tree_locked_item, favIds:[], tickerIds:[], cb_fct_call:on_click_str, mode:"tree_only"}, "req_tree");
+        }
+        this.panel1_selected_items = [];
+        this.panel1_selected_items[0] = this.tree_panel.get_item_data(gui_id);
+                                    // save setup
+        uc_browsing_setup.tree_last_selected = this.panel1_selected_items[0].elem_id;
+        this.save_setup();
+
     break;
     
     default :  
@@ -141,68 +148,12 @@ function uc_browsing_dispatcher_select_item(submodule, gui_id, mode)
 function uc_browsing_dispatcher_select_parent(parent_id)
 {
                                     // redraw Main Tree + create new selection
-  this.db_obj.command({elem_id:this.panel1_selected_items[0].elem_id, parent_id:parent_id}, "set_default_parents");                                      
-  var curr_tree_part = this.db_obj.command({elemId:parent_id, lock_id:uc_browsing_setup.tree_locked_item}, "get_tree")
-  this.panel1_selected_items = [];                            
-  this.panel1_selected_items[0] = this.tree_panel.print_tree(curr_tree_part, parent_id);
-  this.panel1_select_idx = 1;
-                                    // save setup
-  uc_browsing_setup.tree_last_selected = this.panel1_selected_items[0].elem_id;
-  this.save_setup();
-}
-
-
-function uc_browsing_dispatcher_open_parent_menu(gui_id)
-{
-  var myself = this.tree_panel.get_item_data(gui_id);
-  var gui_obj_list = this.db_obj.command({elem_id:myself.elem_id}, "get_parents");
-  this.tree_panel.print_multi_parent_menu(gui_obj_list);
-}
-
-
-function uc_browsing_dispatcher_extract_ticker_params(tree_part)
-{
-  var retval = {};
-  retval.elem_id = tree_part.tree_nodes[0].elem_id
-  retval.text = "";
-  var my_gui_id = tree_part.tree_nodes[0].gui_id
-  for (var i=0; i<tree_part.tree_nodes.length; i++)
-  {
-    if (tree_part.tree_nodes[i].parent_gui_id == my_gui_id)
-    {
-      retval.text = retval.text + " +++ " + tree_part.tree_nodes[i].name;
-    }
-  }
-  return retval;
+  this.db_obj.command([{elem_id:this.panel1_selected_items[0].elem_id, parent_id:parent_id}], "set_default_parents");   
+  var on_click_str = "window." + this.cb_clicked_at_str + "(\'uc_browsing\', \'panel1\', \'show_tree\', \'T0_a\', c_KEYB_MODE_NONE);";            
+  this.db_obj.command({elemId:[this.panel1_selected_items[0].elem_id], lock_id:uc_browsing_setup.tree_locked_item, favIds:[], tickerIds:[], cb_fct_call:on_click_str, mode:"tree_only"}, "req_tree"); 
 }
   
   
-function uc_browsing_dispatcher_create_infopanel_iparams()
-{
-  var retval = {};
-  retval.ticker1 = {elem_id:null,text:null};
-  retval.ticker2 = {elem_id:null,text:null};
-  
-  // create ticker 1 params
-  if ((uc_browsing_setup.info_ticker1_item_id != undefined) && (uc_browsing_setup.info_ticker1_item_id != null))
-  {
-                                    // get tree from point of view of current news item
-    var ticker_tree_part = this.db_obj.command({elemId:uc_browsing_setup.info_ticker1_item_id, lock_id:uc_browsing_setup.info_ticker1_item_id}, "get_tree");
-                                    // extract ticker params from tree part
-    retval.ticker1 = this.extract_ticker_params(ticker_tree_part);
-  }            
-
-  // create ticker 2 params  
-  if ((uc_browsing_setup.info_ticker2_item_id != undefined) && (uc_browsing_setup.info_ticker2_item_id != null))
-  {
-                                    // get tree from point of view of current news item
-    var ticker_tree_part = this.db_obj.command({elemId:uc_browsing_setup.info_ticker2_item_id, lock_id:uc_browsing_setup.info_ticker2_item_id}, "get_tree");
-                                    // extract ticker params from tree part
-    retval.ticker2 = this.extract_ticker_params(ticker_tree_part);
-  }
-  
-  return retval;
-}          
                                  
                                  
 function uc_browsing_dispatcher_is_loop(dest_item, src_items)
@@ -217,8 +168,9 @@ function uc_browsing_dispatcher_is_loop(dest_item, src_items)
       if (src_items[i].elem_id == dest_tree_part.explorer_path[j].elem_id)
         retval = true;
     }
+    if (src_items[i].elem_id == dest_item.elem_id)
+      retval = true; 
   }
-  
   return retval;
 }
                                  
@@ -227,6 +179,10 @@ function uc_browsing_dispatcher_process_elem_menu(item)
 {
   if (item != "paste_item")
   {
+    if (this.panel1_cut_items.length >0)
+    {
+      this.tree_panel.mark_items_as_cut(this.panel1_cut_items, false);
+    }
     this.panel1_cut_items = [];
     this.panel1_copied_items = [];     
   }
@@ -258,13 +214,15 @@ function uc_browsing_dispatcher_process_elem_menu(item)
           if (this.panel1_selected_items[0].elem_id != "root")
           {
                                       // new selection : parent of current selection
-            var new_sel0 = this.tree_panel.get_item_data(this.panel1_selected_items[0].parent_gui_id);      
-                                      // delete all selected items from database
-            this.db_obj.command({elem:this.panel1_selected_items}, "delete_item");
+            var new_sel0 = this.tree_panel.get_item_data(this.panel1_selected_items[0].parent_gui_id);   
+            uc_browsing_setup.tree_last_selected = this.panel1_selected_items[0].parent_elem_id;
+            this.save_setup();
+                                      // delete all selected items from database                                                 
+            var on_click_str = "window." + this.cb_clicked_at_str + "(\'uc_browsing\', \'panel1\', \'show_tree\', \'T0_a\', c_KEYB_MODE_NONE);";            
+            this.db_obj.command({parentId:this.panel1_selected_items[0].parent_elem_id, itemId:this.panel1_selected_items[0].elem_id, lock_id:uc_browsing_setup.tree_locked_item, cb_fct_call:on_click_str}, "delete_item");
                                       // update tree in GUI
             this.panel1_selected_items=[];
             this.panel1_selected_items[0]= new_sel0;
-            this.select_by_id(this.panel1_selected_items[0].elem_id);           
             this.panel1_select_idx = 1; 
           }
           else
@@ -278,7 +236,7 @@ function uc_browsing_dispatcher_process_elem_menu(item)
         break;
     case "cut_item"    :
         this.panel1_cut_items = this.panel1_selected_items;
-        this.select_by_id(this.panel1_selected_items[0].elem_id);            
+        this.tree_panel.mark_items_as_cut(this.panel1_selected_items, true);
         break;
     case "paste_item"  :
                                     // number of destination nodes which are selected == 1
@@ -289,13 +247,12 @@ function uc_browsing_dispatcher_process_elem_menu(item)
             if (!this.is_loop(this.panel1_selected_items[0], this.panel1_cut_items)) 
             {
                                     // move items in database
-              this.db_obj.command({src_elem:this.panel1_cut_items, dst_elem:this.panel1_selected_items[0]}, "move_item"); 
+              var on_click_str = "window." + this.cb_clicked_at_str + "(\'uc_browsing\', \'panel1\', \'show_tree\', \'T0_a\', c_KEYB_MODE_NONE);";            
+              this.db_obj.command({src_elem:this.panel1_cut_items, dst_elem:this.panel1_selected_items[0], lock_id:uc_browsing_setup.tree_locked_item, cb_fctn_str:on_click_str}, "move_item"); 
                                     // any further paste operations are only copy operations
                                     // because the source items cannot be removed any more
               this.panel1_copied_items = this.panel1_cut_items;
               this.panel1_cut_items = [];             
-                                    // reload tree
-              this.select_by_id(this.panel1_selected_items[0].elem_id);                                    
             }
             else
               alert(c_LANG_WARNING_CYCLE_DETECTED[global_setup.curr_lang]);
@@ -304,10 +261,9 @@ function uc_browsing_dispatcher_process_elem_menu(item)
           {
             if (!this.is_loop(this.panel1_selected_items[0], this.panel1_copied_items)) 
             {
-                                    // copy items in database
-              this.db_obj.command({src_elem:this.panel1_copied_items, dst_elem:this.panel1_selected_items[0]}, "copy_item"); 
-                                    // reload tree
-              this.select_by_id(this.panel1_selected_items[0].elem_id);                                    
+                                    // copy items in database and reload tree
+              var on_click_str = "window." + this.cb_clicked_at_str + "(\'uc_browsing\', \'panel1\', \'show_tree\', \'T0_a\', c_KEYB_MODE_NONE);";            
+              this.db_obj.command({src_elem:this.panel1_copied_items, dst_elem:this.panel1_selected_items[0], lock_id:uc_browsing_setup.tree_locked_item, cb_fctn_str:on_click_str}, "copy_item"); 
             }
             else
               alert(c_LANG_WARNING_CYCLE_DETECTED[global_setup.curr_lang]);
@@ -323,15 +279,16 @@ function uc_browsing_dispatcher_process_elem_menu(item)
         {
                                     // unlock topic if it is locked for the second time
           if (this.panel1_selected_items[0].elem_id == uc_browsing_setup.tree_locked_item)
-            uc_browsing_setup.tree_locked_item = "root";
+            uc_browsing_setup.tree_locked_item = "575";
           else  
             uc_browsing_setup.tree_locked_item = this.panel1_selected_items[0].elem_id;
           this.save_setup();
                                     // redraw tree
-          var curr_tree_part = this.db_obj.command({elemId:this.panel1_selected_items[0].elem_id, lock_id:uc_browsing_setup.tree_locked_item}, "get_tree");
+          var on_click_str = "window." + this.cb_clicked_at_str + "(\'uc_browsing\', \'panel1\', \'show_tree\', \'T0_a\', c_KEYB_MODE_NONE);";            
+          this.db_obj.command({elemId:[this.panel1_selected_items[0].elem_id], lock_id:uc_browsing_setup.tree_locked_item, favIds:[], tickerIds:[], cb_fct_call:on_click_str, mode:"tree_only"}, "req_tree");
           var saved_selection = this.panel1_selected_items[0];
           this.panel1_selected_items = []; 
-          this.panel1_selected_items[0] = this.tree_panel.print_tree(curr_tree_part, saved_selection.elem_id);
+          this.panel1_selected_items[0] = this.tree_panel.get_item_data("T0");
           this.panel1_select_idx = 1;
         }
         else
@@ -342,7 +299,8 @@ function uc_browsing_dispatcher_process_elem_menu(item)
         {
           uc_browsing_setup.info_ticker1_item_id = this.panel1_selected_items[0].elem_id;
           this.save_setup();
-          this.info_panel.init_gui(this.create_infopanel_iparams());
+          var req_tree_cb_str = "window." + this.cb_clicked_at_str + "(\'uc_browsing\', \'panel1\', \'ticker_only\', \'" + "T0_a\', c_KEYB_MODE_NONE);";            
+          this.db_obj.command({elemId:[], lock_id:0, favIds:[], tickerIds:[uc_browsing_setup.info_ticker1_item_id, uc_browsing_setup.info_ticker2_item_id], cb_fct_call:req_tree_cb_str, mode:"ticker_only"}, "req_tree");
         }
         else
           alert(c_LANG_WARNING_SINGLE_ITEM_NEEDED[global_setup.curr_lang]);      
@@ -352,7 +310,8 @@ function uc_browsing_dispatcher_process_elem_menu(item)
         {
           uc_browsing_setup.info_ticker2_item_id = this.panel1_selected_items[0].elem_id;
           this.save_setup();
-          this.info_panel.init_gui(this.create_infopanel_iparams());
+          var req_tree_cb_str = "window." + this.cb_clicked_at_str + "(\'uc_browsing\', \'panel1\', \'ticker_only\', \'" + "T0_a\', c_KEYB_MODE_NONE);";            
+          this.db_obj.command({elemId:[], lock_id:0, favIds:[], tickerIds:[uc_browsing_setup.info_ticker1_item_id, uc_browsing_setup.info_ticker2_item_id], cb_fct_call:req_tree_cb_str, mode:"ticker_only"}, "req_tree");
         }
         else
           alert(c_LANG_WARNING_SINGLE_ITEM_NEEDED[global_setup.curr_lang]);      
@@ -370,27 +329,16 @@ function uc_browsing_dispatcher_process_type_menu(item)
   // choose element type
   var item_int = lib_tree_get_type_no(item);
   if (item_int >= 0)
-  {                                                   
+  {                                                  
                                     // set type in Info Bar
     this.toolbar.set_elem_type(item_int);
                                     // set new type for all selected items
     if (this.panel1_selected_items.length > 0)
     {
-      for (var i=0; i<this.panel1_selected_items.length ; i++)
-      {
-        if (this.panel1_selected_items[i].elem_id != "root") 
-        {
                                     // change type field in database
-          this.db_obj.command({elem_id:this.panel1_selected_items[i].elem_id, content:c_LANG_LIB_TREE_ELEMTYPE[item_int+1][2]}, "set_type");                                    
-        }
-      }
-                                    // write changes to database
-      this.db_obj.command({}, "db_update");             
-                                    // redraw tree from database content
-      var curr_tree_part = this.db_obj.command({elemId:this.panel1_selected_items[0].elem_id, lock_id:uc_browsing_setup.tree_locked_item}, "get_tree");
-      this.panel1_selected_items[0] = this.tree_panel.print_tree(curr_tree_part, this.panel1_selected_items[0].elem_id);
-      for (var i=0; i<this.panel1_selected_items.length ; i++)
-        this.tree_panel.markup_items(this.panel1_selected_items[i].gui_id, true);  
+                                    // create item in database
+      var on_click_str = "window." + this.cb_clicked_at_str + "(\'uc_browsing\', \'panel1\', \'show_tree\', \'T0_a\', c_KEYB_MODE_NONE);";            
+      this.db_obj.command({items:this.panel1_selected_items, field_id:"type", content:c_LANG_LIB_TREE_ELEMTYPE[item_int+1][0], lock_id:uc_browsing_setup.tree_locked_item, cb_fctn_str:on_click_str}, "change_item_field");
     }
     this.panel1_elem_type = item_int;
   }
@@ -412,21 +360,24 @@ function uc_browsing_dispatcher_process_fav_menu(item)
                                         // write this setup into Setups Memory
         this.save_setup();
                                         // load favorites in respective panel
-        this.features_panel.load_favorites(uc_browsing_setup.favorites);
+        var req_tree_cb_str = "window." + this.cb_clicked_at_str + "(\'uc_browsing\', \'panel1\', \'fav_only\', \'" + "T0_a\', c_KEYB_MODE_NONE);";            
+        this.db_obj.command({elemId:[], lock_id:0, favIds:uc_browsing_setup.favorites, tickerIds:[], cb_fct_call:req_tree_cb_str, mode:"fav_only"}, "req_tree");
       }
       else
         alert(c_LANG_WARNING_WRONG_SELECTION[global_setup.curr_lang]);  
-      break;
+    break;
     
     // load currently selected favorite as selected tree item
     case c_LANG_UC_BROWSING_MENUBAR[2][2][0] :
       if (this.curr_sel_favorite_id!=-1) 
       {
-        this.select_by_id(uc_browsing_setup.favorites[this.curr_sel_favorite_id]); 
+        uc_browsing_setup.tree_last_selected = uc_browsing_setup.favorites[this.curr_sel_favorite_id];
+        var req_tree_cb_str = "window." + this.cb_clicked_at_str + "(\'uc_browsing\', \'panel1\', \'show_tree\', \'T0_a\', c_KEYB_MODE_NONE);";            
+        this.db_obj.command({elemId:[uc_browsing_setup.tree_last_selected], lock_id:"575", favIds:[], tickerIds:[], cb_fct_call:req_tree_cb_str, mode:"tree_only"}, "req_tree"); 
       }
       else
         alert(c_LANG_WARNING_WRONG_SELECTION[global_setup.curr_lang]);  
-      break;
+    break;
     
     // delete currently selected favorite
     case c_LANG_UC_BROWSING_MENUBAR[2][3][0] :
@@ -436,13 +387,15 @@ function uc_browsing_dispatcher_process_fav_menu(item)
         uc_browsing_setup.favorites.splice(this.curr_sel_favorite_id, 1);
                                     // write list to cookies
         this.save_setup();
-                                    // change GUI accordingly
-        this.features_panel.load_favorites(uc_browsing_setup.favorites);          
+                                    // update internal variables
         this.curr_sel_favorite_id = -1;
+                                    // change GUI accordingly
+        var req_tree_cb_str = "window." + this.cb_clicked_at_str + "(\'uc_browsing\', \'panel1\', \'fav_only\', \'" + "T0_a\', c_KEYB_MODE_NONE);";            
+        this.db_obj.command({elemId:[], lock_id:0, favIds:uc_browsing_setup.favorites, tickerIds:[], cb_fct_call:req_tree_cb_str, mode:"fav_only"}, "req_tree");
       }
       else
         alert(c_LANG_WARNING_WRONG_SELECTION[curr_lang]);  
-      break;
+    break;
 
     // delete all favorites
     case c_LANG_UC_BROWSING_MENUBAR[2][4][0] :
@@ -450,9 +403,12 @@ function uc_browsing_dispatcher_process_fav_menu(item)
       uc_browsing_setup.favorites = [];
                                     // write list to cookies
       this.save_setup();
+                                    // update internal variables
+      this.curr_sel_favorite_id = -1;
                                     // change GUI accordingly
-      this.features_panel.load_favorites(uc_browsing_setup.favorites);          
-      break;
+      var req_tree_cb_str = "window." + this.cb_clicked_at_str + "(\'uc_browsing\', \'panel1\', \'fav_only\', \'" + "T0_a\', c_KEYB_MODE_NONE);";            
+      this.db_obj.command({elemId:[], lock_id:0, favIds:uc_browsing_setup.favorites, tickerIds:[], cb_fct_call:req_tree_cb_str, mode:"fav_only"}, "req_tree");
+    break;
   }
   
 //  alert(item);
@@ -472,15 +428,21 @@ function uc_browsing_dispatcher_keyb_proc(my_key, my_extra_keys, e)
           // ENTER
           case 13 :
             //alert("Enter");
-            this.text_focus = 0;
-            this.clicked_at("enter_key", "", "input_done", c_KEYB_MODE_NONE)
+            if ((this.panel1_new_tree_item_input == true) || (this.panel1_saved_rename_item != null))
+            {
+              this.text_focus = 0;
+              this.clicked_at("enter_key", "", "input_done", c_KEYB_MODE_NONE)
+            }
             break;
 
           // ESC
           case 27 :
             //alert("ESC");
-            this.text_focus = 0;            
-            this.clicked_at("esc_key", "", "cancel_item", c_KEYB_MODE_NONE)            
+            if ((this.panel1_new_tree_item_input == true) || (this.panel1_saved_rename_item != null))
+            {
+              this.text_focus = 0;            
+              this.clicked_at("esc_key", "", "cancel_item", c_KEYB_MODE_NONE)            
+            }
           break;
 
           // F2
@@ -532,7 +494,7 @@ function uc_browsing_dispatcher_keyb_proc(my_key, my_extra_keys, e)
                                     // scroll into view
                 document.getElementById(this.panel1_selected_items[0].gui_id + '_div').scrollIntoView();  // $$$
                                     // load content
-                this.content_panel.load_item_content(this.db_obj.command(uc_browsing_setup.tree_last_selected, "get_content"));                
+                this.content_panel.load_item_content(this.tree_panel.get_item_data(this.tree_panel.get_gui_id(uc_browsing_setup.tree_last_selected)[0]));                                    
               }
               else
                 document.getElementById('div_panel1_content').scrollTop = 0;
@@ -575,7 +537,7 @@ function uc_browsing_dispatcher_keyb_proc(my_key, my_extra_keys, e)
                                     // scroll into view
                 document.getElementById(this.panel1_selected_items[0].gui_id + '_div').scrollIntoView();  // $$$              
                                     // load content
-                this.content_panel.load_item_content(this.db_obj.command(uc_browsing_setup.tree_last_selected, "get_content"));                
+                this.content_panel.load_item_content(this.tree_panel.get_item_data(this.tree_panel.get_gui_id(uc_browsing_setup.tree_last_selected)[0]));
               }
               window.scrollTo(0, 0);
             }
@@ -627,12 +589,14 @@ function uc_browsing_dispatcher_keyb_proc(my_key, my_extra_keys, e)
 
         switch (my_key)
         {
-          
           // ALT + N          
           case 78 :
             //alert("ALT-N");
-            if (this.text_focus == 0)                                    
+            if (this.text_focus == 0)  
+            {
+              this.text_focus = 1;                                  
               this.clicked_at("menubar", c_LANG_UC_BROWSING_MENUBAR[0][0][0], "input_item", c_KEYB_MODE_ALT_ONLY);            
+            }
           break;
           
           // ALT + 0..9
@@ -640,7 +604,7 @@ function uc_browsing_dispatcher_keyb_proc(my_key, my_extra_keys, e)
             if(my_key>47 && my_key<58)
             { 
               //alert("ALT-"+(my_key-48));        
-              this.clicked_at("menubar", c_LANG_LIB_TREE_ELEMTYPE[0][0], new String(my_key-48), c_KEYB_MODE_ALT_ONLY);                          
+              this.clicked_at("menubar", c_LANG_LIB_TREE_ELEMTYPE[0][0], new String(c_LANG_LIB_TREE_ELEMTYPE[my_key-47][0]), c_KEYB_MODE_ALT_ONLY);  
             }
           break;
         }
@@ -707,23 +671,21 @@ function uc_browsing_dispatcher_clicked_at(sender, submodule, item, mode)
         {
                                     // get new name from lib_tree
           var item_name = document.getElementById("N0_input").value;
-                                    // create item in database
-          this.db_obj.command({parent_elem_id:this.panel1_selected_items[0].elem_id, name:item_name, type:c_LANG_LIB_TREE_ELEMTYPE[this.panel1_elem_type+1][2]}, "create_item");
-                                    // reload tree from database
-          this.select_by_id(this.panel1_selected_items[0].elem_id)                                    
                                     // clear flag
           this.panel1_new_tree_item_input = false;
+                                    // create item in database
+          var on_click_str = "window." + this.cb_clicked_at_str + "(\'uc_browsing\', \'panel1\', \'show_tree\', \'T0_a\', c_KEYB_MODE_NONE);";            
+          this.db_obj.command({parent_elem_id:this.panel1_selected_items[0].elem_id, name:item_name, type:c_LANG_LIB_TREE_ELEMTYPE[this.panel1_elem_type+1][0], lock_id:uc_browsing_setup.tree_locked_item, cb_fct_call:on_click_str}, "create_item");
         }
         if (this.panel1_saved_rename_item != null)
         {
                                     // get new name from lib_tree
           var item_name = document.getElementById(this.panel1_saved_rename_item.gui_id + "_input").value;
-                                    // create item in database
-          this.db_obj.command({item_id:this.panel1_selected_items[0].elem_id, field_id:"name", content:item_name}, "change_item_field");
-                                    // reload tree from database
-          this.select_by_id(this.panel1_selected_items[0].elem_id)                                    
                                     // clear flag
           this.panel1_saved_rename_item = null;
+                                    // create item in database
+          var on_click_str = "window." + this.cb_clicked_at_str + "(\'uc_browsing\', \'panel1\', \'show_tree\', \'T0_a\', c_KEYB_MODE_NONE);";            
+          this.db_obj.command({items:this.panel1_selected_items, field_id:"name", content:item_name, lock_id:uc_browsing_setup.tree_locked_item, cb_fctn_str:on_click_str}, "change_item_field");
         }
         break;
 
@@ -756,12 +718,46 @@ function uc_browsing_dispatcher_clicked_at(sender, submodule, item, mode)
           case "tree_select" :      
             this.select_item(submodule, gui_id, mode);
           break;
-          
-                                    // open up Menu to choose desired parent node after clicking {...} button
+                                    // init of tree, content, info panel and feature panel
+          case "load_all" :
+                                    // get data from database module
+            var curr_tree_data = this.db_obj.command({}, "get_tree");                                    
+                                    // init info panel and set periodic timer
+            this.info_panel = new uc_browsing_infopanel("div_panel3_headline", c_LANG_UC_BROWSING_PANEL3_TITLE, "div_panel3_pad", "uc_browsing", "panel3", this.cb_clicked_at_str, curr_tree_data.ticker); 
+            var on_click_str = "window." + this.cb_clicked_at_str + "(\'uc_browsing\', \'panel3\', \'update_info_panel\', \'disp_init\', c_KEYB_MODE_NONE);";
+            setTimeout(on_click_str, uc_browsing_setup.info_timer); 
+                                    // init features panel
+            this.features_panel = new uc_browsing_features("div_panel4_headline", c_LANG_UC_BROWSING_PANEL4_TITLE, "div_panel4_pad", "uc_browsing", "panel4", this.cb_clicked_at_str, this.db_obj);
+            this.features_panel.load_favorites(curr_tree_data.fav);
+          case "show_tree" :
+            this.select_by_id(uc_browsing_setup.tree_last_selected);  
+            this.toolbar.set_cb_url(uc_browsing_setup.tree_last_selected);       
+          break; 
+          case "ticker_only" :
+            var curr_tree_data = this.db_obj.command({}, "get_tree");
+            this.info_panel.init_gui(curr_tree_data.ticker);
+          break;
+          case "fav_only" :
+                                    // get data from db module
+            var curr_tree_data = this.db_obj.command({}, "get_tree");
+                                    // extract array to save Cookie
+            for (var i=0; i<curr_tree_data.fav.length; i++)
+              uc_browsing_setup.favorites[i] = curr_tree_data.fav[i][0].elem_id;
+            this.save_setup();
+            this.features_panel.load_favorites(curr_tree_data.fav);
+          break;
+                                    // request parents from database to prepare parent menu
           case "open_parent_menu" :
             this.panel1_selected_items[0]=this.tree_panel.get_item_data(gui_id);
             this.panel1_select_idx = 1;
-            this.open_parent_menu(gui_id);
+            var myself = this.tree_panel.get_item_data(gui_id);
+            var on_click_str = "window." + this.cb_clicked_at_str + "(\'uc_browsing\', \'panel1\', \'show_parent_menu\', \'\', c_KEYB_MODE_NONE);";            
+            this.db_obj.command({elem_id:myself.elem_id, cb_fctn_str:on_click_str}, "req_all_parents");
+          break;
+                                    // open up Menu to choose desired parent node after clicking {...} button
+          case "show_parent_menu" : 
+            var gui_obj_list = this.db_obj.command({}, "get_all_parents");
+            this.tree_panel.print_multi_parent_menu(gui_obj_list);
           break;
           
           case "parent_menu_select" :
@@ -791,7 +787,8 @@ function uc_browsing_dispatcher_clicked_at(sender, submodule, item, mode)
               {
                 this.text_focus = 0;
                                     // save text content to database
-                this.db_obj.command({elem_id:uc_browsing_setup.tree_last_selected, content:getInnerHTML(document.getElementById("panel2_content_fulltext"))}, "set_content");
+                var on_click_str = "window." + this.cb_clicked_at_str + "(\'uc_browsing\', \'panel1\', \'show_tree\', \'T0_a\', c_KEYB_MODE_NONE);";            
+                this.db_obj.command({items:this.panel1_selected_items, field_id:"content", content:getInnerHTML(document.getElementById("panel2_content_fulltext")), lock_id:uc_browsing_setup.tree_locked_item, cb_fctn_str:on_click_str}, "change_item_field");
               }                
               
           break;
@@ -836,8 +833,9 @@ function uc_browsing_dispatcher_clicked_at(sender, submodule, item, mode)
 function uc_browsing_dispatcher_update_info_panel(source)
 {
 //  alert(source);
-                                    // update Info Panel
-  this.info_panel.init_gui(this.create_infopanel_iparams());
+                                    // request data from database 
+  var req_tree_cb_str = "window." + this.cb_clicked_at_str + "(\'uc_browsing\', \'panel1\', \'ticker_only\', \'" + "T0_a\', c_KEYB_MODE_NONE);";            
+  this.db_obj.command({elemId:[], lock_id:0, favIds:[], tickerIds:[uc_browsing_setup.info_ticker1_item_id, uc_browsing_setup.info_ticker2_item_id], cb_fct_call:req_tree_cb_str, mode:"ticker_only"}, "req_tree");
                                     // setup next automatic timer for Info Panel
   var on_click_str = "window." + this.cb_clicked_at_str + "(\'uc_browsing\', \'panel3\', \'update_info_panel\', \'update_info_panel\', c_KEYB_MODE_NONE);";
   setTimeout(on_click_str, uc_browsing_setup.info_timer);     
@@ -851,7 +849,7 @@ function uc_browsing_dispatcher_load_setup()
     switch (global_status.actual_setup_src_type)
     {
       case c_DATA_SOURCE_TYPE_ID_COOKIE :
-            var setup_cookie = new lib_data_cookie(plugin_name, c_DEFAULT_UC_BROWSING_SETUP_COOKIE);
+            var setup_cookie = new lib_data_cookie(plugin_name, this.my_path, c_DEFAULT_UC_BROWSING_SETUP_COOKIE);
             var my_cookie_content = setup_cookie.read("data");
             if (my_cookie_content != null)
             {
@@ -868,6 +866,8 @@ function uc_browsing_dispatcher_load_setup()
           break;
     }
   }
+  if (param_item_id != undefined)
+    uc_browsing_setup.tree_last_selected = param_item_id;
 }
 
 
@@ -878,7 +878,7 @@ function uc_browsing_dispatcher_save_setup()
     switch (global_status.actual_setup_src_type)
     {
       case c_DATA_SOURCE_TYPE_ID_COOKIE :
-            var setup_cookie = new lib_data_cookie(plugin_name, c_DEFAULT_UC_BROWSING_SETUP_COOKIE);
+            var setup_cookie = new lib_data_cookie(plugin_name, this.my_path, c_DEFAULT_UC_BROWSING_SETUP_COOKIE);
             setup_cookie.write("data", uc_browsing_setup);
           break;
       default :
@@ -890,32 +890,25 @@ function uc_browsing_dispatcher_save_setup()
 
 function uc_browsing_dispatcher_init()
 {
+                                    // get Sub-Directory name of instance and delete all slashes
+  var my_path_raw = window.location.pathname;
+  this.my_path = my_path_raw.replace(/\//g,''); 
+  
   // load setup into struct 'uc_browsing_setup'
   this.load_setup();
   // prepare data sources (default parents and discussion content)
-  this.def_parent_storage = new lib_data_cookie("X-Tree-M", "Default_Parents");
+  this.def_parent_storage = new lib_data_cookie("X-Tree-M", this.my_path, "Default_Parents");
   this.db_obj = new lib_data_dispatcher(this.def_parent_storage, uc_browsing_setup.tree_data_src_type, uc_browsing_setup.tree_data_src_path, uc_browsing_setup.tree_data_src_params);
   // load Menu and Tool Bar                                                  
   this.menubar = new uc_browsing_menubar( 'div_menubar', 'uc_browsing', 'menubar', this.cb_clicked_at_str, c_LANG_UC_BROWSING_MENUBAR); 
   this.toolbar = new uc_browsing_toolbar( 'div_toolbar', this.cb_clicked_at_str);     
   // load Panel 1
-                                    // load tree data  
-  var curr_tree_part = this.db_obj.command({elemId:uc_browsing_setup.tree_last_selected, lock_id:uc_browsing_setup.tree_locked_item}, "get_tree");
-                                    // print tree
-  this.tree_panel = new lib_tree("div_panel1_headline", c_LANG_UC_BROWSING_PANEL1_TITLE, "div_panel1_pad", "uc_browsing", "panel1", this.cb_clicked_at_str);
-  this.panel1_selected_items = [];
-  this.panel1_selected_items[0] = this.tree_panel.print_tree(curr_tree_part, uc_browsing_setup.tree_last_selected);
-  this.panel1_select_idx = 1;  
                                     // init content panel
   this.content_panel = new uc_browsing_content("div_panel2_headline", c_LANG_UC_BROWSING_PANEL2_TITLE, "div_panel2_pad", "uc_browsing", "panel2", this.cb_clicked_at_str);
-  this.content_panel.load_item_content(this.db_obj.command(uc_browsing_setup.tree_last_selected, "get_content"));
-                                    // init info panel
-  this.info_panel = new uc_browsing_infopanel("div_panel3_headline", c_LANG_UC_BROWSING_PANEL3_TITLE, "div_panel3_pad", "uc_browsing", "panel3", this.cb_clicked_at_str, this.create_infopanel_iparams());                                    
-                                    // setup automatic timer for Info Panel
-  var on_click_str = "window." + this.cb_clicked_at_str + "(\'uc_browsing\', \'panel3\', \'update_info_panel\', \'disp_init\', c_KEYB_MODE_NONE);";
-  setTimeout(on_click_str, uc_browsing_setup.info_timer); 
-                                    // init features panel
-  this.features_panel = new uc_browsing_features("div_panel4_headline", c_LANG_UC_BROWSING_PANEL4_TITLE, "div_panel4_pad", "uc_browsing", "panel4", this.cb_clicked_at_str, this.db_obj);
-  this.features_panel.load_favorites(uc_browsing_setup.favorites);
+                                    // load tree panel, info panel and features panel  
+  this.tree_panel = new lib_tree("div_panel1_headline", c_LANG_UC_BROWSING_PANEL1_TITLE, "div_panel1_pad", "uc_browsing", "panel1", this.cb_clicked_at_str);
+  var req_tree_cb_str = "window." + this.cb_clicked_at_str + "(\'uc_browsing\', \'panel1\', \'load_all\', \'" + "T0_a\', c_KEYB_MODE_NONE);";            
+  this.db_obj.command({elemId:[uc_browsing_setup.tree_last_selected], lock_id:uc_browsing_setup.tree_locked_item, favIds:uc_browsing_setup.favorites, tickerIds:[uc_browsing_setup.info_ticker1_item_id, uc_browsing_setup.info_ticker2_item_id], cb_fct_call:req_tree_cb_str, mode:"load_all"}, "req_tree");
+
 }
 

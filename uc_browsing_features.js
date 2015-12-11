@@ -46,13 +46,13 @@ function uc_browsing_features_load_favorites(favorites_array)
   
   for (var i=0; i<favorites_array.length; i++)
   {
-    var elem_tree_part = this.db_obj.command({elemId:favorites_array[i], lock_id:"root"}, "get_tree");
-    var idx = 0;
-    while (elem_tree_part.tree_nodes[idx++].elem_id != favorites_array[i]) {}
     var my_div = document.createElement("div");
     my_div.id = 'favorite' + i + '_div';
     var on_click_str = "return window." + this.cb_clicked_at_str + "(\'" + this.current_usecase + "\', \'" + this.current_panel + "\', \'favorites\', \'" + i + "\', c_KEYB_MODE_NONE );";    
-    setInnerHTML(my_div, '<a id=\"favorite' + i + '\" onclick=\"' + on_click_str + '\" style=\"display: block; padding-left:0.2em;\">' + elem_tree_part.tree_nodes[--idx].name + '<br/></a>');  
+    var fav_text = "";
+    for (var j=0; j<favorites_array[i].length; j++)
+      fav_text = ' \\ ' + favorites_array[i][j].name + fav_text;
+    setInnerHTML(my_div, '<a id=\"favorite' + i + '\" onclick=\"' + on_click_str + '\" style=\"display: block; padding-left:0.2em;\">' + fav_text + '<br/></a>');  
     gui_context.appendChild(my_div);
   }
   

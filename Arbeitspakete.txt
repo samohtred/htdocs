@@ -1,0 +1,15 @@
+Speicherproblem
+  Wie ist die maximale Speichergrenze für Web-Applikation ? 
+  Kann man die Grenze ausweiten ? 
+  Kann man den Garbage-Collektor manuell starten ?
+  Wie kann man Speicher-Flaschenhälse ausfindig machen ? Debug-Tools am Start ?
+  -> würde dabei helfen, daß die Ladezeiten runtergehen, weil mehr Daten auf einmal geladen 
+      werden können
+Debug-Logging / Undo-Funktionalität
+  Inputs aus Tastatur+Mausclick + Kommunikation mit Datenbank loggen
+  Kann man aus Web-Applikation beim User in ein File schreiben ?
+Strenge Input-Regeln (z.B. Buchstabenbegrenzung)
+Browser-Kompatibilität checken + Darstellung auf versch. Geräten (Display-Größe, etc.)
+Links im Volltext realisieren
+XML-Library glattziehen
+  

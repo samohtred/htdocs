@@ -4,16 +4,18 @@
 // http://techpatterns.com/downloads/javascript_cookies.php
 // http://www.quirksmode.org/js/cookies.html
 
-function lib_data_cookie(tool, submodule)
+function lib_data_cookie(tool, path, submodule)
 {
-  // take over params
-  this.tool = tool;
-  this.submodule = submodule;
-  
+ 
   // object functions
   this.write = lib_data_cookie_write.bind(this);
   this.read = lib_data_cookie_read.bind(this); 
   this.delete = lib_data_cookie_delete.bind(this);
+
+  if (path != "")
+    this.cookie_name = tool + "_" + path + "_" + submodule;
+  else
+    this.cookie_name = tool + "_" + submodule;
 }
 
 
@@ -27,11 +29,11 @@ function lib_data_cookie_write(elem_name, value)
 //	alert("4e");
 	var expires = "; expires="+date.toGMTString();
 //	alert("4f");
-//	alert(this.tool + "_" + this.submodule + "_" + elem_name+"="+escape(JSON.stringify(value))+expires+"; path=/");
+//	alert(this.cookie_name + "_" + elem_name+"="+escape(JSON.stringify(value))+expires+"; path=localhost/");
   var my_json_text = JSON.stringify(value); 
-  var cookie_raw_data = this.tool + "_" + this.submodule + "_" + elem_name+"="+escape(my_json_text)+expires+"; path=/";
+  var cookie_raw_data = this.cookie_name + "_" + elem_name+"="+escape(my_json_text)+expires+"; path=localhost/";
 	document.cookie = cookie_raw_data;
-//	document.cookie = this.tool + "_" + this.submodule + "_" + elem_name+"="+escape(value)+expires+"; path=/";  
+//	document.cookie = this.cookie_name + "_" + elem_name+"="+escape(value)+expires+"; path=localhost/";  
 //  alert("4g");
 }
 
@@ -45,7 +47,7 @@ function lib_data_cookie_read(elem_name)
 	for(var i=0;i < ca.length;i++) {
 		var c = ca[i];
 		while (c.charAt(0)==' ') c = c.substring(1,c.length);
-		var my_str = this.tool + "_" + this.submodule + "_" + elem_name;
+		var my_str = this.cookie_name + "_" + elem_name;
 		if (c.indexOf(my_str) == 0) 
 		{
 //		  alert("Cookie-Wert : "+ c.substring(my_str.length+1,c.length));
@@ -69,7 +71,7 @@ function lib_data_cookie_delete(elem_name)
 //	alert("4e");
 	var expires = "; expires="+date.toGMTString();
 //	alert("4f");
-//	alert(this.tool + "_" + this.submodule + "_" + elem_name+"="+escape(JSON.stringify(""))+expires+"; path=/");
-	document.cookie = this.tool + "_" + this.submodule + "_" + elem_name+"="+escape(JSON.stringify(""))+expires+"; path=/";  
+//	alert(this.cookie_name + "_" + elem_name+"="+escape(JSON.stringify(""))+expires+"; path=localhost/");
+	document.cookie = this.cookie_name + "_" + elem_name+"="+escape(JSON.stringify(""))+expires+"; path=localhost/";  
 //  alert("4g");
 }

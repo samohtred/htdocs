@@ -77,15 +77,28 @@ var c_DEFAULT_GLOBAL_SETUP = {};
  * V0.1.1.2     2015/04/07      - text recycling during rename
  *                              - clean behaviour during arrow up / down in tree
  *                              - arrow keys working in text boxes
+ * V0.1.2.0     2015/09/01      DISCO-Integration (navigation, delete, Cookies)
+ * V0.1.2.1     2015/09/20      DISCO-Integration (deletion completed)
+ * V0.1.2.2     2015/09/30      DISCO-Integration (copy completed and content displaying)
+ * V0.1.2.3     2015/10/06      DISCO-Integration (types can be changed, renaming possible, improvements from XML version 0.1.1.4 inserted)
+ * V0.1.2.4     2015/10/19      DISCO-Integration (faster loading, siblings of selected are displayed again,
+ *                              selection of sibling is done without reload from Database) 
+ * V0.1.2.5     2015/10/22      DISCO-Integration (wrong tree creation in GUI -> Error when clicking 
+ *                              at child items fixed)      
+ * V0.1.2.6     2015/10/30      Fixed odd behaviour during Tree Navigation; problems with Default Parent Menu 
+ *                              fixed; Cookie problems fixed
+ * V0.1.2.7     2015/11/03      X-Tree-M can now be used as plugin -> item Id as input param and Name/URL of Callback-Tool can be handed over
+ * V0.1.3.0     2015/12/11      Brought X-Tree-M (D!SCO-Version) on approximately the same level as the last stable XML Version; XML itself is 
+ *                              currently not working but might be fixed within one of the next versions.
  * ---------------------------------------------------------------------------------------
  */
 
 // ###### ===========> VERSION-SETUPS BEGIN <=============== ######
 main_version_hi = 0;
 main_version_lo = 1;
-sub_version_hi = 1;
-sub_version_lo = 2;
-var plugin_date = "2015/04/07";
+sub_version_hi = 3;
+sub_version_lo = 0;
+var plugin_date = "2015/12/11";
                                     // Version Text for printing
 var plugin_version = main_version_hi + "." + main_version_lo + "." + sub_version_hi + "." + sub_version_lo;
 // ###### ===========> VERSION-SETUPS END <================= ######
@@ -102,7 +115,7 @@ c_DEFAULT_GLOBAL_SETUP.curr_lang = 1;
 c_DEFAULT_GLOBAL_SETUP.default_usecase = "uc_browsing";
 
 c_DEFAULT_GLOBAL_SETUP.tree_max_parent_depth = 1;                       
-c_DEFAULT_GLOBAL_SETUP.tree_max_child_depth = 10;
+c_DEFAULT_GLOBAL_SETUP.tree_max_child_depth = 2;
 
 c_DEFAULT_GLOBAL_SETUP.debugMode = false;
 
