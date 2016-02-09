@@ -209,7 +209,7 @@ function uc_browsing_dispatcher_is_loop(dest_item, src_items)
 {
   var retval = false; 
   
-  var dest_tree_part = this.db_obj.command({elemId:dest_item.elem_id, lock_id:"root"}, "get_tree");  
+  var dest_tree_part = this.db_obj.command({elemId:dest_item.elem_id, lock_id:uc_browsing_setup.tree_data_src_params.root_item}, "get_tree");  
   for (var i=0; i<src_items.length; i++)
   {
     for (var j=0; j<dest_tree_part.explorer_path.length; j++)
@@ -255,7 +255,7 @@ function uc_browsing_dispatcher_process_elem_menu(item)
     case "delete_item" :
         if (this.panel1_selected_items.length!=0) 
         {
-          if (this.panel1_selected_items[0].elem_id != "root")
+          if (this.panel1_selected_items[0].elem_id != uc_browsing_setup.tree_data_src_params.root_item)
           {
                                       // new selection : parent of current selection
             var new_sel0 = this.tree_panel.get_item_data(this.panel1_selected_items[0].parent_gui_id);      
@@ -323,7 +323,7 @@ function uc_browsing_dispatcher_process_elem_menu(item)
         {
                                     // unlock topic if it is locked for the second time
           if (this.panel1_selected_items[0].elem_id == uc_browsing_setup.tree_locked_item)
-            uc_browsing_setup.tree_locked_item = "root";
+            uc_browsing_setup.tree_locked_item = uc_browsing_setup.tree_data_src_params.root_item;
           else  
             uc_browsing_setup.tree_locked_item = this.panel1_selected_items[0].elem_id;
           this.save_setup();
@@ -378,7 +378,7 @@ function uc_browsing_dispatcher_process_type_menu(item)
     {
       for (var i=0; i<this.panel1_selected_items.length ; i++)
       {
-        if (this.panel1_selected_items[i].elem_id != "root") 
+        if (this.panel1_selected_items[i].elem_id != uc_browsing_setup.tree_data_src_params.root_item) 
         {
                                     // change type field in database
           this.db_obj.command({elem_id:this.panel1_selected_items[i].elem_id, content:c_LANG_LIB_TREE_ELEMTYPE[item_int+1][0]}, "set_type");                                    

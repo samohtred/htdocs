@@ -23,9 +23,11 @@ function lib_data_xml(data_src_path, data_src_params, defaultParentStorage)
   
   // tree functions
   this.req_tree = lib_data_xml_req_tree.bind(this);
+  this.get_explorer_path = lib_data_xml_get_explorer_path.bind(this);
+  this.get_tree_nodes = lib_data_xml_get_tree_nodes.bind(this);  
   this.get_tree = lib_data_xml_get_tree.bind(this);
   this.load_db_obj = lib_data_xml_load_db_obj.bind(this);
-  this.get_children_max_id = db_intelligence_get_children_max_id.bind(this);
+  this.get_children_max_id = lib_data_xml_get_children_max_id.bind(this);
   this.update_db = lib_data_xml_update_db.bind(this);
   this.set_next_id = lib_data_xml_set_next_id.bind(this);
 
@@ -36,6 +38,8 @@ function lib_data_xml(data_src_path, data_src_params, defaultParentStorage)
   this.delete_tree_item = lib_data_xml_delete_tree_item.bind(this);
   this.get_tree_item_parents = lib_data_xml_get_tree_item_parents.bind(this);
   this.get_tree_item_children = lib_data_xml_get_tree_item_children.bind(this);
+  this.copy_items = lib_data_xml_copy_items.bind(this);
+  this.move_items = lib_data_xml_move_items.bind(this);
   this.attach_to_parent = lib_data_xml_attach_to_parent.bind(this);
   this.detach_from_parent = lib_data_xml_detach_from_parent.bind(this);
 
@@ -53,7 +57,7 @@ function lib_data_xml(data_src_path, data_src_params, defaultParentStorage)
   // object variables
   this.db_buffer = "";
   this.next_id = 0;               // it's necessary to know which IDs can be created for new items
-
+  this.rts_ret_struct = {};
 
   // constructor call
   this.load_db_obj(this.bufferUrl);
@@ -69,10 +73,10 @@ function lib_data_xml(data_src_path, data_src_params, defaultParentStorage)
 
 
 
-//function db_intelligence_get_children_max_id(currItem)
+//function lib_data_xml_get_children_max_id(currItem)
 //{
 //  var childIds = this.get_tree_item_children(currItem);
-//  if (currItem == "root")
+//  if (currItem == uc_browsing_setup.tree_data_src_params.root_item)
 //    var maxId = 0;
 //  else
 //    var maxId = Number(currItem);
@@ -90,7 +94,7 @@ function lib_data_xml(data_src_path, data_src_params, defaultParentStorage)
 //}
 
 
-function db_intelligence_get_children_max_id(currItem)
+function lib_data_xml_get_children_max_id(currItem)
 {
   var myStack = [currItem];
   var myStackSize = 1;
@@ -124,7 +128,7 @@ function db_intelligence_get_children_max_id(currItem)
       while (no_sibling_found)
       {
         // either Tree Root has no children at all or all elements have been parsed
-        if (myCurrItem == "root") 
+        if (myCurrItem == uc_browsing_setup.tree_data_src_params.root_item) 
           return maxId;
 
         parentItem = myStack[(--myStackSize)-1];
@@ -157,41 +161,30 @@ function db_intelligence_get_children_max_id(currItem)
 }
 
 
-// Dummy Function - only needed for data sources which require a
-// request before evaluating the data
-function lib_data_xml_req_tree(elemId, lock_id, cb_fctn_str)
+
+// help function of 'lib_data_xml_get_tree'
+// -> get parents as Explorer path
+function lib_data_xml_get_explorer_path(iparams)  // iparams = {elem_id, lock_id}
 {
-  // alert("req_get_tree");
-  eval(cb_fctn_str);
-}
-
-
-
-// avoid too much intelligence in the gui module
-// -> guiId is the GUI ID of the currently selected item which contains 
-//    the parent ID and the current ID
-function lib_data_xml_get_tree(iparams)
-{
-  var ret_struct = {};
-  var elem_id = iparams.elemId;
-  var retval_ct = 0; 
-  var level_ct = 0;
-  var is_multi = false;
-                                    
-  // part 1 : get parents as Explorer path
+                                    // copy input params to save source on splice command
+  var iparams_cp = jQuery.extend(true, {}, iparams);  
                                     // get parent of current item
-  var my_parents = this.get_tree_item_parents(elem_id);                                   
+  var my_parents = this.get_tree_item_parents(iparams_cp.elem_id);                                   
   if (my_parents.length > 1)
   {
                                     // read from Cookie which parent item applies here
-    my_parents = this.get_multi_parents(elem_id, my_parents);    
+    my_parents = this.get_multi_parents(iparams_cp.elem_id, my_parents);    
   }
                                     // start creating Explorer Path if parent items exist
-  ret_struct.explorer_path = [];
+  var explorer_path = [];
+  var elem_id = iparams_cp.elem_id;
+  var retval_ct = 0; 
+  var level_ct = 0;
+  var is_multi = false;
   if (my_parents.length > 0)
   {
                                     // loop until locked item comes into scope
-    while (elem_id != iparams.lock_id)
+    while (elem_id != iparams_cp.lock_id)
     {   
                                     // use last parent element as current element
       elem_id = my_parents;
@@ -205,49 +198,60 @@ function lib_data_xml_get_tree(iparams)
       }
                                     // jump to parent and save it
       level_ct++;
-      ret_struct.explorer_path[retval_ct] = {}; 
+      explorer_path[retval_ct] = {}; 
       if (my_parents.length == 0)
       {
         my_parents = null;
-        ret_struct.explorer_path[retval_ct].parent_elem_id = null;            
-        ret_struct.explorer_path[retval_ct].parent_gui_id = null;                    
+        explorer_path[retval_ct].parent_elem_id = null;            
+        explorer_path[retval_ct].parent_gui_id = null;                    
       }
       else
       {
-        ret_struct.explorer_path[retval_ct].parent_elem_id = my_parents[0];
-        ret_struct.explorer_path[retval_ct].parent_gui_id = "E" + (retval_ct + 1);
+        explorer_path[retval_ct].parent_elem_id = my_parents[0];
+        explorer_path[retval_ct].parent_gui_id = "E" + (retval_ct + 1);
       }
-      ret_struct.explorer_path[retval_ct].elem_id = elem_id;
-      ret_struct.explorer_path[retval_ct].gui_id = "E" + retval_ct;      
-      ret_struct.explorer_path[retval_ct].name = this.get_tree_item_field(elem_id, "name"); 
-      ret_struct.explorer_path[retval_ct].isMultiPar = is_multi;
+      explorer_path[retval_ct].elem_id = elem_id;
+      explorer_path[retval_ct].gui_id = "E" + retval_ct;      
+      explorer_path[retval_ct].name = this.get_tree_item_field(elem_id, "name"); 
+      explorer_path[retval_ct].isMultiPar = is_multi;
       retval_ct = retval_ct + 1;
     }
   } 
+  return explorer_path;
+}
+
+
+// help function of 'lib_data_xml_get_tree'
+// -> get children as tree
+function lib_data_xml_get_tree_nodes(iparams)  // iparams = {elem_id, explorer_path}
+{
+                                    // copy input params to save source on splice command
+  var iparams_cp = jQuery.extend(true, {}, iparams);  
+
+  var level_ct = 0;
+  var retval_ct = 0;
+  var tree_nodes = [];
+  var my_parents = [];
   
-  // part 2 : get children as tree
-  level_ct = 0;
-  retval_ct = 0;
-  ret_struct.tree_nodes = [];
-  if (ret_struct.explorer_path.length > 0)
+  if (iparams.explorer_path.length > 0)
   {
     my_parents = [];
-    my_parents[0] = ret_struct.explorer_path[0];
+    my_parents[0] = iparams.explorer_path[0];
   }
-  else  // element == "root"
+  else  // element == uc_browsing_setup.tree_data_src_params.root_item
   {
-    ret_struct.tree_nodes[retval_ct] = {};                            
-    ret_struct.tree_nodes[retval_ct].parent_elem_id = null;    
-    ret_struct.tree_nodes[retval_ct].parent_gui_id = null;
-    ret_struct.tree_nodes[retval_ct].elem_id = iparams.elemId;             
-    ret_struct.tree_nodes[retval_ct].gui_id = "T" + retval_ct;             
-    ret_struct.tree_nodes[retval_ct].name = this.get_tree_item_field(iparams.elemId, "name");
-    ret_struct.tree_nodes[retval_ct].type = this.get_tree_item_field(iparams.elemId, "type");
-    if (this.get_tree_item_parents(iparams.elemId).length > 1)
-      ret_struct.tree_nodes[retval_ct].isMultiPar = true;
+    tree_nodes[retval_ct] = {};                            
+    tree_nodes[retval_ct].parent_elem_id = null;    
+    tree_nodes[retval_ct].parent_gui_id = null;
+    tree_nodes[retval_ct].elem_id = iparams_cp.elem_id;
+    tree_nodes[retval_ct].gui_id = "T" + retval_ct;             
+    tree_nodes[retval_ct].name = this.get_tree_item_field(iparams_cp.elem_id, "name");
+    tree_nodes[retval_ct].type = this.get_tree_item_field(iparams_cp.elem_id, "type");
+    if (this.get_tree_item_parents(iparams_cp.elem_id).length > 1)
+      tree_nodes[retval_ct].isMultiPar = true;
     else
-      ret_struct.tree_nodes[retval_ct].isMultiPar = false;
-    my_parents = [ret_struct.tree_nodes[retval_ct]];
+      tree_nodes[retval_ct].isMultiPar = false;
+    my_parents = [tree_nodes[retval_ct]];
     retval_ct = retval_ct + 1;
   }  
   
@@ -267,21 +271,21 @@ function lib_data_xml_get_tree(iparams)
       for(var b=0; b<curr_item_child_ids.length; b++)
       {
                                     // save children in output array
-        ret_struct.tree_nodes[retval_ct] = {};                            
-        ret_struct.tree_nodes[retval_ct].parent_elem_id = my_parents[a].elem_id;                
-        ret_struct.tree_nodes[retval_ct].parent_gui_id = my_parents[a].gui_id;                
-        ret_struct.tree_nodes[retval_ct].elem_id = curr_item_child_ids[b];             
-        ret_struct.tree_nodes[retval_ct].gui_id = "T" + retval_ct;             
-        ret_struct.tree_nodes[retval_ct].name = this.get_tree_item_field(curr_item_child_ids[b], "name");
-        ret_struct.tree_nodes[retval_ct].type = this.get_tree_item_field(curr_item_child_ids[b], "type");
+        tree_nodes[retval_ct] = {};                            
+        tree_nodes[retval_ct].parent_elem_id = my_parents[a].elem_id;                
+        tree_nodes[retval_ct].parent_gui_id = my_parents[a].gui_id;                
+        tree_nodes[retval_ct].elem_id = curr_item_child_ids[b];             
+        tree_nodes[retval_ct].gui_id = "T" + retval_ct;             
+        tree_nodes[retval_ct].name = this.get_tree_item_field(curr_item_child_ids[b], "name");
+        tree_nodes[retval_ct].type = this.get_tree_item_field(curr_item_child_ids[b], "type");
         if (this.get_tree_item_parents(curr_item_child_ids[b]).length > 1)   
         {
           this.defaultParentStorage.write(curr_item_child_ids[b], my_parents[a].elem_id);
-          ret_struct.tree_nodes[retval_ct].isMultiPar = true;
+          tree_nodes[retval_ct].isMultiPar = true;
         }
         else
-          ret_struct.tree_nodes[retval_ct].isMultiPar = false;  
-        curr_level_children[child_idx++] = ret_struct.tree_nodes[retval_ct]; 
+          tree_nodes[retval_ct].isMultiPar = false;  
+        curr_level_children[child_idx++] = tree_nodes[retval_ct]; 
         retval_ct = retval_ct + 1;
       }
     }
@@ -289,8 +293,109 @@ function lib_data_xml_get_tree(iparams)
     my_parents = curr_level_children;
     level_ct = level_ct + 1;
   } while ((my_parents.length > 0) && (level_ct < global_setup.tree_max_child_depth));
+  return tree_nodes;
+}
+
+
+
+// Request data from database
+function lib_data_xml_req_tree(iparams)  // iparams = {elemId, lock_id, favIds, tickerIds, cb_fct_call, mode}
+//
+// possible values for "mode" :
+//    "load_all"      -> on X-Tree-M start
+//    "tree_only"     -> when only tree item is requested (Explorer Path + Tree-Nodes)
+//    "fav_only"      -> only when favorite item is requested (only Explorer Path)
+//    "ticker_only"   -> only when new ticker item is selected (only child nodes -> Tree Nodes)
+//
+{
+                                    // copy input params to save source on splice command
+  var iparams_cp = jQuery.extend(true, {}, iparams);
   
-  return ret_struct;
+  this.rts_ret_struct.fav = [];
+  this.rts_ret_struct.ticker = [];  
+  this.rts_ret_struct.explorer_path = [];
+  
+  // Explorer Path applications
+                                    // kill invalid Favorite ids
+  if ((iparams_cp.favIds.length > 0) && ( (iparams.mode == "load_all") || (iparams.mode == "fav_only") ))
+  {
+    for (var i=0; i<iparams_cp.favIds.length; i++)
+    {
+      if (iparams_cp.favIds[i] == null)
+      {
+        this.rts_ret_struct.fav[i] = {};      
+        this.rts_ret_struct.fav[i].elem_id = null;
+        this.rts_ret_struct.fav[i].name = null;
+        this.rts_ret_struct.fav[i].text = null;
+      }
+      else
+      { 
+        this.rts_ret_struct.fav[i] = this.get_explorer_path({elem_id:iparams_cp.favIds[i], lock_id:uc_browsing_setup.tree_data_src_params.root_item});
+        var myself_elem = {};
+        myself_elem.elem_id = iparams_cp.favIds[i];
+        myself_elem.name = this.get_tree_item_field(iparams_cp.favIds[i], "name");
+        myself_elem.text = "";
+        this.rts_ret_struct.fav[i].unshift(myself_elem);
+      }      
+    }   
+  }      
+  if ( (iparams.mode == "load_all") || (iparams.mode == "tree_only") )
+    this.rts_ret_struct.explorer_path = this.get_explorer_path({elem_id:iparams_cp.elemId[0], lock_id:iparams_cp.lock_id});
+
+  // Tree Node applications
+                                    // kill invalid ticker ids
+  if ((iparams_cp.tickerIds.length > 0) && ( (iparams.mode == "load_all") || (iparams.mode == "ticker_only") ))
+  {
+                // kill invalid ticker ids
+    for (var i=0; i<iparams_cp.tickerIds.length; i++)
+    {
+      if (iparams_cp.tickerIds[i] == null)
+      {
+        this.rts_ret_struct.ticker[i] = {};      
+        this.rts_ret_struct.ticker[i].elem_id = null;
+        this.rts_ret_struct.ticker[i].name = null;
+        this.rts_ret_struct.ticker[i].text = null;
+      }
+      else
+      { 
+        var temp_tree = this.get_tree_nodes({elem_id:iparams_cp.tickerIds[i], explorer_path:[]});
+                                    // create ticker itself ...
+        this.rts_ret_struct.ticker[i] = {};      
+        this.rts_ret_struct.ticker[i].elem_id = temp_tree[0].elem_id;
+        this.rts_ret_struct.ticker[i].name = temp_tree[0].name; 
+                                    // ... and its children
+        this.rts_ret_struct.ticker[i].text = " +++ ";                
+        for (var j=1; j<temp_tree.length; j++)
+        {
+          if (temp_tree[j].parent_elem_id == temp_tree[0].elem_id)
+            this.rts_ret_struct.ticker[i].text = this.rts_ret_struct.ticker[i].text + temp_tree[j].name + " +++ ";
+        }
+      }      
+    }   
+  }                
+  if ( (iparams.mode == "load_all") || (iparams.mode == "tree_only") )
+    this.rts_ret_struct.tree_nodes = this.get_tree_nodes({elem_id:iparams_cp.elemId[0], explorer_path:this.rts_ret_struct.explorer_path});
+  
+  
+  // alert("req_get_tree");
+  if (iparams.mode == "load_all")
+                                        // The "load all" option is usually loaded while the "curr_uc_dispatcher" 
+                                        // is being created. Since the object is marked as undefined in the 
+                                        // global_dispatcher unless its init function has finished and 
+                                        // we are now in a sub-call of this init function we need to postpone the 
+                                        // call of the callback function using the resulting but still not available
+                                        // dispatcher object. A value of 100ms should halt the callback function until
+                                        // the dispatcher object is created.
+    setTimeout(iparams.cb_fct_call, 100);
+  else     
+    eval(iparams.cb_fct_call);
+}
+
+
+
+function lib_data_xml_get_tree(iparams)   // iparams = {elemId, lock_id, favIds, tickerIds, cb_fct_call, mode}
+{
+  return this.rts_ret_struct;  
 }
 
 
@@ -326,7 +431,7 @@ function lib_data_xml_load_db_obj()
   }
   else
   {
-    this.next_id = this.get_children_max_id("root") + 1;
+    this.next_id = this.get_children_max_id(uc_browsing_setup.tree_data_src_params.root_item) + 1;
   }
 }
 
@@ -472,10 +577,11 @@ function lib_data_xml_item_exists(itemId)
 
 
 // create new tree item
-function lib_data_xml_create_tree_item(parentId, name, type)
+function lib_data_xml_create_tree_item( iparams )  // iparams = {parent_elem_id, name, type, lock_id, cb_fctn_str}  
 {
+  var iparams_cp = jQuery.extend(true, {}, iparams);   
   var rootItem = this.db_buffer.getElementsByTagName("db_root")[0];
-  var parentItem = getDBElementById(this.db_buffer, parentId);
+  var parentItem = getDBElementById(this.db_buffer, iparams_cp.parent_elem_id);
   var newId = "-1";
 
   if (parentItem != undefined)
@@ -483,13 +589,13 @@ function lib_data_xml_create_tree_item(parentId, name, type)
     var currItem = this.db_buffer.createElement("item");
       currItem.setAttribute("id",this.next_id); 
     var nameField = this.db_buffer.createElement("name"); 
-      setInnerHTML(nameField,name);
+      setInnerHTML(nameField,iparams_cp.name);
     var typeField = this.db_buffer.createElement("type"); 
-      setInnerHTML(typeField, type);      
+      setInnerHTML(typeField, iparams_cp.type);      
     var refersToField = this.db_buffer.createElement("refers_to");
     var referredFromField = this.db_buffer.createElement("referred_from");
     var referredFromEntry = this.db_buffer.createElement("sep");
-      setInnerHTML(referredFromEntry, parentId);
+      setInnerHTML(referredFromEntry, iparams_cp.parent_elem_id);
     referredFromField.appendChild(referredFromEntry);
     currItem.appendChild(nameField);
     currItem.appendChild(typeField);    
@@ -508,19 +614,24 @@ function lib_data_xml_create_tree_item(parentId, name, type)
   }
   else
     alert(c_LANG_WARNING_PARENT_MISSING[global_setup.curr_lang]);
-  this.dump_tree();
+//  this.dump_tree();
+  this.update_db();                
+  this.req_tree({elemId:[iparams_cp.parent_elem_id], lock_id:iparams_cp.lock_id, favIds:[], tickerIds:[], cb_fct_call:iparams_cp.cb_fctn_str, mode:"tree_only"});
   return newId;
 }
 
 
 
 // delete item and all of its children
-function lib_data_xml_delete_tree_item(itemId)
+function lib_data_xml_delete_tree_item(iparams)  // iparams = {parentId, itemId, lock_id, cb_fctn_str}
 {
-  if (itemId != "root")
+                                    // save params
+  var iparams_cp = jQuery.extend(true, {}, iparams);
+    
+  if (iparams_cp.itemId != uc_browsing_setup.tree_data_src_params.root_item)
   {
-    var currItem = getDBElementById(this.db_buffer, itemId);
-    var myChildren = this.get_tree_item_children(itemId);
+    var currItem = getDBElementById(this.db_buffer, iparams_cp.itemId);
+    var myChildren = this.get_tree_item_children(iparams_cp.itemId);
     
     if (myChildren.length > 0)
     {
@@ -530,7 +641,7 @@ function lib_data_xml_delete_tree_item(itemId)
       }
     }
     
-    this.detach_from_parent(this.get_tree_item_parents(itemId)[0], itemId);
+    this.detach_from_parent(iparams_cp.parentId, iparams_cp.itemId);
     
     if (currItem.outerHTML != null)
       currItem.outerHTML = "";
@@ -539,6 +650,9 @@ function lib_data_xml_delete_tree_item(itemId)
   }    
   else
     alert(c_LANG_LIB_DATA_ROOT_ITEM_NOT_ERASABLE[global_setup.curr_lang]);
+
+  this.update_db();                
+  this.req_tree({elemId:[iparams_cp.parentId], lock_id:iparams_cp.lock_id, favIds:[], tickerIds:[], cb_fct_call:iparams_cp.cb_fctn_str, mode:"tree_only"});
 }
 
 
@@ -585,7 +699,32 @@ function lib_data_xml_get_tree_item_children(itemId)
   }
   else
     alert(c_LANG_WARNING_CURRENT_MISSING[global_setup.curr_lang]);
-  return undefined;
+  return [];
+}
+
+
+// copy function
+function lib_data_xml_copy_items(iparams)  // iparams = {src_elem, dst_elem, lock_id, cb_fctn_str}
+{
+  for (var i=0; i<iparams.src_elem.length; i++)
+  {
+    this.attach_to_parent(iparams.dst_elem.elem_id, iparams.src_elem[i].elem_id);
+  }
+  this.update_db();                
+  this.req_tree({elemId:[iparams.dst_elem.elem_id], lock_id:iparams.lock_id, favIds:[], tickerIds:[], cb_fct_call:iparams.cb_fctn_str, mode:"tree_only"});
+}
+
+
+// move function
+function lib_data_xml_move_items(iparams)  // iparams = {src_elem, dst_elem, old_parent_id ,lock_id, cb_fctn_str}
+{
+  for (var i=0; i<iparams.src_elem.length; i++)
+  {
+    this.detach_from_parent(iparams.old_parent_id, iparams.src_elem[i].elem_id);    
+    this.attach_to_parent(iparams.dst_elem.elem_id, iparams.src_elem[i].elem_id);
+  }  
+  this.update_db();                
+  this.req_tree({elemId:[iparams.dst_elem.elem_id], lock_id:iparams.lock_id, favIds:[], tickerIds:[], cb_fct_call:iparams.cb_fctn_str, mode:"tree_only"});
 }
 
 
@@ -706,28 +845,33 @@ function lib_data_xml_create_tree_item_field(itemId, fieldId, content)
 
 
 // change fields of tree item
-function lib_data_xml_change_tree_item_field(itemId, fieldId, content)
+function lib_data_xml_change_tree_item_field(iparams)      // iparams = {items, field_id, content, lock_id, cb_fctn_str}
 {
-  var currItem = getDBElementById(this.db_buffer, itemId);
+                                    // save params
+  var iparams_cp = jQuery.extend(true, {}, iparams);
+      
+  var currItem = getDBElementById(this.db_buffer, iparams_cp.items[0].elem_id);
 
   if (currItem != undefined) 
   {
-    var myItemField = currItem.getElementsByTagName(fieldId);
+    var myItemField = currItem.getElementsByTagName(iparams_cp.field_id);
     if ((myItemField != undefined) && (myItemField.length > 0))
     {
-      setInnerHTML(myItemField[0], content);
+      setInnerHTML(myItemField[0], iparams_cp.content);
     }
     else
     {
-      this.create_tree_item_field(itemId, fieldId, content);
-//      alert(c_LANG_MSG_FIELD_CREATED[global_setup.curr_lang] + fieldId + " !");
+      this.create_tree_item_field(iparams_cp.items[0].elem_id, iparams_cp.field_id, iparams_cp.content);
+//      alert(c_LANG_MSG_FIELD_CREATED[global_setup.curr_lang] + iparams_cp.field_id + " !");
     }
   }
   else
   { 
-    alert(c_LANG_WARNING_ITEM_MISSING[global_setup.curr_lang] + itemId + " !");
+    alert(c_LANG_WARNING_ITEM_MISSING[global_setup.curr_lang] + iparams_cp.field_id + " !");
   }
-  this.dump_tree();
+  this.update_db();                
+//  this.dump_tree();
+  this.req_tree({elemId:[iparams_cp.items[0].elem_id], lock_id:iparams_cp.lock_id, favIds:[], tickerIds:[], cb_fct_call:iparams_cp.cb_fctn_str, mode:"tree_only"});
 }
 
 

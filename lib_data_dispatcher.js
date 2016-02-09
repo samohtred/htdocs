@@ -51,8 +51,8 @@ function lib_data_dispatcher_command(iparams, cmd_name)
   {
     case "req_tree"                     : this.db_obj.req_tree(iparams); break;
     case "get_tree"                     : ovalues = this.db_obj.get_tree(iparams); break;
-    case "delete_item"                  : this.db_obj.delete_tree_item(iparams.parentId, iparams.itemId, iparams.lock_id, iparams.cb_fct_call); break;
-    case "create_item"                  : this.db_obj.create_tree_item(iparams.parent_elem_id, iparams.name, iparams.type, iparams.lock_id, iparams.cb_fct_call); break;
+    case "delete_item"                  : this.db_obj.delete_tree_item(iparams); break;
+    case "create_item"                  : this.db_obj.create_tree_item(iparams); break;
     case "change_item_field"            : this.db_obj.change_tree_item_field(iparams); break;
     case "copy_item"                    : this.db_obj.copy_items(iparams); break;
     case "move_item"                    : this.db_obj.move_items(iparams); break;

@@ -3,20 +3,17 @@ webschoko@gmx.de
 To-Do's :
 =========
 
-- Favoriten klappen noch nicht
-  - Alle Löschen und Laden klappt nicht
-  - Problematisch : gespeicherter Fav-Items könnten unterhalb von LockID liegen
-- schauen, warum Pfeil hoch/runter manchmal wild zwischen den Items hin und herspringt
-  -> wildes Springen nicht mehr vorhanden, aber wenn man Item ausklappt und dann Pfeil nach unten macht, 
-      verschwindet Markierung    
+
 - XML-Library in Ordnung bringen
   - Einstellungen anbieten (Auswahl Datenpfad und Datenbank-Typ)
+  - unter "Hilfe" Eintrag "Tips" einfügen und Speed-Tips geben
 - Export nach XML und Import von XML (noch ohne Mergen) realisieren (jeweils als Teilbaum)
   -> Mergen ggf. später einführen
   -> ggf. vorher schon JSON-Export / -Import
   -> http://tutorialzine.com/2011/05/generating-files-javascript-php/
   -> http://stackoverflow.com/questions/2897619/using-html5-javascript-to-generate-and-save-a-file
   -> https://blogs.adobe.com/cantrell/archives/2012/01/how-to-download-data-as-a-file-from-javascript.html
+- Button zum Löschen von Setup-Cookies einbauen
   
 - qKonsens integrieren
 - Probble integrieren

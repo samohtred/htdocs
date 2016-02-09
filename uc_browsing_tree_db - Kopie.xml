@@ -1,12 +1,12 @@
-<db_root>
+﻿<db_root>
   <system id="root">
     <name>Alle Themen</name>
     <refers_to>
       <sep>76</sep>
       <sep>77</sep>
-    <sep>111</sep></refers_to>
+    </refers_to>
     <type>topic</type>
-    <content>undefined</content>
+    <content/>
   </system>
   <item id="76">
     <name>Termine</name>
@@ -53,7 +53,7 @@
   <item id="83">
     <name>Großstädte ohne Bahnanschluss</name>
     <type>topic</type>
-    <refers_to><sep>101</sep><sep>102</sep><sep>105</sep><sep>107</sep><sep>108</sep><sep>110</sep></refers_to>
+    <refers_to><sep>101</sep><sep>102</sep><sep>104</sep><sep>105</sep><sep>106</sep><sep>107</sep><sep>108</sep><sep>110</sep></refers_to>
     <referred_from><sep>77</sep><sep>76</sep></referred_from>
     <content>Sch%F6n%20ist%20das%20nicht.%0ADadurch%20werden%20Reisende%20abgeh%E4ngt.</content>
   </item>
@@ -62,7 +62,7 @@
     <type>topic</type>
     <refers_to/>
     <referred_from><sep>77</sep></referred_from>
-    <content>undefined</content>
+    <content/>
   </item>
   <item id="85">
     <name>Parlament macht Weg für Felipe frei</name>
@@ -115,7 +115,7 @@
   <item id="102">
     <name>hh</name>
     <type>topic</type>
-    <refers_to><sep>104</sep></refers_to>
+    <refers_to/>
     <referred_from><sep>83</sep></referred_from>
     <content>hhdf%F6mds%0Asdfnsdpfn%0Adspfnd</content>
   </item>
@@ -123,7 +123,7 @@
     <name>jjj</name>
     <type>topic</type>
     <refers_to/>
-    <referred_from><sep>102</sep></referred_from>
+    <referred_from><sep>83</sep></referred_from>
     <content>jj</content>
   </item>
   <item id="105">
@@ -158,4 +158,4 @@
     <refers_to/>
     <referred_from><sep>83</sep></referred_from>
   </item>
-<item id="111"><name>Spielwiese</name><type>topic</type><refers_to><sep>112</sep></refers_to><referred_from><sep>root</sep></referred_from></item><item id="112"><name>aa</name><type>topic</type><refers_to><sep>113</sep></refers_to><referred_from><sep>111</sep></referred_from></item><item id="113"><name>ll</name><type>topic</type><refers_to/><referred_from><sep>112</sep></referred_from></item></db_root>
+</db_root>

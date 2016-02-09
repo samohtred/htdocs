@@ -29,7 +29,15 @@ var c_LANG_UC_BROWSING_MENUBAR =    //                 # English                
         [      
             ["lang_menu"                                ,"Language"                             ,"Sprache"                              ],
             (   ["#output_list", "language_select"]).concat(c_LANG.slice(1,c_LANG.length))        
-        ]  //,    
+        ]  ,    
+        [ 
+            ["db_type"                                  ,"Database Type"                        ,"Datenbank-Typ"                        ],
+            ["#output_list"  ,"db_type", "XML Localhost", "XML WWW", "DISCO WWW"]
+//                ["xml_local"                            ,"XML Localhost"                        ,"XML Localhost"                        ],
+//                ["xml_web"                              ,"XML on WWW"                           ,"XML im WWW"                           ],
+//                ["disco_web"                            ,"DISCO on WWW"                         ,"DISCO"                                ]
+
+        ]
 //        [
 //            ["setup_path_menu"                          ,"Setup Path"                           ,"Pfad zu Einstellungen"                ],
 //            [
@@ -46,6 +54,7 @@ var c_LANG_UC_BROWSING_MENUBAR =    //                 # English                
           // Menu Title                                 
         ["help_menu"                                    ,"Help"                                 ,"Hilfe"                                ],
 //        [    "tutorial"                                   ,"Tutorial"                             ,"Tutorial"                           ],
+        [    "display_hint"                             ,"Hints"                                ,"Tips"                                 ],
         [    "display_version"                          ,"Current Version"                      ,"Aktuelle Version"                     ]
     ]
 
@@ -53,6 +62,12 @@ var c_LANG_UC_BROWSING_MENUBAR =    //                 # English                
 
 
 var c_LANG_UC_BROWSING_MENU_LANG_TITLE = c_LANG_UC_BROWSING_MENUBAR[3][1][0];
+
+var c_LANG_UC_BROWSING_HELP_HINTS =
+["do_nothing"           ,
+ "Useful hints : (1) The X-Tree-M tool can be controlled through Touchscreen and Mouse but is optimized for Keyboard usage. If you want to use X-Tree-M for fast info recording you should learn the 10-Finger-System and know the various Keyboard-Shortcuts which can often be found next to each element in the Menu. (2) A mouseover on the graphical Element Type Symbols in the Tree Panel usually opens/closes the next level. Please mind that the displayed level depth is limited and that you sometimes need to select an item to reach the next level. (3) If you want to load a Favorite Entry you can press CTRL and click at it. (4) If you concentrate on a special topic it is recommended to lock it to save loading time and memory and to reduce the displayed complexity. (5) The Tickers are made to inform you about changes. When you have chosen a Topic as Ticker content by clicking 'as ... Ticker' in the Element Menu it is loaded instantly and further updated after some minutes. (6) While the DISCO version offers more professional access to the database, the XML-Version is useful to work offline and to save your database content as File.",
+ "Nützliche Hinweise : (1) Das X-Tree-M-Tool can per Touchscreen oder Maus bedient werden, ist aber für Keyboard-Gebrauch optimiert. Wenn Sie X-Tree-M für das schnelle Festhalten von Information benutzen wollen, sollten Sie das 10-Finger-System und diverse Keyboard-Shortcuts kennen, welche oft neben dem Element im Menü stehen. (2) Ein Berühren der Element-Typ-Symbole in der Baumdarstellung öffnet/schließt die nächste Ebene. Bitte beachten Sie, daß die dargestellte Level-Tiefe begrenzt ist und Sie manchmal ein Element selektieren müssen, um auf weitere Ebenen zugreifen zu können. (3) Wenn die einen Favoriten-Eintrag laden möchten, können Sie einfach CTRL drücken und dabei auf den Eintrag klicken. (4) Falls Sie sich auf ein Thema konzentrieren, können Sie es locken, um Ladezeit und Speicher zu sparen und die Darstellung einfacher zu machen. (5) Die Ticker wurden erstellt, um Sie über Änderungen zu informieren. Nachdem Sie ein Thema als Ticker-Inhalt ausgewählt und 'als ... Ticker' geklickt haben, wird dieses geladen und alle paar Minuten aktualisiert. (6) Während die DISCO-Variante des Tools einen professionellen geshareten Datenbank-Zugriff gewährleistet, kommt die XML-Version dann zum Tragen, wenn Sie Offline arbeiten oder die Daten als File abspeichern wollen."
+];
 
 var c_LANG_UC_BROWSING_HELP_CREATED = 
 ["do_nothing"           ,"created: "                                  ,"erstellt: "                           ];

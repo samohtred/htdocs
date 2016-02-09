@@ -2,6 +2,36 @@
 // ###  compatibility functions
 // #############################################################################
 
+var ljsf;
+var schonEingebunden = ""; // Speichert die bereits eingebundenen Scripts
+function loadJSFile(filename,einmaligEinbinden) {
+        if (einmaligEinbinden) {
+            // schon einbebunden?
+            if (schonEingebunden.indexOf("|"+filename+"|")!=-1) return true;
+            // Nein, in die Liste damit
+            schonEingebunden = schonEingebunden + "|" + filename + "|";
+        }
+
+        // Instanz einmalig erstellen
+        if (ljsf == null) ljsf = (navigator.userAgent.indexOf("MSIE")+1)?new ActiveXObject("Microsoft.XMLHTTP"):new XMLHttpRequest;
+       
+        ljsf.open('get',filename,true);
+        ljsf.setRequestHeader("Connection","close");
+        ljsf.onreadystatechange = function() {
+                if(ljsf.readyState == 4){
+                        eval(ljsf.responseText);
+                        if (ljsf.responseText != "")       
+                          global_dispatcher_init();                        
+                }
+
+        }
+        ljsf.send(null);
+}
+
+// grundlegendes Escape, um Text in HTML-Elementen nicht uminterpretiert zu bekommen
+function htmlEntities(str) {
+    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
 
 // find out current width of window object "my_window"
 function get_total_win_width(my_window)

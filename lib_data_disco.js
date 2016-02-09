@@ -53,6 +53,7 @@ function lib_data_disco(data_src_path, data_src_params, default_parent_setup_obj
   this.rts_ret_struct = {};
   this.rts_ret_struct2 = {};
   this.curr_item_parents = [];
+  this.move_item_state = "mis_idle";
 
   // constructor call
   this.context = new Context('http://' + this.data_src_path); 
@@ -149,7 +150,7 @@ function get_xtype(my_ref_type, my_post_type)
 
 
 // Request data from database
-function lib_data_disco_req_tree(iparams)   // iparams = {elemId, lock_id, favIds, tickerIds, cb_fctn_str, mode}
+function lib_data_disco_req_tree(iparams)   // iparams = {elemId, lock_id, favIds, tickerIds, cb_fct_call, mode}
 //
 // possible values for "mode" :
 //    "load_all"      -> on X-Tree-M start
@@ -598,7 +599,10 @@ function lib_data_disco_req_tree(iparams)   // iparams = {elemId, lock_id, favId
                   
                 
                 // # update current tree item
-                ret_struct.tree_nodes[curr_item_offs].name = my_name+'('+my_ref_type+','+offline_queue[0].PostTypeId+')';
+                if (global_setup.debugMode)
+                  ret_struct.tree_nodes[curr_item_offs].name = my_name +'('+my_ref_type+','+offline_queue[0].PostTypeId+')';
+                else
+                  ret_struct.tree_nodes[curr_item_offs].name = my_name;
                 ret_struct.tree_nodes[curr_item_offs].description = unescape(offline_queue[0].initData.Content.initData.Text);
                 ret_struct.tree_nodes[curr_item_offs].type = get_xtype(my_ref_type, offline_queue[0].initData.PostTypeId);           
                 ret_struct.tree_nodes[curr_item_offs].isMultiPar = is_multi;
@@ -740,15 +744,15 @@ function ontology_xtm2disco_post(xtm_type)
 {
   switch (xtm_type)
   {
-    case "Thema"                        : return "1"; // "Topic";
-    case "Fakt"                         : return "5"; // "Information";
-    case "Pro-Arg"                      : return "2"; // "General";
-    case "Kontra-Arg"                   : return "2"; // "General";
-    case "Frage"                        : return "3"; // "Question";
-    case "Problem"                      : return "7"; // to be defined : "Problem";
-    case "Idee"                         : return "4"; // "Proposal";
-    case "Ziel"                         : return "8"; // to be defined : "Goal";
-    case "Region"                       : return "9"; // to be defined : "Region";
+    case "topic"                        : return "1"; // "Topic";
+    case "fact"                         : return "5"; // "Information";
+    case "pro_arg"                      : return "2"; // "General";
+    case "con_arg"                      : return "2"; // "General";
+    case "question"                     : return "3"; // "Question";
+    case "problem"                      : return "7"; // to be defined : "Problem";
+    case "idea"                         : return "4"; // "Proposal";
+    case "aim"                          : return "8"; // to be defined : "Goal";
+    case "region"                       : return "9"; // to be defined : "Region";
     default                             : return "2"; // "General";
   }
 }  
@@ -757,28 +761,29 @@ function ontology_xtm2disco_postref(xtm_type)
 {
   switch (xtm_type)
   {
-    case "Thema"                        : return "1"; // "Child";
-    case "Fakt"                         : return "5"; // "Evidence";
-    case "Pro-Arg"                      : return "7"; // "Agreement";
-    case "Kontra-Arg"                   : return "8"; // "Disagreement";
-    case "Frage"                        : return "2"; // "General";
-    case "Problem"                      : return "2"; // "General";
-    case "Idee"                         : return "2"; // "General";
-    case "Ziel"                         : return "2"; // "General";
-    case "Region"                       : return "2"; // "General";
+    case "topic"                        : return "1"; // "Child";
+    case "fact"                         : return "5"; // "Evidence";
+    case "pro_arg"                      : return "7"; // "Agreement";
+    case "con_arg"                      : return "8"; // "Disagreement";
+    case "question"                     : return "2"; // "General";
+    case "problem"                      : return "2"; // "General";
+    case "idea"                         : return "2"; // "General";
+    case "aim"                          : return "2"; // "General";
+    case "region"                       : return "2"; // "General";
     default                             : return "2"; // "General";    
   }
 }  
 
 
 // create new tree item
-function lib_data_disco_create_tree_item(parentId, name, type, lock_id, cb_fctn_str)
+function lib_data_disco_create_tree_item( iparams )  // iparams = {parent_elem_id, name, type, lock_id, cb_fctn_str}
 {
+  var iparams_cp = jQuery.extend(true, {}, iparams);  
   
   var myContent = new Disco.Ontology.Content(); 
   var newId = undefined;
   myContent.Text = "";
-  myContent.Title = name;
+  myContent.Title = iparams_cp.name;
   myContent.CultureId = "2";
   this.context.Content.add(myContent);                                    
   this.context.saveChanges().then
@@ -786,7 +791,7 @@ function lib_data_disco_create_tree_item(parentId, name, type, lock_id, cb_fctn_
     function(response)
     {
       var myPost = new Disco.Ontology.Post();
-      myPost.PostTypeId = ontology_xtm2disco_post(type);
+      myPost.PostTypeId = ontology_xtm2disco_post(iparams_cp.type);
       myPost.ContentId = myContent.Id;
       this.context.Posts.add(myPost);                                    
       this.context.saveChanges().then
@@ -795,15 +800,15 @@ function lib_data_disco_create_tree_item(parentId, name, type, lock_id, cb_fctn_
         {                     
           var myPostRef = new Disco.Ontology.PostReference();
           myPostRef.ReferrerId = myPost.Id;
-          myPostRef.ReferreeId = parentId;
-          myPostRef.ReferenceTypeId = ontology_xtm2disco_postref(type);
+          myPostRef.ReferreeId = iparams_cp.parent_elem_id;
+          myPostRef.ReferenceTypeId = ontology_xtm2disco_postref(iparams_cp.type);
           this.context.PostReferences.add(myPostRef);                                    
           this.context.saveChanges().then
           (
             function(response)
             {
                                     // reload Tree
-              this.req_tree(parentId, lock_id, cb_fctn_str);
+              this.req_tree({elemId:[iparams_cp.parent_elem_id], lock_id:iparams_cp.lock_id, favIds:[], tickerIds:[], cb_fct_call:iparams_cp.cb_fctn_str, mode:"tree_only"});
             }.bind(this)
           ).fail
           (
@@ -834,16 +839,12 @@ function lib_data_disco_create_tree_item(parentId, name, type, lock_id, cb_fctn_
 
 
 // delete item and all of its children
-function lib_data_disco_delete_tree_item(parentId, itemId, lock_id, cb_fctn_str)
+function lib_data_disco_delete_tree_item(iparams)          //  iparams = {parentId, itemId, lock_id, cb_fctn_str}
 {
+  var iparams_cp = jQuery.extend(true, {}, iparams);  
                                     // check if last operation is already finished
   if (this.del_item_state == "di_idle")
   {
-    // ### first inits before any sub-function call
-    var item_fifo = [];
-    var item_parts2del = [];
-    this.del_item_state = "di_cut_root_ref";
-
     // ########################################################################################
     var do_del_item = function() 
     {
@@ -855,7 +856,7 @@ function lib_data_disco_delete_tree_item(parentId, itemId, lock_id, cb_fctn_str)
         // ### part 1 : erase link to parents
         case "di_cut_root_ref" :
                                     // get PostRefs to parent nodes for current target node
-            this.context.PostReferences.filter('it.ReferrerId == '+itemId).toArray().then 
+            this.context.PostReferences.filter('it.ReferrerId == '+iparams_cp.itemId[0]).toArray().then 
             (
               function(response) 
               {
@@ -863,14 +864,14 @@ function lib_data_disco_delete_tree_item(parentId, itemId, lock_id, cb_fctn_str)
                 var i=0;
                 while (i<response.length) 
                 {
-                  if (response[i].ReferreeId == parentId)
+                  if (response[i].ReferreeId == iparams_cp.parentId)
                     break;                   
                   i++;
                 }            
                                     // put current node into Processing FIFO
                 item_fifo[0] = {};
-                item_fifo[0].parentId = parentId;
-                item_fifo[0].itemId = itemId;
+                item_fifo[0].parentId = iparams_cp.parentId;
+                item_fifo[0].itemId = iparams_cp.itemId[0];
                                     // put PostRef to parent into Deletion FIFO
                 item_parts2del[0] = {};
                 item_parts2del[0].type = "PostRef";
@@ -946,9 +947,18 @@ function lib_data_disco_delete_tree_item(parentId, itemId, lock_id, cb_fctn_str)
             }
             else
             {
-              this.del_item_state = "di_idle";         
-                                    // reload tree after deletion
-              this.req_tree(parentId, lock_id, cb_fctn_str);
+              iparams_cp.itemId.splice(0,1); 
+              if (iparams_cp.itemId.length > 0)
+              {
+                this.del_item_state = "di_cut_root_ref";
+                do_del_item();
+              }  
+              else
+              {
+                this.del_item_state = "di_idle";         
+                                      // reload tree after deletion
+                this.req_tree({elemId:[iparams_cp.parentId], lock_id:iparams_cp.lock_id, favIds:[], tickerIds:[], cb_fct_call:iparams_cp.cb_fctn_str, mode:"tree_only"}); 
+              }
             }
         break;
         // ### part 3 : deletion processing
@@ -1102,6 +1112,11 @@ function lib_data_disco_delete_tree_item(parentId, itemId, lock_id, cb_fctn_str)
         break;  
       } // switch (this.req_tree_state)
     }.bind(this)   // var do_get_tree = function() 
+
+    // ### first inits before any sub-function call
+    var item_fifo = [];
+    var item_parts2del = [];
+    this.del_item_state = "di_cut_root_ref";
     // actual sub-function call (first time without blocking wait for result)
     do_del_item.call(this);
   }     // if (this.req_tree_state == "rts_idle")
@@ -1200,7 +1215,7 @@ function lib_data_disco_copy_items(iparams)
                                           // finished -> reprint tree
               else
               {
-                this.req_tree(iparams.dst_elem.elem_id, iparams.lock_id, iparams.cb_fctn_str);
+                this.req_tree({elemId:[iparams.dst_elem.elem_id], lock_id:iparams.lock_id, favIds:[], tickerIds:[], cb_fct_call:iparams.cb_fctn_str, mode:"tree_only"});
               }        
             }.bind(this)
           ).fail
@@ -1226,47 +1241,105 @@ function lib_data_disco_copy_items(iparams)
 
 
 // cut&paste operations (later : for copy by reference) 
-function lib_data_disco_move_items(parentId, itemId)
+function lib_data_disco_move_items(iparams)  // iparams = {src_elem, dst_elem, old_parent_id, lock_id, cb_fctn_str}
 {
-//                                    // copy by value
-//  var item_queue = jQuery.extend(true, [], iparams.src_elem);
-//  var myPostRef = new Disco.Ontology.PostReference();
-//
-//  var do_copy = function() 
-//  {
-//    myPostRef = new Disco.Ontology.PostReference();
-//    myPostRef.ReferrerId = item_queue[0].elem_id;
-//    myPostRef.ReferreeId = iparams.dst_elem.elem_id;
-//    myPostRef.ReferenceTypeId = "1";
-//    this.context.PostReferences.add(myPostRef);                                    
-//    this.context.saveChanges().then
-//    (
-//      function(response)
-//      {
-//                                    // erase first item in queue
-//        item_queue.splice(0,1);                          
-//                                    // items left ? -> continue
-//        if (item_queue.length > 0)
-//        {
-//          do_copy();                 
-//        }
-//                                    // finished -> reprint tree
-//        else
-//        {
-//          this.req_tree(iparams.dst_elem.elem_id, iparams.lock_id, iparams.cb_fctn_str);
-//          eval(iparams.cb_fctn_str); 
-//        }        
-//      }.bind(this)
-//    ).fail
-//    (
-//      function(response)
-//      {
-//        alert("Copy failed !");
-//      }.bind(this)
-//    );
-//  }.bind(this)
-//  
-//  do_copy();     
+  if (this.move_item_state == "mis_idle")
+  {
+    this.move_item_state = "mis_new_parent";
+                                    // copy by value
+    var copy_queue = jQuery.extend(true, [], iparams.src_elem);
+    var cut_queue = jQuery.extend(true, [], iparams.src_elem);       
+    var myPostRef = new Disco.Ontology.PostReference();
+    
+    var do_move = function() 
+    {
+      switch (this.move_item_state)
+      {
+        case "mis_new_parent" : 
+            myPostRef = new Disco.Ontology.PostReference();
+            myPostRef.ReferrerId = copy_queue[0].elem_id;
+            myPostRef.ReferreeId = iparams.dst_elem.elem_id;
+            myPostRef.ReferenceTypeId = "1";
+            this.context.PostReferences.add(myPostRef);                                    
+            this.context.saveChanges().then
+            (
+              function(response)
+              {
+                                            // erase first item in queue
+                copy_queue.splice(0,1);                          
+                                            // no items left ? -> cut from old parent
+                if (copy_queue.length <= 0)
+                {
+                  this.move_item_state = "mis_cut_from_old_parent";
+                }
+                do_move();                 
+              }.bind(this)
+            ).fail
+            (
+              function(response)
+              {
+                alert("Paste failed !");
+              }.bind(this)
+            );
+        break;
+        case "mis_cut_from_old_parent" : 
+            this.context.PostReferences.filter('it.ReferrerId == '+cut_queue[0].elem_id).toArray().then 
+            (
+              function(response) 
+              {
+                                        // find old parent object among the results
+                var i=0;
+                while (i<response.length) 
+                {
+                  if (response[i].ReferreeId == iparams.old_parent_id)
+                    break;                   
+                  i++;
+                }            
+    
+                                        // delete postref
+                this.context.PostReferences.remove(response[i]);                                                                                             
+                this.context.saveChanges().then
+                (
+                  function(response) 
+                  { 
+                                        // erase first item in queue
+                    cut_queue.splice(0,1);                             
+                                        // items left ? -> continue
+                    if (cut_queue.length > 0)
+                    {
+                      do_move();                 
+                    }
+                                        // finished -> reprint tree
+                    else
+                    {
+                      this.req_tree({elemId:[iparams.dst_elem.elem_id], lock_id:iparams.lock_id, favIds:[], tickerIds:[], cb_fct_call:iparams.cb_fctn_str, mode:"tree_only"});                       
+                      this.move_item_state = "mis_idle";
+                    }
+                  }.bind(this)
+                ).fail
+                (
+                  function(response)
+                  {
+                    alert("Erase of old Parent Ref failed !");
+                  }.bind(this)
+                );
+              }.bind(this)
+            ).fail
+            (
+              function(response)
+              {
+                alert("Cut failed !");
+              }.bind(this)
+            );
+        break;
+        default :
+            this.move_item_state = "mis_idle";
+        break;
+      }
+    }.bind(this)
+
+    do_move();     
+  }
 }
 
 
@@ -1300,7 +1373,7 @@ function lib_data_disco_change_tree_item_field(iparams) //  iparams = {items, fi
             (
               function(response) 
               {
-                this.req_tree(iparams.items[0].elem_id, iparams.lock_id, iparams.cb_fctn_str);
+                this.req_tree({elemId:[iparams.items[0].elem_id], lock_id:iparams.lock_id, favIds:[], tickerIds:[], cb_fct_call:iparams.cb_fctn_str, mode:"tree_only"});
               }.bind(this)
             ).fail
             (
@@ -1415,7 +1488,7 @@ function lib_data_disco_change_tree_item_field(iparams) //  iparams = {items, fi
                         }
                         else
                         {
-                          this.req_tree(iparams.items[0].elem_id, iparams.lock_id, iparams.cb_fctn_str);                      
+                          this.req_tree({elemId:[iparams.items[0].elem_id], lock_id:iparams.lock_id, favIds:[], tickerIds:[], cb_fct_call:iparams.cb_fctn_str, mode:"tree_only"});                      
                         }
                       }
                     }.bind(this)
@@ -1463,7 +1536,7 @@ function lib_data_disco_change_tree_item_field(iparams) //  iparams = {items, fi
               function(response) 
               {
                 alert("Content not changable");
-                this.req_tree(iparams.items[0].elem_id, iparams.lock_id, iparams.cb_fctn_str);                
+                this.req_tree({elemId:[iparams.items[0].elem_id], lock_id:iparams.lock_id, favIds:[], tickerIds:[], cb_fct_call:iparams.cb_fctn_str, mode:"tree_only"});                
               }.bind(this)
             );                
           }.bind(this)
