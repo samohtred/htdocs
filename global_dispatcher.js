@@ -183,6 +183,8 @@ function global_dispatcher_save_setup()
 function global_dispatcher_load_setup()
 {
   // ### part 1 - try to find the path to the Global Setup
+
+
                                     // create Setup Source Cookie Object and read it
   var setup_src_cookie = new lib_data_cookie(plugin_name, my_path, c_DEFAULT_SETUP_SOURCE_COOKIE_NAME);
   var setup_src_data = setup_src_cookie.read("data");

@@ -94,15 +94,17 @@ var c_DEFAULT_GLOBAL_SETUP = {};
  * V0.1.3.2     2016/02/02      Several Bugfixes + Default-Parent-Setups only where necessary + switch off some keys during editmode+
  *                              Ctrl+Click should now load a favorite item
  * V0.1.3.3     2016/02/09      Tickers repaired, Favorites repaired, Database-Type-Selection prepared
+ * V0.1.4.0     2016/02/14      First common solution for XML and DISCO -> no more splitted maintenance necessary;
+ *                              switchable Database Type
  * ---------------------------------------------------------------------------------------
  */
 
 // ###### ===========> VERSION-SETUPS BEGIN <=============== ######
 main_version_hi = 0;
 main_version_lo = 1;
-sub_version_hi = 3;
-sub_version_lo = 3;
-var plugin_date = "2016/02/09";
+sub_version_hi = 4;
+sub_version_lo = 0;
+var plugin_date = "2016/02/14";
                                     // Version Text for printing
 var plugin_version = main_version_hi + "." + main_version_lo + "." + sub_version_hi + "." + sub_version_lo;
 // ###### ===========> VERSION-SETUPS END <================= ######
