@@ -665,16 +665,38 @@ function uc_browsing_dispatcher_clicked_at(sender, submodule, item, mode)
           case c_LANG_UC_BROWSING_MENUBAR[3][2][0][0] : // setup_menu.db_type
               switch (item)
               {
-                case "0" : 
-                  alert("XML LOCAL");
+                case "0" : // XML at same URL as 
+                  uc_browsing_setup.tree_data_src_type = c_DATA_SOURCE_TYPE_ID_XML;
+                  uc_browsing_setup.tree_data_src_path = "local";
+                  uc_browsing_setup.tree_data_src_params.root_item = "root";
+                  // alert("XML LOCAL");
                   break;
-                case "1" : 
-                  alert("XML WWW");
-                  break;
+//                case "1" : 
+//                  uc_browsing_setup.tree_data_src_type = c_DATA_SOURCE_TYPE_ID_XML;
+//                  uc_browsing_setup.tree_data_src_path = "local";
+//                  uc_browsing_setup.tree_data_src_params.root_item = "root";
+///                  // alert("XML WWW");
+//                  break;
                 default :               
-                  alert("DISCO");
+                  uc_browsing_setup.tree_data_src_type = c_DATA_SOURCE_TYPE_ID_DISCO;
+                  uc_browsing_setup.tree_data_src_path = "test.disco-network.org/api/odata";
+                  uc_browsing_setup.tree_data_src_params.root_item = "575";
+                  // alert("DISCO");
                   break;
               }
+                                        // save new setup
+              uc_browsing_setup.tree_locked_item = uc_browsing_setup.tree_data_src_params.root_item;
+              uc_browsing_setup.tree_last_selected = uc_browsing_setup.tree_data_src_params.root_item;
+              uc_browsing_setup.favorites = [];
+              uc_browsing_setup.info_ticker1_item_id = null;
+              uc_browsing_setup.info_ticker2_item_id = null;
+              this.save_setup();              
+                                        // create new database object
+              this.db_obj = new lib_data_dispatcher(this.def_parent_storage, uc_browsing_setup.tree_data_src_type, uc_browsing_setup.tree_data_src_path, uc_browsing_setup.tree_data_src_params);                                            
+                                        // reload tree
+              var req_tree_cb_str = "window." + this.cb_clicked_at_str + "(\'uc_browsing\', \'panel1\', \'load_all\', \'" + "T0_a\', c_KEYB_MODE_NONE);";            
+              this.db_obj.command({elemId:[uc_browsing_setup.tree_data_src_params.root_item], lock_id:uc_browsing_setup.tree_locked_item, favIds:uc_browsing_setup.favorites, tickerIds:[uc_browsing_setup.info_ticker1_item_id, uc_browsing_setup.info_ticker2_item_id], cb_fct_call:req_tree_cb_str, mode:"load_all"}, "req_tree");
+                                        
               break;
           case c_LANG_UC_BROWSING_MENUBAR[4][0][0] : // help_menu
               switch (item)
@@ -945,5 +967,10 @@ function uc_browsing_dispatcher_init()
   var req_tree_cb_str = "window." + this.cb_clicked_at_str + "(\'uc_browsing\', \'panel1\', \'load_all\', \'" + "T0_a\', c_KEYB_MODE_NONE);";            
   this.db_obj.command({elemId:[uc_browsing_setup.tree_last_selected], lock_id:uc_browsing_setup.tree_locked_item, favIds:uc_browsing_setup.favorites, tickerIds:[uc_browsing_setup.info_ticker1_item_id, uc_browsing_setup.info_ticker2_item_id], cb_fct_call:req_tree_cb_str, mode:"load_all"}, "req_tree");
 
+//  var goto_lbl = "my_test";
+//  [lbl] my_test:
+//  alert("this didn't work");
+//
+//  goto my_test;  //goto_lbl;
 }
 

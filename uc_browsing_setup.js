@@ -3,9 +3,8 @@ var c_DEFAULT_UC_BROWSING_SETUP_COOKIE = "UC_Browsing_Setup";
              
                                  
 var c_DEFAULT_UC_BROWSING_SETUP = {};                                
-c_DEFAULT_UC_BROWSING_SETUP.tree_data_src_type = c_DATA_SOURCE_TYPE_ID_XML;  // c_DATA_SOURCE_TYPE_ID_DISCO; // 
-c_DEFAULT_UC_BROWSING_SETUP.tree_data_src_path = //"test.disco-network.org/api/odata"; 
-                                                 "local";       // "local" is always used when Database is located at same location
+c_DEFAULT_UC_BROWSING_SETUP.tree_data_src_type = c_DATA_SOURCE_TYPE_ID_XML;
+c_DEFAULT_UC_BROWSING_SETUP.tree_data_src_path = "local";       // "local" is always used when Database is located at same location
                                                                 // as the rest of the code; otherwise use the following style : 
                                                                 // "www.google.de" (no "http://" and no "/" at the end !!!)
 c_DEFAULT_UC_BROWSING_SETUP.tree_data_src_params = {};
