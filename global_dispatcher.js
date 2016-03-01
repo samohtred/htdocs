@@ -306,6 +306,8 @@ function global_dispatcher_init()
     case "uc_browsing" :
     default :     
       curr_uc_dispatcher = new uc_browsing_dispatcher( "global_dispatcher_clicked_at" );
+      var db_type_num = uc_browsing_setup.tree_data_src_type-3;
+      curr_uc_dispatcher.create_db({start_elem_id:uc_browsing_setup.tree_last_selected});
     break;
   }
                                     // install keyboard listener

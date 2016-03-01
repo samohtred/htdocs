@@ -12,6 +12,7 @@ function uc_browsing_dispatcher( cb_clicked_at_str )    // notwendige DISCO-Ände
   this.process_type_menu = uc_browsing_dispatcher_process_type_menu.bind(this);  
   this.process_fav_menu = uc_browsing_dispatcher_process_fav_menu.bind(this);    
   this.keyb_proc = uc_browsing_dispatcher_keyb_proc.bind(this);
+  this.create_db = uc_browsing_dispatcher_create_db.bind(this);
   this.clicked_at = uc_browsing_dispatcher_clicked_at.bind(this);
   this.load_setup = uc_browsing_dispatcher_load_setup.bind(this);
   this.save_setup = uc_browsing_dispatcher_save_setup.bind(this);
@@ -32,6 +33,7 @@ function uc_browsing_dispatcher( cb_clicked_at_str )    // notwendige DISCO-Ände
   this.info_panel;
                                     // control variables
   this.panel1_selected_items = [];
+  this.panel1_selected_items_afterop = [];
   this.panel1_cut_items = [];
   this.panel1_copied_items = [];  
   this.panel1_select_idx = 1;
@@ -433,6 +435,19 @@ function uc_browsing_dispatcher_keyb_proc(my_key, my_extra_keys, e)
         
         switch (my_key)
         {
+//          // TAB - shift items one level down (1st child)
+//          case 9 :
+//            //alert("Tab");
+//                                    // cut selected items
+//            this.process_elem_menu("cut_item");
+//                                    // grab 1st child's GUI ID ...
+//            var mychildren_gui_id = lib_tree_get_children(this.panel1_cut_items[0].gui_id);
+//            this.panel1_selected_items = [];
+//            this.panel1_selected_items[0] = this.tree_panel.get_item_data(mychildren_gui_id[0]);
+//                                    // ... and paste them
+//            this.process_elem_menu("paste_item");
+//          break;
+          
           // ENTER
           case 13 :
             //alert("Enter");
@@ -441,7 +456,7 @@ function uc_browsing_dispatcher_keyb_proc(my_key, my_extra_keys, e)
               this.text_focus = 0;
               this.clicked_at("enter_key", "", "input_done", c_KEYB_MODE_NONE)
             }
-            break;
+          break;
 
           // ESC
           case 27 :
@@ -587,6 +602,37 @@ function uc_browsing_dispatcher_keyb_proc(my_key, my_extra_keys, e)
       }  
     break; // CTRL
 
+    // SHIFT
+    case c_KEYB_MODE_SHIFT_ONLY :
+      if (this.text_focus == 0)
+      {
+        switch (my_key)
+        {
+          // TAB - shift item(s) one level up
+          case 9 :
+            //alert("ShiftTab");
+                                    // cut selected items
+            this.process_elem_menu("cut_item");
+            this.panel1_selected_items = [];
+            var myParent_obj;
+            if (this.panel1_cut_items[0].parent_gui_id != null)
+            {
+              myParent_obj = this.tree_panel.get_item_data(this.panel1_cut_items[0].parent_gui_id);
+              if (myParent_obj.parent_gui_id != null)
+              {
+                this.panel1_selected_items[0] = this.tree_panel.get_item_data(myParent_obj.parent_gui_id);
+                                    // ... and paste them at grandparent
+                this.process_elem_menu("paste_item");
+                this.panel1_selected_items_afterop = jQuery.extend(true, [], this.panel1_cut_items);
+              }
+            }
+          break;
+
+          default :
+          break;          
+        }
+      }
+    break; // SHIFT
 
     // ALT
     case c_KEYB_MODE_ALT_ONLY :
@@ -636,6 +682,16 @@ function uc_browsing_dispatcher_keyb_proc(my_key, my_extra_keys, e)
     
 //  alert(my_key);  
 }
+
+
+function uc_browsing_dispatcher_create_db(iparams)  // {start_elem_id}
+{
+                                        // create new database object
+  this.db_obj = new lib_data_dispatcher(this.def_parent_storage, uc_browsing_setup.tree_data_src_type, uc_browsing_setup.tree_data_src_path, uc_browsing_setup.tree_data_src_params);                                            
+                                        // reload tree
+  var req_tree_cb_str = "window." + this.cb_clicked_at_str + "(\'uc_browsing\', \'panel1\', \'load_all\', \'" + "T0_a\', c_KEYB_MODE_NONE);";            
+  this.db_obj.command({elemId:[iparams.start_elem_id], lock_id:uc_browsing_setup.tree_locked_item, favIds:uc_browsing_setup.favorites, tickerIds:[uc_browsing_setup.info_ticker1_item_id, uc_browsing_setup.info_ticker2_item_id], cb_fct_call:req_tree_cb_str, mode:"load_all"}, "req_tree");
+}                            
 
 
 function uc_browsing_dispatcher_clicked_at(sender, submodule, item, mode)
@@ -691,16 +747,19 @@ function uc_browsing_dispatcher_clicked_at(sender, submodule, item, mode)
               uc_browsing_setup.info_ticker1_item_id = null;
               uc_browsing_setup.info_ticker2_item_id = null;
               this.save_setup();              
-                                        // create new database object
-              this.db_obj = new lib_data_dispatcher(this.def_parent_storage, uc_browsing_setup.tree_data_src_type, uc_browsing_setup.tree_data_src_path, uc_browsing_setup.tree_data_src_params);                                            
-                                        // reload tree
-              var req_tree_cb_str = "window." + this.cb_clicked_at_str + "(\'uc_browsing\', \'panel1\', \'load_all\', \'" + "T0_a\', c_KEYB_MODE_NONE);";            
-              this.db_obj.command({elemId:[uc_browsing_setup.tree_data_src_params.root_item], lock_id:uc_browsing_setup.tree_locked_item, favIds:uc_browsing_setup.favorites, tickerIds:[uc_browsing_setup.info_ticker1_item_id, uc_browsing_setup.info_ticker2_item_id], cb_fct_call:req_tree_cb_str, mode:"load_all"}, "req_tree");
-                                        
+                                        // create new database
+              this.create_db({start_elem_id:uc_browsing_setup.tree_data_src_params.root_item})
+              
               break;
           case c_LANG_UC_BROWSING_MENUBAR[4][0][0] : // help_menu
               switch (item)
               {
+                case "erase_cookies" :
+                  uc_browsing_setup = c_DEFAULT_UC_BROWSING_SETUP;
+                  this.save_setup();
+                  global_setup = c_DEFAULT_GLOBAL_SETUP;
+                  global_dispatcher_save_setup();
+                break;
                 case "display_hint" :
                   alert(c_LANG_UC_BROWSING_HELP_HINTS[global_setup.curr_lang]);
                 break;
@@ -779,7 +838,13 @@ function uc_browsing_dispatcher_clicked_at(sender, submodule, item, mode)
             this.features_panel = new uc_browsing_features("div_panel4_headline", c_LANG_UC_BROWSING_PANEL4_TITLE, "div_panel4_pad", "uc_browsing", "panel4", this.cb_clicked_at_str, this.db_obj);
             this.features_panel.load_favorites(curr_tree_data.fav);
           case "show_tree" :
-            this.select_by_id(uc_browsing_setup.tree_last_selected);  
+            if (this.panel1_selected_items_afterop.length != 0)
+            {
+              this.select_by_id(this.panel1_selected_items_afterop[0].elem_id);  
+              this.panel1_selected_items_afterop = [];
+            }
+            else
+              this.select_by_id(uc_browsing_setup.tree_last_selected);  
             this.toolbar.set_cb_url(uc_browsing_setup.tree_last_selected);       
           break; 
           case "ticker_only" :
@@ -955,7 +1020,7 @@ function uc_browsing_dispatcher_init()
   this.load_setup();
   // prepare data sources (default parents and discussion content)
   this.def_parent_storage = new lib_data_cookie("X-Tree-M", this.my_path, "Default_Parents");
-  this.db_obj = new lib_data_dispatcher(this.def_parent_storage, uc_browsing_setup.tree_data_src_type, uc_browsing_setup.tree_data_src_path, uc_browsing_setup.tree_data_src_params);
+//$$$  this.db_obj = new lib_data_dispatcher(this.def_parent_storage, uc_browsing_setup.tree_data_src_type, uc_browsing_setup.tree_data_src_path, uc_browsing_setup.tree_data_src_params);
   // load Menu and Tool Bar                                                  
   this.menubar = new uc_browsing_menubar( 'div_menubar', 'uc_browsing', 'menubar', this.cb_clicked_at_str, c_LANG_UC_BROWSING_MENUBAR); 
   this.toolbar = new uc_browsing_toolbar( 'div_toolbar', this.cb_clicked_at_str);     
@@ -964,13 +1029,9 @@ function uc_browsing_dispatcher_init()
   this.content_panel = new uc_browsing_content("div_panel2_headline", c_LANG_UC_BROWSING_PANEL2_TITLE, "div_panel2_pad", "uc_browsing", "panel2", this.cb_clicked_at_str);
                                     // load tree panel, info panel and features panel  
   this.tree_panel = new lib_tree("div_panel1_headline", c_LANG_UC_BROWSING_PANEL1_TITLE, "div_panel1_pad", "uc_browsing", "panel1", this.cb_clicked_at_str);
-  var req_tree_cb_str = "window." + this.cb_clicked_at_str + "(\'uc_browsing\', \'panel1\', \'load_all\', \'" + "T0_a\', c_KEYB_MODE_NONE);";            
-  this.db_obj.command({elemId:[uc_browsing_setup.tree_last_selected], lock_id:uc_browsing_setup.tree_locked_item, favIds:uc_browsing_setup.favorites, tickerIds:[uc_browsing_setup.info_ticker1_item_id, uc_browsing_setup.info_ticker2_item_id], cb_fct_call:req_tree_cb_str, mode:"load_all"}, "req_tree");
 
-//  var goto_lbl = "my_test";
-//  [lbl] my_test:
-//  alert("this didn't work");
-//
-//  goto my_test;  //goto_lbl;
+//$$$  var req_tree_cb_str = "window." + this.cb_clicked_at_str + "(\'uc_browsing\', \'panel1\', \'load_all\', \'" + "T0_a\', c_KEYB_MODE_NONE);";            
+//$$$  this.db_obj.command({elemId:[uc_browsing_setup.tree_last_selected], lock_id:uc_browsing_setup.tree_locked_item, favIds:uc_browsing_setup.favorites, tickerIds:[uc_browsing_setup.info_ticker1_item_id, uc_browsing_setup.info_ticker2_item_id], cb_fct_call:req_tree_cb_str, mode:"load_all"}, "req_tree");
+
 }
 

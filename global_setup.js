@@ -96,6 +96,8 @@ var c_DEFAULT_GLOBAL_SETUP = {};
  * V0.1.3.3     2016/02/09      Tickers repaired, Favorites repaired, Database-Type-Selection prepared
  * V0.1.4.0     2016/02/14      First common solution for XML and DISCO -> no more splitted maintenance necessary;
  *                              switchable Database Type
+ * V0.1.4.1     2016/03/01      Setup-Cookies can be cleared by using 'Help/Clear Cookies'; Items can be shifted to
+ *                              the parental levels by using Shift+Tab
  * ---------------------------------------------------------------------------------------
  */
 
@@ -103,8 +105,8 @@ var c_DEFAULT_GLOBAL_SETUP = {};
 main_version_hi = 0;
 main_version_lo = 1;
 sub_version_hi = 4;
-sub_version_lo = 0;
-var plugin_date = "2016/02/14";
+sub_version_lo = 1;
+var plugin_date = "2016/03/01";
                                     // Version Text for printing
 var plugin_version = main_version_hi + "." + main_version_lo + "." + sub_version_hi + "." + sub_version_lo;
 // ###### ===========> VERSION-SETUPS END <================= ######
@@ -121,7 +123,7 @@ c_DEFAULT_GLOBAL_SETUP.curr_lang = 1;
 c_DEFAULT_GLOBAL_SETUP.default_usecase = "uc_browsing";
 
 c_DEFAULT_GLOBAL_SETUP.tree_max_parent_depth = 1;                       
-c_DEFAULT_GLOBAL_SETUP.tree_max_child_depth = 2;
+c_DEFAULT_GLOBAL_SETUP.tree_max_child_depth = 4;
 
 c_DEFAULT_GLOBAL_SETUP.debugMode = false;
 

@@ -1,20 +1,56 @@
 webschoko@gmx.de
 
+
+
 To-Do's :
 =========
 
+- offenbar wurde durch ShiftTab-Operation die XML-DB zerlegt
+  -> untersuchen !
+  
+- Bewertungen von Einträgen
+  
 
-- XML-Library in Ordnung bringen
-  - Einstellungen anbieten (Auswahl Datenpfad und Datenbank-Typ)
-  - unter "Hilfe" Eintrag "Tips" einfügen und Speed-Tips geben
+- internen Speicher statt Cookies
+  if(typeof(Storage) !== "undefined") {
+      // Code for localStorage/sessionStorage.
+  } else {
+      // Sorry! No Web Storage support..
+  }
+  localStorage.setItem("lastname", "Smith");
+  localStorage.removeItem("lastname");
+  -> beim Hochfahren berücksichtigen ! (auch wenn lokaler Speicher verfügbar wäre, kann es sein, daß 
+      nur Cookies existieren -> ggf. muß dann Migration auf lokalen Speicher erfolgen, um Daten zu
+      schützen)
+    -> zu migrieren :
+      - global_setup
+      - uc_browsing_setup
+      - Default_Parents
+    -> beim Hochfahren, Lesen und Schreiben der Setups beachten
+    -> beim Anlegen und lesen der Default Parents beachten
+    
+
+- Export nach HTML :
+  -> Baum als Inhaltsverzeichnis und Volltexte als spätere Seiten (ähnlich wie bei Word)
+  -> lib_tree kopieren als lib_export_html und entsprechend anpassen
+    - IDs = echte Post-IDs
+    - Nummerierung einführen (1.1.1 etc.)
+    - Verlinkung innerhalb des HTML-Codes
+    - Wie kann man ggf. implizite Inhalte in HTML unterbringen, ohne sie mit anzuzeigen ?
+      -> ggf. läßt sich auf XML komplett verzichten ?
+  -> lib_export_html muß aktiven Zugriff auf Datenbank haben (wie ein Master)
+  -> Info-Fenster muß kommen, daß gerade gearbeitet wird und nichts verfügbar ist
+  -> Wie kann man Files erzeugen ?
+    -> Daten komplett an PHP-Skript senden und dann als HTML zurückschicken lassen ?
+  
+
 - Export nach XML und Import von XML (noch ohne Mergen) realisieren (jeweils als Teilbaum)
   -> Mergen ggf. später einführen
   -> ggf. vorher schon JSON-Export / -Import
   -> http://tutorialzine.com/2011/05/generating-files-javascript-php/
   -> http://stackoverflow.com/questions/2897619/using-html5-javascript-to-generate-and-save-a-file
   -> https://blogs.adobe.com/cantrell/archives/2012/01/how-to-download-data-as-a-file-from-javascript.html
-- Button zum Löschen von Setup-Cookies einbauen
-  
+
 - qKonsens integrieren
 - Probble integrieren
 
@@ -53,4 +89,44 @@ Ideen :
       24h wieder zurückrollen durch die Community und auch auf einzelne Aktionen kann
       per Kommentar Einfluß genommen werden; div. Begrenzungen werden in krit. Situation
       aufgehoben bzw. gelockert
-      
+
+Peer-to-Peer :
+  http://yacy.net/de/index.html
+  
+Gruppenbildung :
+  Wikipedia
+  http://slashdot.org/      
+  
+Lookup-Table statt switch bei Keyboard-Zugriffen :
+  var keyb_func = []
+  keyb_func[1] = function()
+  {
+  ...
+  }
+
+
+
+Schoko, Cookies löschen, Musik
+  
+  
+http://www.brinkers.com/product/life-dark-chocolate-spread/
+http://www.brinkers.com/product/symphony-dark-orange-chocolate-spread/
+http://www.brinkers.com/product/nuscobio-dark-chocolate-spread/
+
+
+Haselnusscremes :
+  http://www.amazon.co.uk/gp/product/B0073V33NU?keywords=domori%20Crema%20Gianduja&qid=1456354270&ref_=sr_1_fkmr0_1&s=grocery&sr=1-1-fkmr0
+  https://www.chocosphere.com/default/la-crema-gianduja-jar.html
+  http://www.corso101.com/en/lindt/46684-lindt-cream-dark-cocoa-240g.html
+  https://www.chocosphere.com/default/gbno-cacao-creme.html
+  https://www.chocosphere.com/default/gianera-dark-chocolate-hazelnut-spread.html
+  https://www.chocosphere.com/default/cuor-di-cacao-spread-jar.html
+  http://www.corso101.com/en/caffarel/46949-caffarel-dark-cocoa-cream-300g.html
+  http://www.corso101.com/en/46619-venchi-cocoa-cream-350g.html
+
+edle Schokocreme :
+  http://www.idealo.de/preisvergleich/Typ/8008348005611oA15583-269419.html?param.resultlist.count=40
+  
+kaputtes Handy :
+  - Kabel durchklingeln
+  - ggf. Spannungsmeßgerät im angeschalteten Zustand (Vorsicht !!!)
