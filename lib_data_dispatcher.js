@@ -30,7 +30,10 @@ function lib_data_dispatcher(defaultParentStorage, data_src_type, data_src_path,
 function lib_data_dispatcher_init() 
 {
   switch (this.data_src_type)
-  {
+  {                               
+    case c_DATA_SOURCE_TYPE_ID_HTML :
+        this.db_obj                     = new lib_data_html(this.data_src_path, this.data_src_params, this.defaultParentStorage);     
+    break;
     case c_DATA_SOURCE_TYPE_ID_XML :
         this.db_obj                     = new lib_data_xml(this.data_src_path, this.data_src_params, this.defaultParentStorage); 
     break;
@@ -51,6 +54,7 @@ function lib_data_dispatcher_command(iparams, cmd_name)
   {
     case "req_tree"                     : this.db_obj.req_tree(iparams); break;
     case "get_tree"                     : ovalues = this.db_obj.get_tree(iparams); break;
+    case "write_tree"                   : this.db_obj.write_tree(iparams); break;
     case "delete_item"                  : this.db_obj.delete_tree_item(iparams); break;
     case "create_item"                  : this.db_obj.create_tree_item(iparams); break;
     case "change_item_field"            : this.db_obj.change_tree_item_field(iparams); break;

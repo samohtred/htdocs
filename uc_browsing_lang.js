@@ -9,6 +9,7 @@ var c_LANG_UC_BROWSING_MENUBAR =    //                 # English                
         [    "copy_item"                                ,"Copy (Ctrl-C)"                        ,"Kopieren (Strg-C)"                    ],
         [    "cut_item"                                 ,"Cut (Ctrl-X)"                         ,"Ausschn. (Strg-X)"                    ],
         [    "paste_item"                               ,"Paste (Ctrl-V)"                       ,"Einf&uumlgen (Strg-V)"                ],
+        [    "export_item"                              ,"Export (Ctrl-Shift-Alt-E)"            ,"Exportieren (Strg-Shift-Alt-E)"       ],
         [    "do_nothing"                               ,"--------------------"                 ,"--------------------"                 ],
         [    "lock_topic"                               ,"Lock (Ctrl-Shift-Alt-L)"              ,"Festhalten (Strg-Shift-Alt-L)"  ],
         [    "as_news"                                  ,"as News Ticker"                       ,"als Nachr.-Ticker"                    ],

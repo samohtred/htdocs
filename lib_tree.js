@@ -18,6 +18,7 @@ function lib_tree(gui_headline_context, lang_headline, gui_tree_context, current
   this.print_multi_parent_menu = lib_tree_print_multi_parent_menu.bind(this);
   this.get_defpar_pairs = lib_tree_get_defpar_pairs.bind(this);
   this.markup_items = lib_tree_markup_items.bind(this); 
+  this.get_tree = lib_tree_get_tree.bind(this);
   this.get_item_data = lib_tree_get_item_data.bind(this); 
   this.get_gui_id = lib_tree_get_gui_id.bind(this);    
   this.get_children = lib_tree_get_children.bind(this);
@@ -319,6 +320,11 @@ function lib_tree_markup_items(item_id, do_markup)
   }
 }
                           
+function lib_tree_get_tree()
+{
+  return this.curr_tree_obj;
+}                            
+                          
 
 function lib_tree_get_item_data(gui_id)
 {
@@ -396,6 +402,7 @@ function lib_tree_print_item(parent_gui_id, item_gui_id, itemName, itemType)
   newLiItem.appendChild(newImgItem);    
   newLiItem.appendChild(newDivItem);
   newLiItem.appendChild(newUlItem);
+  parentUlItem.style.cssText = 'display:block;';
   parentUlItem.appendChild(newLiItem);
 }
 

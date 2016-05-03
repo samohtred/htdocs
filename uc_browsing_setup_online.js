@@ -18,4 +18,4 @@ c_DEFAULT_UC_BROWSING_SETUP.info_ticker2_item_id = null;
 c_DEFAULT_UC_BROWSING_SETUP.info_timer = 600000;                // every 10 minutes
 c_DEFAULT_UC_BROWSING_SETUP.favorites = [];
 
-var uc_browsing_setup = jQuery.extend(true, {}, c_DEFAULT_UC_BROWSING_SETUP);
+var uc_browsing_setup = c_DEFAULT_UC_BROWSING_SETUP;

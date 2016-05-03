@@ -1,4 +1,4 @@
-// create a local copy of a database part using XML
+// create a local copy of a database part using HTML
 //
 // Usecases : 
 //	- Import data from database
@@ -13,8 +13,8 @@
 
 
 
-// Class 'lib_data_xml'
-function lib_data_xml(data_src_path, data_src_params, defaultParentStorage)
+// Class 'lib_data_html'
+function lib_data_html(data_src_path, data_src_params, defaultParentStorage)
 {
   // import params
   this.data_src_path = data_src_path;
@@ -22,38 +22,37 @@ function lib_data_xml(data_src_path, data_src_params, defaultParentStorage)
   this.defaultParentStorage = defaultParentStorage;
   
   // tree functions
-  this.write_tree = lib_data_xml_write_tree.bind(this);
-  this.req_tree = lib_data_xml_req_tree.bind(this);
-  this.get_explorer_path = lib_data_xml_get_explorer_path.bind(this);
-  this.get_tree_nodes = lib_data_xml_get_tree_nodes.bind(this);  
-  this.get_tree = lib_data_xml_get_tree.bind(this);
-  this.load_db_obj = lib_data_xml_load_db_obj.bind(this);
-  this.get_children_max_id = lib_data_xml_get_children_max_id.bind(this);
-  this.update_db = lib_data_xml_update_db.bind(this);
-  this.set_next_id = lib_data_xml_set_next_id.bind(this);
+  this.write_tree = lib_data_html_write_tree.bind(this);
+  this.req_tree = lib_data_html_req_tree.bind(this);
+  this.get_explorer_path = lib_data_html_get_explorer_path.bind(this);
+  this.get_tree_nodes = lib_data_html_get_tree_nodes.bind(this);  
+  this.get_tree = lib_data_html_get_tree.bind(this);
+  this.load_db_obj = lib_data_html_load_db_obj.bind(this);
+  this.get_children_max_id = lib_data_html_get_children_max_id.bind(this);
+  this.update_db = lib_data_html_update_db.bind(this);
+  this.set_next_id = lib_data_html_set_next_id.bind(this);
 
   // item functions
-  this.get_multi_parents = lib_data_xml_get_multi_parents.bind(this);
-  this.item_exists = lib_data_xml_item_exists.bind(this);
-  this.create_tree_item = lib_data_xml_create_tree_item.bind(this);
-  this.delete_tree_item = lib_data_xml_delete_tree_item.bind(this);
-  this.get_tree_item_parents = lib_data_xml_get_tree_item_parents.bind(this);
-  this.get_tree_item_children = lib_data_xml_get_tree_item_children.bind(this);
-  this.copy_items = lib_data_xml_copy_items.bind(this);
-  this.move_items = lib_data_xml_move_items.bind(this);
-  this.attach_to_parent = lib_data_xml_attach_to_parent.bind(this);
-  this.detach_from_parent = lib_data_xml_detach_from_parent.bind(this);
-
+  this.get_multi_parents = lib_data_html_get_multi_parents.bind(this);
+  this.item_exists = lib_data_html_item_exists.bind(this);
+  this.create_tree_item = lib_data_html_create_tree_item.bind(this);
+  this.delete_tree_item = lib_data_html_delete_tree_item.bind(this);
+  this.get_tree_item_parents = lib_data_html_get_tree_item_parents.bind(this);
+  this.get_tree_item_children = lib_data_html_get_tree_item_children.bind(this);
+  this.copy_items = lib_data_html_copy_items.bind(this);
+  this.move_items = lib_data_html_move_items.bind(this);
+  this.attach_to_parent = lib_data_html_attach_to_parent.bind(this);
+  this.detach_from_parent = lib_data_html_detach_from_parent.bind(this);
 
   // field functions
-  this.create_tree_item_field = lib_data_xml_create_tree_item_field.bind(this);
-  this.change_tree_item_field = lib_data_xml_change_tree_item_field.bind(this);
-  this.get_tree_item_field = lib_data_xml_get_tree_item_field.bind(this);
+  this.create_tree_item_field = lib_data_html_create_tree_item_field.bind(this);
+  this.change_tree_item_field = lib_data_html_change_tree_item_field.bind(this);
+  this.get_tree_item_field = lib_data_html_get_tree_item_field.bind(this);
 
   // other functions                    
-  this.dump_tree = lib_data_xml_dump_tree.bind(this);
-  this.sort = lib_data_xml_sort.bind(this);
-  this.quick_sort = lib_data_xml_quick_sort.bind(this);
+  this.dump_tree = lib_data_html_dump_tree.bind(this);
+  this.sort = lib_data_html_sort.bind(this);
+  this.quick_sort = lib_data_html_quick_sort.bind(this);
 
                     
   // object variables
@@ -75,7 +74,7 @@ function lib_data_xml(data_src_path, data_src_params, defaultParentStorage)
 
 
 
-//function lib_data_xml_get_children_max_id(currItem)
+//function lib_data_html_get_children_max_id(currItem)
 //{
 //  var childIds = this.get_tree_item_children(currItem);
 //  if (currItem == uc_browsing_setup.tree_data_src_params.root_item)
@@ -96,7 +95,7 @@ function lib_data_xml(data_src_path, data_src_params, defaultParentStorage)
 //}
 
 
-function lib_data_xml_get_children_max_id(currItem)
+function lib_data_html_get_children_max_id(currItem)
 {
   var myStack = [currItem];
   var myStackSize = 1;
@@ -164,9 +163,9 @@ function lib_data_xml_get_children_max_id(currItem)
 
 
 
-// help function of 'lib_data_xml_get_tree'
+// help function of 'lib_data_html_get_tree'
 // -> get parents as Explorer path
-function lib_data_xml_get_explorer_path(iparams)  // iparams = {elem_id, lock_id}
+function lib_data_html_get_explorer_path(iparams)  // iparams = {elem_id, lock_id}
 {
                                     // copy input params to save source on splice command
   var iparams_cp = jQuery.extend(true, {}, iparams);  
@@ -189,7 +188,7 @@ function lib_data_xml_get_explorer_path(iparams)  // iparams = {elem_id, lock_id
     while (elem_id != iparams_cp.lock_id)
     {   
                                     // use last parent element as current element
-      elem_id = my_parents[0];
+      elem_id = my_parents;
                                     // calculate new parent items
       my_parents = this.get_tree_item_parents(elem_id);                                   
       is_multi = false;
@@ -223,9 +222,9 @@ function lib_data_xml_get_explorer_path(iparams)  // iparams = {elem_id, lock_id
 }
 
 
-// help function of 'lib_data_xml_get_tree'
+// help function of 'lib_data_html_get_tree'
 // -> get children as tree
-function lib_data_xml_get_tree_nodes(iparams)  // iparams = {elem_id, explorer_path}
+function lib_data_html_get_tree_nodes(iparams)  // iparams = {elem_id, explorer_path}
 {
                                     // copy input params to save source on splice command
   var iparams_cp = jQuery.extend(true, {}, iparams);  
@@ -300,14 +299,17 @@ function lib_data_xml_get_tree_nodes(iparams)  // iparams = {elem_id, explorer_p
   return tree_nodes;
 }
 
-function lib_data_xml_write_tree(iparams)
+function lib_data_html_write_tree(iparams)
 {
-  alert("Write Tree not yet implemented");
+  var my_tree =  jQuery.extend(true, {}, iparams.tree); 
+  var my_body = this.db_buffer.getElementsByTagName("body")[0];
+  setInnerHTML(my_body,"Test");
+  this.update_db();
 }
 
 
 // Request data from database
-function lib_data_xml_req_tree(iparams)  // iparams = {elemId, lock_id, favIds, tickerIds, cb_fct_call, mode}
+function lib_data_html_req_tree(iparams)  // iparams = {elemId, lock_id, favIds, tickerIds, cb_fct_call, mode}
 //
 // possible values for "mode" :
 //    "load_all"      -> on X-Tree-M start
@@ -401,50 +403,37 @@ function lib_data_xml_req_tree(iparams)  // iparams = {elemId, lock_id, favIds, 
 
 
 
-function lib_data_xml_get_tree(iparams)   // iparams = {elemId, lock_id, favIds, tickerIds, cb_fct_call, mode}
+function lib_data_html_get_tree(iparams)   // iparams = {elemId, lock_id, favIds, tickerIds, cb_fct_call, mode}
 {
   return this.rts_ret_struct;  
 }
 
 
-function lib_data_xml_load_db_obj()
+function lib_data_html_load_db_obj()
 {
   var path = "";
-  if (window.location.host == "localhost")  //  (this.data_src_path.toLowerCase() == "local")
+  if (this.data_src_path.toLowerCase() == "local")
   {
-    path = "http://localhost/" + this.data_src_params.db_name;    
+    path = "http://" + window.location.host + window.location.pathname + this.data_src_params.db_name;
   }
   else
-  if (this.data_src_path == "local")
-  {
-    var myPath = window.location.pathname;
-    if (myPath.indexOf(".php") >= 0)
-    {
-      var lastSlashIdx =  myPath.lastIndexOf("/");
-      myPath = myPath.substring(0, lastSlashIdx+1);
-      path = "http://" + window.location.host + myPath + this.data_src_params.db_name;
-    }
-    else
-      path = "http://" + window.location.host + window.location.pathname + this.data_src_params.db_name;    
-  }
-  else  
   {
     path = "http://" + this.data_src_path + "/" + this.data_src_params.db_name;
   }
   
   if (window.XMLHttpRequest)
   {// code for IE7+, Firefox, Chrome, Opera, Safari
-    var xmlhttp = new XMLHttpRequest();
+    var htmlhttp = new XMLHttpRequest();
   }
   else
   {// code for IE6, IE5
-    var xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+    var htmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
   }
                                     // to make sure that the Browser doesn't use a cached version of the file
   var myRandom = Math.random();
-  xmlhttp.open("GET",path+"?n="+myRandom,false);
-  xmlhttp.send(null);
-  this.db_buffer = xmlhttp.responseXML;
+  htmlhttp.open("GET",path+"?n="+myRandom,false);
+  htmlhttp.send(null);
+  this.db_buffer = htmlhttp.responseXML;
 
   if (this.db_buffer == null)  
   {
@@ -457,8 +446,8 @@ function lib_data_xml_load_db_obj()
 }
 
 
-// update XML data in database on webserver
-function lib_data_xml_update_db()
+// update HTML data in database on webserver
+function lib_data_html_update_db()
 {
   if (window.XMLHttpRequest)
   {// code for IE7+, Firefox, Chrome, Opera, Safari
@@ -486,21 +475,21 @@ function lib_data_xml_update_db()
 
 
 // set next ID
-function lib_data_xml_set_next_id(next_id)
+function lib_data_html_set_next_id(next_id)
 {
   this.next_id = next_id;
 }
 
 
-// dump XML content
-function lib_data_xml_dump_tree()
+// dump HTML content
+function lib_data_html_dump_tree()
 {
 
 }
 
 
 
-function lib_data_xml_quick_sort(my_item_list, name_list)
+function lib_data_html_quick_sort(my_item_list, name_list)
 {
   var smaller_id = [];
   var smaller_name = [];  
@@ -539,7 +528,7 @@ function lib_data_xml_quick_sort(my_item_list, name_list)
   
 
 // sort a list of tree items
-function lib_data_xml_sort(my_item_list)
+function lib_data_html_sort(my_item_list)
 {
                                     // get name and type of the items in "my_item_list" (lists with same order)
   var name_list = [];
@@ -580,17 +569,17 @@ function lib_data_xml_sort(my_item_list)
 //################################################################################################
 
 
-function lib_data_xml_get_multi_parents(elem_id, my_parents)
+function lib_data_html_get_multi_parents(elem_id, my_parents)
 {
   var parent_from_storage = this.defaultParentStorage.read(elem_id);
   if (parent_from_storage == undefined)
-    return [my_parents[0]]; 
+    return my_parents[0]; 
   else
-    return [parent_from_storage];   
+    return parent_from_storage;   
 }
 
 // find out whether or not an item exists
-function lib_data_xml_item_exists(itemId)
+function lib_data_html_item_exists(itemId)
 {
   var item = getDBElementById(this.db_buffer, itemId);
   return item != undefined;
@@ -598,7 +587,7 @@ function lib_data_xml_item_exists(itemId)
 
 
 // create new tree item
-function lib_data_xml_create_tree_item( iparams )  // iparams = {parent_elem_id, name, type, lock_id, cb_fctn_str}  
+function lib_data_html_create_tree_item( iparams )  // iparams = {parent_elem_id, name, type, lock_id, cb_fctn_str}  
 {
   var iparams_cp = jQuery.extend(true, {}, iparams);   
   var rootItem = this.db_buffer.getElementsByTagName("db_root")[0];
@@ -644,59 +633,30 @@ function lib_data_xml_create_tree_item( iparams )  // iparams = {parent_elem_id,
 
 
 // delete item and all of its children
-function lib_data_xml_delete_tree_item(iparams)  // iparams = {parentId, itemId, lock_id, cb_fctn_str}
+function lib_data_html_delete_tree_item(iparams)  // iparams = {parentId, itemId, lock_id, cb_fctn_str}
 {
                                     // save params
   var iparams_cp = jQuery.extend(true, {}, iparams);
     
   if (iparams_cp.itemId != uc_browsing_setup.tree_data_src_params.root_item)
   {
-    var itemsToErase = [];      
-    var currItems = [iparams_cp.itemId]
-    // Part 1 : Search through hierarchy for child items which only have one parent and thus need to be erased
-    while (currItems.length > 0)
+    var currItem = getDBElementById(this.db_buffer, iparams_cp.itemId);
+    var myChildren = this.get_tree_item_children(iparams_cp.itemId);
+    
+    if (myChildren.length > 0)
     {
-      var allChildren = [];
-                                    // detach all items with multiple parents and put them off the erase list
-      for (var i=0; i<currItems.length; )
+      for (var i=0; i<myChildren.length; i++)
       {
-
-        var myParents = this.get_tree_item_parents(currItems[i]);  
-        if (myParents.length >1)
-        {
-          var detachParent = this.get_multi_parents(currItems[i], myParents);        
-          this.detach_from_parent(detachParent[0], currItems[i]);
-          currItems.splice(i,1);
-        }
-        else
-        {
-          allChildren = allChildren.concat(this.get_tree_item_children(currItems[i]));
-          i++;
-        }  
+        this.delete_tree_item(myChildren[i]);
       }
-      itemsToErase = itemsToErase.concat(currItems);      
-      currItems = jQuery.extend(true, [], allChildren);
     }
-
-
-    // Part 2 : Delete all itemsToErase
-    while (itemsToErase.length > 0)
-    {
-                                    // get ID of element which is planned for erasure and kill it from 
-                                    // erasure list
-      var myidx = itemsToErase.length-1;
-      var myId = itemsToErase[myidx];
-      itemsToErase.splice(myidx,1);                
-                                    // detach elem from parent
-      var myParents = this.get_tree_item_parents(myId);
-      this.detach_from_parent(myParents[0], myId);      
-
-      var myObj = getDBElementById(this.db_buffer, myId);
-      if (myObj.outerHTML != null)
-        myObj.outerHTML = "";
-      else
-        myObj.parentNode.removeChild(myId);               
-    }
+    
+    this.detach_from_parent(iparams_cp.parentId, iparams_cp.itemId);
+    
+    if (currItem.outerHTML != null)
+      currItem.outerHTML = "";
+    else
+      currItem.parentNode.removeChild(currItem);               
   }    
   else
     alert(c_LANG_LIB_DATA_ROOT_ITEM_NOT_ERASABLE[global_setup.curr_lang]);
@@ -708,7 +668,7 @@ function lib_data_xml_delete_tree_item(iparams)  // iparams = {parentId, itemId,
 
 
 // get Item's parent nodes
-function lib_data_xml_get_tree_item_parents(itemId)
+function lib_data_html_get_tree_item_parents(itemId)
 {
   var currItem = getDBElementById(this.db_buffer, itemId);
   var parentLinks = currItem.getElementsByTagName("referred_from");
@@ -732,7 +692,7 @@ function lib_data_xml_get_tree_item_parents(itemId)
 
 
 // get Item's child nodes
-function lib_data_xml_get_tree_item_children(itemId)
+function lib_data_html_get_tree_item_children(itemId)
 {
   var currItem = getDBElementById(this.db_buffer, itemId);
 
@@ -754,7 +714,7 @@ function lib_data_xml_get_tree_item_children(itemId)
 
 
 // copy function
-function lib_data_xml_copy_items(iparams)  // iparams = {src_elem, dst_elem, lock_id, cb_fctn_str}
+function lib_data_html_copy_items(iparams)  // iparams = {src_elem, dst_elem, lock_id, cb_fctn_str}
 {
   for (var i=0; i<iparams.src_elem.length; i++)
   {
@@ -766,7 +726,7 @@ function lib_data_xml_copy_items(iparams)  // iparams = {src_elem, dst_elem, loc
 
 
 // move function
-function lib_data_xml_move_items(iparams)  // iparams = {src_elem, dst_elem, old_parent_id ,lock_id, cb_fctn_str}
+function lib_data_html_move_items(iparams)  // iparams = {src_elem, dst_elem, old_parent_id ,lock_id, cb_fctn_str}
 {
   for (var i=0; i<iparams.src_elem.length; i++)
   {
@@ -779,7 +739,7 @@ function lib_data_xml_move_items(iparams)  // iparams = {src_elem, dst_elem, old
 
 
 // cut&paste operations (later : for copy by reference) 
-function lib_data_xml_attach_to_parent(parentId, itemId)
+function lib_data_html_attach_to_parent(parentId, itemId)
 {
   var parentItem = getDBElementById(this.db_buffer, parentId);
   var currentItem = getDBElementById(this.db_buffer, itemId);
@@ -819,7 +779,7 @@ function lib_data_xml_attach_to_parent(parentId, itemId)
 
 
 // cut&paste operations (later : for copy by reference) 
-function lib_data_xml_detach_from_parent(parentId, itemId)
+function lib_data_html_detach_from_parent(parentId, itemId)
 {
   var currItem = getDBElementById(this.db_buffer, itemId);
 
@@ -866,7 +826,7 @@ function lib_data_xml_detach_from_parent(parentId, itemId)
 //################################################################################################
 
 // create fields of tree item
-function lib_data_xml_create_tree_item_field(itemId, fieldId, content)
+function lib_data_html_create_tree_item_field(itemId, fieldId, content)
 {
   var currItem = getDBElementById(this.db_buffer, itemId);
 
@@ -896,7 +856,7 @@ function lib_data_xml_create_tree_item_field(itemId, fieldId, content)
 
 
 // change fields of tree item
-function lib_data_xml_change_tree_item_field(iparams)      // iparams = {items, field_id, content, lock_id, cb_fctn_str}
+function lib_data_html_change_tree_item_field(iparams)      // iparams = {items, field_id, content, lock_id, cb_fctn_str}
 {
                                     // save params
   var iparams_cp = jQuery.extend(true, {}, iparams);
@@ -931,7 +891,7 @@ function lib_data_xml_change_tree_item_field(iparams)      // iparams = {items, 
 
 
 // get field content
-function lib_data_xml_get_tree_item_field(itemId, fieldId)
+function lib_data_html_get_tree_item_field(itemId, fieldId)
 {
 
   var currItem = getDBElementById(this.db_buffer, itemId);

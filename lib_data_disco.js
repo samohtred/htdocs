@@ -23,6 +23,7 @@ function lib_data_disco(data_src_path, data_src_params, default_parent_setup_obj
   this.default_parent_setup_obj = default_parent_setup_obj;
   
   // tree functions
+  this.write_tree = lib_data_disco_write_tree.bind(this);
   this.req_tree = lib_data_disco_req_tree.bind(this);
   this.get_tree = lib_data_disco_get_tree.bind(this);  
 
@@ -111,6 +112,10 @@ function sort(tree_nodes, sibling_start, sibling_len)
   }
 }
 
+function lib_data_disco_write_tree(iparams)
+{
+  alert("Write Tree not yet implemented");
+}  
 
 
 // auxiliary function of 'lib_data_disco_req_tree'
@@ -473,6 +478,8 @@ function lib_data_disco_req_tree(iparams)   // iparams = {elemId, lock_id, favId
                 .include('ReferredFrom.Referrer.ReferredFrom')
 //                .include('ReferredFrom.Referrer.ReferredFrom.Referrer.Content')
 //                .include('ReferredFrom.Referrer.ReferredFrom.Referrer.ReferredFrom')
+//                .include('ReferredFrom.Referrer.ReferredFrom.Referrer.ReferredFrom.Referrer.Content')
+//                .include('ReferredFrom.Referrer.ReferredFrom.Referrer.ReferredFrom.Referrer.ReferredFrom')
                 .toArray()
               .then
               (
@@ -494,6 +501,7 @@ function lib_data_disco_req_tree(iparams)   // iparams = {elemId, lock_id, favId
                     {
                       my_name = response[0].initData.ReferredFrom[i].initData.Referrer.initData.Content.initData.Title;
                       if (my_name == null)
+//                        my_name = "kein Titel";
                         my_name = unescape(response[0].initData.ReferredFrom[i].initData.Referrer.initData.Content.initData.Text);                        
                       ret_struct.ticker[ticker_len].text = ret_struct.ticker[ticker_len].text + my_name + " +++ ";
                     }

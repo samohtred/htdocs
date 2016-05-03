@@ -98,6 +98,13 @@ var c_DEFAULT_GLOBAL_SETUP = {};
  *                              switchable Database Type
  * V0.1.4.1     2016/03/01      Setup-Cookies can be cleared by using 'Help/Clear Cookies'; Items can be shifted to
  *                              the parental levels by using Shift+Tab
+ * V0.1.4.2     2016/04/25      Debugging ("Alle Themen" can now be clicked even in Explorer-Path; recursive deletion is now also 
+ *                              available in XML-Lib; when moving up / down using the arrow keys you can now create items at all
+ *                              the time since the UL of the parent item is now unhidden every time a new item is created);
+ *                              Discussion Tree can now be exported as extra HTML (using "save whole website" you can also import it into
+ *                              Microsoft Word)
+ * V0.1.4.3     2016/05/04      Export functionality has improved (fulltext now exportable); multi-parent operations in new
+ *                              XML libary now seem to work fine
  * ---------------------------------------------------------------------------------------
  */
 
@@ -105,8 +112,8 @@ var c_DEFAULT_GLOBAL_SETUP = {};
 main_version_hi = 0;
 main_version_lo = 1;
 sub_version_hi = 4;
-sub_version_lo = 1;
-var plugin_date = "2016/03/01";
+sub_version_lo = 3;
+var plugin_date = "2016/05/04";
                                     // Version Text for printing
 var plugin_version = main_version_hi + "." + main_version_lo + "." + sub_version_hi + "." + sub_version_lo;
 // ###### ===========> VERSION-SETUPS END <================= ######
@@ -123,11 +130,11 @@ c_DEFAULT_GLOBAL_SETUP.curr_lang = 1;
 c_DEFAULT_GLOBAL_SETUP.default_usecase = "uc_browsing";
 
 c_DEFAULT_GLOBAL_SETUP.tree_max_parent_depth = 1;                       
-c_DEFAULT_GLOBAL_SETUP.tree_max_child_depth = 4;
+c_DEFAULT_GLOBAL_SETUP.tree_max_child_depth = 20;
 
 c_DEFAULT_GLOBAL_SETUP.debugMode = false;
 
-var global_setup = c_DEFAULT_GLOBAL_SETUP;
+var global_setup = jQuery.extend(true, {}, c_DEFAULT_GLOBAL_SETUP);
 
 
 // ####### DEFAULT PATH TO GLOBAL SETUP #######################

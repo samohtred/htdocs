@@ -121,7 +121,7 @@ function uc_browsing_dispatcher_select_item(submodule, gui_id, mode)
                                     // renew selection
         var selected_items_old = jQuery.extend(true, [], this.panel1_selected_items);
         this.panel1_selected_items = [];
-        this.panel1_selected_items[0] = new_item;
+        this.panel1_selected_items[0] = jQuery.extend(true, {}, new_item);
                                     // save setup
         uc_browsing_setup.tree_last_selected = new_item.elem_id;
         this.save_setup();
@@ -285,6 +285,24 @@ function uc_browsing_dispatcher_process_elem_menu(item)
         else
           alert(c_LANG_WARNING_SINGLE_ITEM_NEEDED[global_setup.curr_lang]);        
         break;
+        
+    case "export_item" :
+        if (this.panel1_selected_items.length == 1)
+        {
+          var my_url = window.location.protocol + "//" + window.location.host + window.location.pathname; 
+          var my_php_path = my_url+'export_html.php?url=\"'+my_url+
+                                            '\"&item_id=\"'+this.panel1_selected_items[0].elem_id+
+                                            '\"&db_path=\"'+uc_browsing_setup.tree_data_src_path+
+                                            '\"&db_type=\"'+uc_browsing_setup.tree_data_src_type+
+                                          '\"&root_item=\"'+uc_browsing_setup.tree_data_src_params.root_item+
+                                            '\"&db_name=\"'+uc_browsing_setup.tree_data_src_params.db_name+
+                                           '\"&php_name=\"'+uc_browsing_setup.tree_data_src_params.php_name+'\"';
+          window.open(my_php_path, 'X-Tree-M Export');
+        }
+        else
+          alert(c_LANG_WARNING_SINGLE_ITEM_NEEDED[global_setup.curr_lang]);             
+        break;
+        
     case "lock_topic"  :
         if (this.panel1_selected_items.length==1) 
         {
@@ -668,7 +686,13 @@ function uc_browsing_dispatcher_keyb_proc(my_key, my_extra_keys, e)
       {
         switch (my_key)
         {
-          // STRG+Shift+ALT + L
+          // CTRL+Shift+ALT + E
+          case 69 :
+            //alert("CTRL+Shift+ALT-E");
+            this.clicked_at("menubar", c_LANG_UC_BROWSING_MENUBAR[0][0][0], "export_item", c_KEYB_MODE_ALT_SHIFT_CTRL);               
+          break;
+
+          // CTRL+Shift+ALT + L
           case 76 :
             //alert("CTRL+Shift+ALT+L");
             this.clicked_at("menubar", c_LANG_UC_BROWSING_MENUBAR[0][0][0], "lock_topic", c_KEYB_MODE_ALT_SHIFT_CTRL);               
@@ -688,6 +712,7 @@ function uc_browsing_dispatcher_create_db(iparams)  // {start_elem_id}
 {
                                         // create new database object
   this.db_obj = new lib_data_dispatcher(this.def_parent_storage, uc_browsing_setup.tree_data_src_type, uc_browsing_setup.tree_data_src_path, uc_browsing_setup.tree_data_src_params);                                            
+//  this.db_html_export = new lib_data_dispatcher(this.def_parent_storage, c_DATA_SOURCE_TYPE_ID_HTML, "local", {db_name:"uc_browsing_tree_db_html.xml", php_name:"uc_browsing_html_export.php", root_item:"root"});                                              
                                         // reload tree
   var req_tree_cb_str = "window." + this.cb_clicked_at_str + "(\'uc_browsing\', \'panel1\', \'load_all\', \'" + "T0_a\', c_KEYB_MODE_NONE);";            
   this.db_obj.command({elemId:[iparams.start_elem_id], lock_id:uc_browsing_setup.tree_locked_item, favIds:uc_browsing_setup.favorites, tickerIds:[uc_browsing_setup.info_ticker1_item_id, uc_browsing_setup.info_ticker2_item_id], cb_fct_call:req_tree_cb_str, mode:"load_all"}, "req_tree");
@@ -755,9 +780,9 @@ function uc_browsing_dispatcher_clicked_at(sender, submodule, item, mode)
               switch (item)
               {
                 case "erase_cookies" :
-                  uc_browsing_setup = c_DEFAULT_UC_BROWSING_SETUP;
+                  uc_browsing_setup = jQuery.extend(true, {}, c_DEFAULT_UC_BROWSING_SETUP);
                   this.save_setup();
-                  global_setup = c_DEFAULT_GLOBAL_SETUP;
+                  global_setup = jQuery.extend(true, {}, c_DEFAULT_GLOBAL_SETUP);
                   global_dispatcher_save_setup();
                 break;
                 case "display_hint" :

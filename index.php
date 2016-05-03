@@ -3,10 +3,12 @@
 
   <head>                    
     <title>X-Tree-M</title>               
+    <script src="jquery.js"></script>                                                                                                                                                                
     <script src="global_defs.js"></script>
     <script src="global_functions.js"></script>
     <script src="lib_tree_lang.js"></script>
     <script src="lib_tree.js"></script>
+    <script src="lib_data_html.js"></script>    
     <script src="lib_data_xml.js"></script>
     <script src="lib_data_disco.js"></script>    
     <script src="lib_data_lang.js"></script>
@@ -23,7 +25,6 @@
     <script src="uc_browsing_content.js"></script>
     <script src="uc_browsing_infopanel.js"></script>    
     <script src="uc_browsing_features.js"></script>        
-    <script src="jquery.js"></script>                                                                                                                                                                
     <script src="datajs.js"></script>                                                                                        
     <script src="jaydata.js"></script>                                                                                       
     <script src="oDataProvider.js"></script>                                                                

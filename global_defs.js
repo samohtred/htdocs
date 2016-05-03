@@ -15,7 +15,8 @@ var c_DATA_SOURCE_TYPE_ID_NONE = 0;
 var c_DATA_SOURCE_TYPE_ID_COOKIE = 1;
 var c_DATA_SOURCE_TYPE_ID_DISCO = 2;
 var c_DATA_SOURCE_TYPE_ID_XML = 3;
-var c_DATA_SOURCE_TYPE_ID_LENGTH = 4; // length of array after valid entries
+var c_DATA_SOURCE_TYPE_ID_HTML = 4;
+var c_DATA_SOURCE_TYPE_ID_LENGTH = 5; // length of array after valid entries
 
 var c_DATA_TYPE_SETUP = 0;
 var c_DATA_TYPE_CONTENT = 1;

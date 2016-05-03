@@ -262,8 +262,3 @@ function getInnerHTML(myObj)
 */
 }
 
-
-Array.prototype.append = function(array)
-{                                       
-    this.push.apply(this, array)        
-}                                       
