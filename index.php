@@ -3,6 +3,7 @@
 
   <head>                    
     <title>X-Tree-M</title>               
+    <script src="//d3js.org/d3.v3.min.js"></script>
     <script src="https://code.jquery.com/jquery-1.12.3.min.js"></script>                                                                                                                                                                
     <script src="global_defs.js"></script>
     <script src="global_functions.js"></script>

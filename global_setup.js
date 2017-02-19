@@ -111,15 +111,17 @@ var c_DEFAULT_GLOBAL_SETUP = {};
  *                              of Ctrl, Alt and Shift is checked; if there is no sibling upwards from current position, the
  *                              parent item is now chosen on strike of "up arrow"
  * V0.1.4.6     2016/05/31      Send Error logs through Email
+ * V0.1.5.0     2016/11/13      Introduced Bubbles instead of Tree (not usable but as example)
+ * V0.1.5.1     2017/02/19      Improved Version of V0.1.5.0
  * ---------------------------------------------------------------------------------------
  */
 
 // ###### ===========> VERSION-SETUPS BEGIN <=============== ######
 main_version_hi = 0;
 main_version_lo = 1;
-sub_version_hi = 4;
-sub_version_lo = 6;
-var plugin_date = "2016/05/31";
+sub_version_hi = 5;
+sub_version_lo = 1;
+var plugin_date = "2017/02/19";
                                     // Version Text for printing
 var plugin_version = main_version_hi + "." + main_version_lo + "." + sub_version_hi + "." + sub_version_lo;
 // ###### ===========> VERSION-SETUPS END <================= ######
@@ -134,6 +136,7 @@ c_DEFAULT_GLOBAL_SETUP.testpattern = "4711";
 
 c_DEFAULT_GLOBAL_SETUP.curr_lang = 1;
 c_DEFAULT_GLOBAL_SETUP.default_usecase = "uc_browsing";
+c_DEFAULT_GLOBAL_SETUP.display_type = 0;   // 0=tree; 1=bubbles
 
 c_DEFAULT_GLOBAL_SETUP.tree_max_parent_depth = 1;                       
 c_DEFAULT_GLOBAL_SETUP.tree_max_child_depth = 20;

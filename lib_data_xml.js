@@ -261,6 +261,7 @@ function lib_data_xml_get_tree_nodes(iparams)  // iparams = {elem_id, explorer_p
   }  
   
                                     // continue through the levels downwards to leaves
+  retval_ct = 1;                                    
   do
   {
     var curr_level_children = [];
@@ -275,24 +276,33 @@ function lib_data_xml_get_tree_nodes(iparams)  // iparams = {elem_id, explorer_p
       curr_item_child_ids = this.sort(curr_item_child_ids);
       for(var b=0; b<curr_item_child_ids.length; b++)
       {
+        var my_idx = retval_ct;
+        if (curr_item_child_ids[b] == iparams.elem_id)
+        {
+          my_idx = 0;
+        }
+        else
+        {  
+          my_idx = retval_ct;
+          retval_ct = retval_ct + 1;          
+        }
                                     // save children in output array
-        tree_nodes[retval_ct] = {};                            
-        tree_nodes[retval_ct].parent_elem_id = my_parents[a].elem_id;                
-        tree_nodes[retval_ct].parent_gui_id = my_parents[a].gui_id;                
-        tree_nodes[retval_ct].elem_id = curr_item_child_ids[b];             
-        tree_nodes[retval_ct].gui_id = "T" + retval_ct;             
-        tree_nodes[retval_ct].name = this.get_tree_item_field(curr_item_child_ids[b], "name");
-        tree_nodes[retval_ct].type = this.get_tree_item_field(curr_item_child_ids[b], "type");
-        tree_nodes[retval_ct].description = unescape(this.get_tree_item_field(curr_item_child_ids[b], "content"));
+        tree_nodes[my_idx] = {};                            
+        tree_nodes[my_idx].parent_elem_id = my_parents[a].elem_id;                
+        tree_nodes[my_idx].parent_gui_id = my_parents[a].gui_id;                
+        tree_nodes[my_idx].elem_id = curr_item_child_ids[b];             
+        tree_nodes[my_idx].gui_id = "T" + my_idx;             
+        tree_nodes[my_idx].name = this.get_tree_item_field(curr_item_child_ids[b], "name");
+        tree_nodes[my_idx].type = this.get_tree_item_field(curr_item_child_ids[b], "type");
+        tree_nodes[my_idx].description = unescape(this.get_tree_item_field(curr_item_child_ids[b], "content"));
         if (this.get_tree_item_parents(curr_item_child_ids[b]).length > 1)   
         {
           this.defaultParentStorage.write(curr_item_child_ids[b], my_parents[a].elem_id);
-          tree_nodes[retval_ct].isMultiPar = true;
+          tree_nodes[my_idx].isMultiPar = true;
         }
         else
-          tree_nodes[retval_ct].isMultiPar = false;  
-        curr_level_children[child_idx++] = tree_nodes[retval_ct]; 
-        retval_ct = retval_ct + 1;
+          tree_nodes[my_idx].isMultiPar = false;  
+        curr_level_children[child_idx++] = tree_nodes[my_idx]; 
       }
     }
                                     // change children found out in this level to parents for next level

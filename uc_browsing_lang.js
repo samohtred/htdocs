@@ -39,7 +39,7 @@ var c_LANG_UC_BROWSING_MENUBAR =    //                 # English                
 //                ["xml_web"                              ,"XML on WWW"                           ,"XML im WWW"                           ],
 //                ["disco_web"                            ,"DISCO on WWW"                         ,"DISCO"                                ]
 
-        ]
+        ] ,
 //        [
 //            ["setup_path_menu"                          ,"Setup Path"                           ,"Pfad zu Einstellungen"                ],
 //            [
@@ -51,6 +51,12 @@ var c_LANG_UC_BROWSING_MENUBAR =    //                 # English                
 //                ["#input_field"  ,"setup_src_path"]
 //            ]
 //        ]
+        [
+            ["disp_type"                                ,"Display Type"                         ,"Darstellung"                          ],
+            ["#output_list"  ,"disp_type", "Tree", "Bubbles"]
+//            ["disp_tree"                                ,"Tree ()"                              ,"Baum ()"                              ],
+//            ["disp_bubbles"                             ,"Bubbles ()"                           ,"Kugeln ()"                              ]
+        ]
     ],                                                  
     [                                                   
           // Menu Title                                 

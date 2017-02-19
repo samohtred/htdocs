@@ -244,13 +244,18 @@ function setInnerHTML(myObj, content)
 
 function getInnerHTML(myObj)
 {
-  if (myObj.value != undefined)
-    return myObj.value;
+  if (myObj.id != "")
+    return $('#'+myObj.id).html();
   else
-    if (myObj.innerHTML != undefined)
-      return myObj.innerHTML;
-    else 
-      return myObj.textContent;  
+  {
+    if (myObj.value != undefined)
+      return myObj.value;
+    else
+      if (myObj.innerHTML != undefined)
+        return myObj.innerHTML;
+      else 
+        return myObj.textContent;  
+  }        
 /*  
   if (myObj.innerHTML != undefined)
     return myObj.innerHTML;
@@ -262,3 +267,37 @@ function getInnerHTML(myObj)
 */
 }
 
+
+
+//replace multiple URLs inside a string in html links
+function URLlinks(text) {
+  // ### Case 1 : URL-Text -> Link
+  // find http:// or https:// or ftp:// or file:// or www. but not directly after an HTML tag, after 
+  // a quote mark or in the middle of words to avoid wrong replacements; here is a sample text to prove
+  // the correctness :
+  //  var mytext = 'www.saturn.de Link:www.ntv.de sdoinsdnf <br>http://www.wetter.net osdinosdf<br>sodinfodisf ftp://www.tagesschau.de/imag003.png<br>sdoifnsdwww.kika.deoninoiibiuno<br><span contenteditable=\"false\"><a href=\"www.uno.org\" target=\"_blank\">www.uno.org</a></span>';  
+  var regExUrl = /[^>\"\w]((https?|ftp|file):\/\/|www.)\S+(\s+|\<|\n)/gi;    
+
+                                    // place spaces at beginning and end to avoid omitting URLs at beginning or ending of whole text
+  var mytext = ' ' + text + ' ';
+                                    // change <br> to \n to make them string delimiters instead of normal HTML tags
+  mytext = mytext.replace(/<br>/gi,'\n');
+                                    // replace URLs by correct HTML code; unfortunately the delimiters are the 1st and last char (must be treated specially)
+  mytext = mytext.replace(regExUrl, function f(x){ return x.substr(0,1) + '<span contenteditable=\"false\"><a href=\"' + x.substr(1, x.length-2) + '\" target=\"_blank\">' + x.substr(1, x.length-2) + '</a></span>' + x.substr(x.length-1,1)});   
+                                    // change back \n to <br>
+  mytext = mytext.replace(/\n/gi,'<br>');
+                                    // remove spaces before and after again
+  mytext = mytext.substr(1,mytext.length-2);
+
+  // ### Case 2 : Link-Konsistenz (href mit innerem Text synchronisieren)
+
+
+  return mytext;
+}
+
+//replace line breaks with <br> html tags
+function nl2br (str, is_xhtml) {   
+	var breakTag = (is_xhtml || typeof is_xhtml === 'undefined') ? '<br />' : '<br>';    
+//    alert('#'+str+'#');	
+	return (str + '').replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '$1'+ breakTag +'$2');
+}

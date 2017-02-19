@@ -13,6 +13,8 @@ function lib_tree(gui_headline_context, lang_headline, gui_tree_context, current
   this.init = lib_tree_init.bind(this);
   this.print_title = lib_tree_print_title.bind(this);
   this.create_stub = lib_tree_create_stub.bind(this);
+    this.print_disptype_tree = print_disptype_tree.bind(this);
+    this.print_disptype_bubbles = print_disptype_bubbles.bind(this);
   this.print_tree = lib_tree_print_tree.bind(this);
   this.print_item = lib_tree_print_item.bind(this);
   this.print_multi_parent_menu = lib_tree_print_multi_parent_menu.bind(this);
@@ -57,8 +59,11 @@ function lib_tree_init()
 
 // for init and for language change
 function lib_tree_print_title()
-{                                  
-  setInnerHTML(document.getElementById(this.gui_headline_context), '<B>' + this.lang_headline[global_setup.curr_lang] + '</B>');
+{
+  
+  var on_click_str = "return window." + this.cb_clicked_at_str + "(\'" + this.current_usecase + "\', \'" + this.current_panel + "\', \'switch_disp\', this.id, c_KEYB_MODE_NONE, event);";                                  
+  var link_html = '<span><a id=\"panel1_headline_a\" onclick=\"' + on_click_str + '\"><B>' + this.lang_headline[2+global_setup.display_type] + '</B></a></span>';
+  setInnerHTML(document.getElementById(this.gui_headline_context), link_html);
 }
 
 
@@ -102,22 +107,10 @@ function lib_tree_create_stub(rootUl, curr_node, onclickStr, ul_hidden)
 }
 
 
-// print part of a tree in the respective GUI element
-function lib_tree_print_tree(tree_obj, sel_elem_id)
+function print_disptype_tree(tree_obj, sel_elem_id, selected_item_in_tree)
 {
-                                    // save tree data object as local object variable
-  this.curr_tree_obj = jQuery.extend(true, {}, tree_obj);
                                     // initialize for Explorer Bar
   var exp_bar_html = "";
-  var k=0;
-  while (k<tree_obj.tree_nodes.length)
-  {
-    if (tree_obj.tree_nodes[k].elem_id == sel_elem_id) 
-      break;
-    else
-      k++;
-  }
-  var selected_item_in_tree = tree_obj.tree_nodes[k];
 
   // part 1 : print Explorer Bar
   for(var i=tree_obj.explorer_path.length-1; i>=0; i--)
@@ -160,7 +153,8 @@ function lib_tree_print_tree(tree_obj, sel_elem_id)
     }
   }                        
   // add Explorer Path to GUI
-  var gui_context = document.getElementById(this.gui_tree_context);  
+  var gui_context = document.getElementById(this.gui_tree_context); 
+   
   if (tree_obj.explorer_path.length > 0)
     setInnerHTML(gui_context, "&nbsp;" + exp_bar_html);
   else
@@ -237,6 +231,223 @@ function lib_tree_print_tree(tree_obj, sel_elem_id)
 }
 
 
+function print_disptype_bubbles(tree_obj, sel_elem_id, selected_item_in_tree)
+{
+  var gui_context = document.getElementById(this.gui_tree_context);
+  setInnerHTML(gui_context, "<div id=\"bubble_home\"></div>");
+
+  // constants
+  var c_PARENT_FILL  = "#D0D0FF";   var c_PARENT_STROKE   = "#3030FF";  var c_TARGET_FOR_PARENT = 1;    var c_PARENT_LINK_COLOR   = "#00C";
+  var c_SIBLING_FILL = "#80FF80";   var c_SIBLING_STROKE  = "#008000";  var c_TARGET_FOR_SIBLING = 2;   var c_SIBLING_LINK_COLOR  = "#0C0";
+  var c_CHILD_FILL   = "#FF60FF";   var c_CHILD_STROKE    = "#8F008F";  var c_TARGET_FOR_CHILD = 3;     var c_CHILD_LINK_COLOR    = "#C00";
+
+  // basic init of graph data
+  var graph = {
+    "nodes":[
+      // Element
+      {"id":selected_item_in_tree.gui_id+"_a", "name":selected_item_in_tree.name.replace(/&rsaquo;/g,'>'), "fill":"#FFFFB0", "stroke":"#0000C0", "symbol":""},    
+      // Sub-Branches
+      {"id":"A0_a", "name":"  ","fill":"#8080FF","stroke":"#000040", "symbol":""},         // Parents
+      {"id":"A1_a", "name":"  ","fill":"#00C000","stroke":"#002000", "symbol":""},         // Siblings
+      {"id":"A2_a", "name":"  ","fill":"#C000C0","stroke":"#200020", "symbol":""}          // Children
+    ],
+    "links":[
+      // Sub-Branches
+      {"source":1,"target":0,"color":"#AAA"},
+      {"source":2,"target":0,"color":"#AAA"},
+      {"source":3,"target":0,"color":"#AAA"}
+    ]
+  };
+  
+  var curr_node_idx = graph.nodes.length;
+  var curr_link_idx = graph.links.length;  
+
+  // Parent Nodes
+  var curr_node = tree_obj.explorer_path[0];
+  if (curr_node != undefined)
+  {
+    graph.nodes[curr_node_idx] = {};
+    graph.nodes[curr_node_idx].id = curr_node.gui_id + "_a";
+    graph.nodes[curr_node_idx].name = curr_node.name.replace(/&rsaquo;/g,'>');
+    if (curr_node.type != "none")
+      graph.nodes[curr_node_idx].symbol = lib_tree_get_symb(curr_node.type);   
+    else
+      graph.nodes[curr_node_idx].symbol = "symbol_unknown.gif";
+    graph.nodes[curr_node_idx].fill = c_PARENT_FILL;   graph.nodes[curr_node_idx].stroke = c_PARENT_STROKE;
+    
+    
+    graph.links[curr_link_idx] = {};
+    graph.links[curr_link_idx].source = curr_node_idx++;
+    graph.links[curr_link_idx].target = c_TARGET_FOR_PARENT;
+    graph.links[curr_link_idx++].color = c_PARENT_LINK_COLOR;  
+  }
+   
+  // other node types
+  if (tree_obj.tree_nodes != undefined)  
+  {
+    for (var i=0; i<tree_obj.tree_nodes.length; i++)
+    {  
+      curr_node = tree_obj.tree_nodes[i];
+      
+      // Sibling Nodes
+      if ((curr_node.parent_gui_id == selected_item_in_tree.parent_gui_id) && (curr_node.elem_id != selected_item_in_tree.elem_id))
+      {
+        graph.nodes[curr_node_idx] = {};
+        graph.nodes[curr_node_idx].id = curr_node.gui_id + "_a";
+        graph.nodes[curr_node_idx].name = curr_node.name.replace(/&rsaquo;/g,'>');      
+        if (curr_node.type != "none")
+          graph.nodes[curr_node_idx].symbol = lib_tree_get_symb(curr_node.type);   
+        else
+          graph.nodes[curr_node_idx].symbol = "symbol_unknown.gif";      
+        graph.nodes[curr_node_idx].fill = c_SIBLING_FILL;   graph.nodes[curr_node_idx].stroke = c_SIBLING_STROKE;
+        graph.links[curr_link_idx] = {};
+        graph.links[curr_link_idx].source = curr_node_idx++;
+        graph.links[curr_link_idx].target = c_TARGET_FOR_SIBLING;
+        graph.links[curr_link_idx++].color = c_SIBLING_LINK_COLOR;  
+      }
+    
+      // Child Nodes
+      if (curr_node.parent_gui_id == selected_item_in_tree.gui_id)
+      {
+        graph.nodes[curr_node_idx] = {};
+        graph.nodes[curr_node_idx].id = curr_node.gui_id + "_a";
+        graph.nodes[curr_node_idx].name = curr_node.name.replace(/&rsaquo;/g,'>');      
+        if (curr_node.type != "none")
+          graph.nodes[curr_node_idx].symbol = lib_tree_get_symb(curr_node.type);   
+        else
+          graph.nodes[curr_node_idx].symbol = "symbol_unknown.gif";      
+        graph.nodes[curr_node_idx].fill = c_CHILD_FILL;   graph.nodes[curr_node_idx].stroke = c_CHILD_STROKE;
+        graph.links[curr_link_idx] = {};                  
+        graph.links[curr_link_idx].source = curr_node_idx++;
+        graph.links[curr_link_idx].target = c_TARGET_FOR_CHILD;
+        graph.links[curr_link_idx++].color = c_CHILD_LINK_COLOR;  
+      }
+    }
+  }
+  
+  on_click_str = "window." + this.cb_clicked_at_str + "(\'" + this.current_usecase + "\', \'" + this.current_panel + "\', \'explorer_select\', this.id, c_KEYB_MODE_NONE, event);";          
+  
+  var width = 960,
+      height = 500;
+  
+  var color = d3.scale.category20();
+  
+  var force = d3.layout.force()
+      .charge(-1000)
+      .linkDistance(60)
+      .size([width, height]);
+  
+  var svg = d3.select("#bubble_home").append("svg")
+      .attr("width", width)
+      .attr("height", height);
+  
+  var drawGraph = function(graph) {
+    force
+        .nodes(graph.nodes)
+        .links(graph.links)
+        .start();
+  
+    var link = svg.selectAll(".link")
+        .data(graph.links)
+        .enter().append("line")
+        .attr("class", "link")
+        .style("stroke-width", function(d) { return Math.sqrt(d.value); })
+        .style("stroke", function(d) { return d.color; });             
+  
+    var gnodes = svg.selectAll('g.gnode')
+       .data(graph.nodes)
+       .enter()
+       .append('g')
+       .classed('gnode', true);
+      
+    var elementHeight = 15;
+    var elementWidth = 9;  // size per letter 
+
+    var node = gnodes.append("rect")
+        .attr("id", function(d) { return d.id;})
+        .attr("class", "node")
+        .attr("height", elementHeight)
+        .attr("width", function(d) { return elementWidth*d.name.length; })
+//        .on('mouseover', function() { alert('over1'+this.id); } )
+//        .on('mouseout', function() { alert('out1'+this.id); } )        
+        .on("click", function(event) { eval(on_click_str); return;} )            
+        .style("fill", function(d) { return d.fill; })
+        .style("stroke", function(d) { return d.stroke; }) 
+        .style("stroke-width", function(d) { if (d.index==0) return "2.5px"; else return "1.5px";})           
+        .call(force.drag);
+  
+      var mysymbs = gnodes.append("svg:image")
+          .attr("xlink:href", function(d) { return d.symbol; })
+          .attr("width", 20)  
+          .attr("height", 20)
+          .attr("x","2")
+          .attr("y","-22");
+  
+    var labels = gnodes.append("text")
+        .text(function(d) { return d.name; })
+        .attr("id", function(d) { return d.id;})
+        .style("fill", function(d) { return d.stroke; })                        
+        .attr("text-anchor", "start")
+        .attr("x","2")
+        .attr("y","12")
+//        .on('mouseover', function() { alert('over2'+this.id); } )            
+//        .on('mouseout', function() { alert('out2'+this.id); } )                
+//        .on("click", function(event) {alert('click2'+this.id); eval(on_click_str);  return;}.bind(on_click_str))
+        .on("click", function(event) { eval(on_click_str);  return;} )            
+        .style("font", function(d) { if (d.index==0) return "10pt courier"; else return "10pt courier";})
+        .call(force.drag);
+  
+      
+    force.on("tick", function() {
+      link.attr("x1", function(d) { return d.source.x; })
+          .attr("y1", function(d) { return d.source.y; })
+          .attr("x2", function(d) { return d.target.x; })
+          .attr("y2", function(d) { return d.target.y; });
+      gnodes.attr("transform", function(d) { 
+          return 'translate(' + [d.x-(elementWidth*d.name.length/2), d.y-(elementHeight/2)] + ')'; 
+      });        
+    });
+  }.bind(on_click_str);
+  
+  drawGraph(graph);  
+  
+  return selected_item_in_tree;
+}
+
+
+// print part of a tree in the respective GUI element
+function lib_tree_print_tree(tree_obj, sel_elem_id)
+{
+                                    // save tree data object as local object variable
+  this.curr_tree_obj = jQuery.extend(true, {}, tree_obj);  
+  
+  // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  // look up data in node array
+  // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  
+  var k=0;
+                                    // find selected item among Tree Nodes
+  while (k<tree_obj.tree_nodes.length)
+  {
+    if (tree_obj.tree_nodes[k].elem_id == sel_elem_id) 
+      break;
+    else
+      k++;
+  }
+  var selected_item_in_tree = tree_obj.tree_nodes[k];
+
+  // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  // execute print function for selected display type
+  // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  
+  var retval;
+  if (global_setup.display_type == 0)
+    retval = this.print_disptype_tree(tree_obj, sel_elem_id, selected_item_in_tree);
+  else
+    retval = this.print_disptype_bubbles(tree_obj, sel_elem_id, selected_item_in_tree);
+  
+  return retval;
+}
+
+
 function lib_tree_get_type_no(typeInternalStr)
 {
   for (var i=0; i<c_LANG_LIB_TREE_ELEMTYPE.length; i++)
@@ -307,16 +518,19 @@ function lib_tree_get_defpar_pairs(gui_id)
 // take care of selection by mouse
 function lib_tree_markup_items(item_id, do_markup)
 {
-  var curr_item = document.getElementById(item_id+"_div");
+  if (global_setup.display_type == 0)
+  {
+    var curr_item = document.getElementById(item_id+"_div");
                                     // selection
-  if (do_markup==true)
-  {
-    curr_item.style.backgroundColor = '#C0C0F0'; //rgb(115, 115, 185, 0.3)';  
-  }
+    if (do_markup==true)
+    {
+      curr_item.style.backgroundColor = '#C0C0F0'; //rgb(115, 115, 185, 0.3)';  
+    }
                                     // deselection
-  else
-  {
-    curr_item.style.backgroundColor = 'transparent'; //'rgba(255, 255, 255, 0)';
+    else
+    {
+      curr_item.style.backgroundColor = 'transparent'; //'rgba(255, 255, 255, 0)';
+    }
   }
 }
                           
@@ -347,14 +561,20 @@ function lib_tree_get_gui_id(elem_id)
 {
   var retval = [];
   var retval_idx = 0;
+  if (this.curr_tree_obj.explorer_path != undefined)
+  {
                                     // search through Explorer Path
-  for (var i=0; i<this.curr_tree_obj.explorer_path.length; i++)
-    if (this.curr_tree_obj.explorer_path[i].elem_id == elem_id)
-      retval[retval_idx++] = this.curr_tree_obj.explorer_path[i].gui_id;
+    for (var i=0; i<this.curr_tree_obj.explorer_path.length; i++)
+      if (this.curr_tree_obj.explorer_path[i].elem_id == elem_id)
+        retval[retval_idx++] = this.curr_tree_obj.explorer_path[i].gui_id;
+  }
+  if (this.curr_tree_obj.tree_nodes != undefined)
+  {
                                     // search through Tree Path
-  for (var i=0; i<this.curr_tree_obj.tree_nodes.length; i++)
-    if (this.curr_tree_obj.tree_nodes[i].elem_id == elem_id)
-      retval[retval_idx++] = this.curr_tree_obj.tree_nodes[i].gui_id;
+    for (var i=0; i<this.curr_tree_obj.tree_nodes.length; i++)
+      if (this.curr_tree_obj.tree_nodes[i].elem_id == elem_id)
+        retval[retval_idx++] = this.curr_tree_obj.tree_nodes[i].gui_id;
+  }
       
   return retval;
 }
