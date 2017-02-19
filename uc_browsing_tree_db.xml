@@ -18,7 +18,7 @@
   <item id="77">
     <name>Nachrichten</name>
     <type>topic</type>
-    <refers_to><sep>78</sep><sep>79</sep><sep>81</sep><sep>82</sep><sep>83</sep><sep>84</sep><sep>85</sep><sep>86</sep></refers_to>
+    <refers_to><sep>78</sep><sep>79</sep><sep>81</sep><sep>82</sep><sep>83</sep><sep>84</sep><sep>85</sep><sep>86</sep><sep>119</sep><sep>92</sep><sep>105</sep><sep>129</sep></refers_to>
     <referred_from><sep>root</sep></referred_from>
     <content/>
   </item>
@@ -39,7 +39,7 @@
   <item id="81">
     <name>Hagel verteidigt Deal mit Taliban</name>
     <type>topic</type>
-    <refers_to><sep>92</sep></refers_to>
+    <refers_to/>
     <referred_from><sep>77</sep></referred_from>
     <content/>
   </item>
@@ -48,12 +48,12 @@
     <type>topic</type>
     <refers_to/>
     <referred_from><sep>77</sep></referred_from>
-    <content>BND war offenbar freizügiger mit der Weitergabe persönlicher Daten, als bisher zugegeben.</content>
+    <content>BND%20war%20offenbar%20freiz%FCgiger%20mit%20der%20Weitergabe%20pers%F6nlicher%20Daten%2C%20als%20bisher%20zugegeben.</content>
   </item>
   <item id="83">
-    <name>Großstädte ohne Bahnanschluss</name>
+    <name>Großstädte ohne  reinkopierte Text-Schnipsel auch Bahnanschluss ›</name>
     <type>topic</type>
-    <refers_to><sep>101</sep><sep>102</sep><sep>105</sep><sep>107</sep><sep>108</sep><sep>110</sep></refers_to>
+    <refers_to><sep>101</sep><sep>102</sep><sep>107</sep><sep>108</sep><sep>110</sep></refers_to>
     <referred_from><sep>77</sep><sep>76</sep></referred_from>
     <content>Sch%F6n%20ist%20das%20nicht.%0ADadurch%20werden%20Reisende%20abgeh%E4ngt.</content>
   </item>
@@ -79,7 +79,7 @@
     <content/>
   </item>
   <item id="89">
-    <name>2014-06-22 Buvo comes to Hamburg</name>
+    <name>2014-06-22 Buvo comes  reinkopierte Text-Schnipsel auch to Hamburg</name>
     <type>topic</type>
     <refers_to/>
     <referred_from><sep>76</sep></referred_from>
@@ -102,13 +102,13 @@
     <name>ab</name>
     <type>topic</type>
     <refers_to/>
-    <referred_from><sep>81</sep></referred_from>
+    <referred_from><sep>77</sep></referred_from>
     <content>test1</content>
   </item>
   <item id="101">
     <name>gg</name>
     <type>topic</type>
-    <refers_to/>
+    <refers_to><sep>114</sep><sep>115</sep><sep>116</sep><sep>117</sep><sep>118</sep></refers_to>
     <referred_from><sep>83</sep></referred_from>
     <content/>
   </item>
@@ -127,10 +127,10 @@
     <content>jj</content>
   </item>
   <item id="105">
-    <name>kk</name>
+    <name/>
     <type>topic</type>
     <refers_to/>
-    <referred_from><sep>83</sep></referred_from>
+    <referred_from><sep>77</sep></referred_from>
     <content>kk</content>
   </item>
   <item id="107">
@@ -145,35 +145,35 @@
     <type>topic</type>
     <refers_to/>
     <referred_from><sep>83</sep></referred_from>
-  </item>
+  <content/></item>
   <item id="109">
     <name>ii</name>
     <type>topic</type>
     <refers_to/>
     <referred_from><sep>107</sep></referred_from>
-  </item>
+  <content/></item>
   <item id="110">
     <name>ll</name>
     <type>topic</type>
     <refers_to/>
     <referred_from><sep>83</sep></referred_from>
-  </item>
+  <content/></item>
   <item id="111">
     <name>Spielwiese</name>
     <type>topic</type>
-    <refers_to/>
+    <refers_to><sep>130</sep><sep>131</sep><sep>132</sep></refers_to>
     <referred_from><sep>root</sep></referred_from>
-  </item>
+  <content>sasadsad%0Asadasdsda%0A</content></item>
   <item id="112">
     <name>aa</name>
     <type>topic</type>
     <refers_to><sep>113</sep></refers_to>
     <referred_from><sep>root</sep></referred_from>
-  </item>
+  <content/></item>
   <item id="113">
     <name>ll</name>
     <type>topic</type>
     <refers_to/>
     <referred_from><sep>112</sep></referred_from>
-  </item>
-</db_root>
+  <content/></item>
+<item id="114"><name>fhlwek</name><type>topic</type><refers_to/><referred_from><sep>101</sep></referred_from><content/></item><item id="115"><name>asdasdasd</name><type>topic</type><refers_to/><referred_from><sep>101</sep></referred_from><content/></item><item id="116"><name>ewqeqweklj</name><type>topic</type><refers_to/><referred_from><sep>101</sep></referred_from><content/></item><item id="117"><name> abgetippten Satz im Cache hat, und diesen</name><type>topic</type><refers_to/><referred_from><sep>101</sep></referred_from><content/></item><item id="118"><name>lkjlkj  abgetippten Satz im Cache hat, und diesen</name><type>topic</type><refers_to/><referred_from><sep>101</sep></referred_from><content/></item><item id="119"><name>panamapapers</name><type>topic</type><refers_to><sep>120</sep><sep>121</sep><sep>124</sep></refers_to><referred_from><sep>77</sep></referred_from><content>https%3A//flaschenpost.piratenpartei.de/2016/04/04/die-panama-papers-oder-warum-transparenz-selbstverstaendlich-sein-sollte/</content></item><item id="120"><name>01 - Wie Steuerflucht funktioniert</name><type>topic</type><refers_to/><referred_from><sep>119</sep></referred_from><content/></item><item id="121"><name>02 - Was man dagegen tun kann</name><type>topic</type><refers_to><sep>122</sep></refers_to><referred_from><sep>119</sep></referred_from><content/></item><item id="122"><name/><type>topic</type><refers_to/><referred_from><sep>121</sep></referred_from><content/></item><item id="124"><name>02 - Was man dagegen tun kann</name><type>topic</type><refers_to><sep>125</sep><sep>126</sep></refers_to><referred_from><sep>119</sep></referred_from><content/></item><item id="125"><name>http://mailing.gruene.ch/m/10066489/</name><type>topic</type><refers_to/><referred_from><sep>124</sep></referred_from><content>die%20Verwendung%20von%20unversteuerten%20Geldern%20sanktionieren%0A%0AH%FCrden%20f%FCr%20Geld%FCbertragungen%20aus%20bzw.%20in%20Briefkasten-Gebieten%20erh%F6hen%0A%0Ahttp%3A//mailing.gruene.ch/m/10066489/</content></item><item id="126"><name>Kulturell</name><type>topic</type><refers_to><sep>127</sep><sep>128</sep></refers_to><referred_from><sep>124</sep></referred_from><content/></item><item id="127"><name>Bank-Wechsel</name><type>topic</type><refers_to/><referred_from><sep>126</sep></referred_from><content>6%20der%207%20gr%F6%DFten%20deutschen%20Banken%20haben%20f%FCr%20ihre%20Kunden%20Offshore-Firmen%20verwaltet%20oder%20tun%20dies%20noch%0A%0Ahttps%3A//twitter.com/textundblog/status/717036111676252160</content></item><item id="128"><name>Etablierung eines "kein Briefkasten-Firma"-Logo's ähnlich des vegan-Logo's</name><type>topic</type><refers_to/><referred_from><sep>126</sep></referred_from><content/></item><item id="129"><name>K&amp;M 210/9 Black [45 €]</name><type>topic</type><refers_to/><referred_from><sep>77</sep></referred_from><content/></item><item id="130"><name>Veränderung durch das  Bundeskinderschutzgesetz, dass wir im Bereich der  stationären  Erziehungshilfen die organisationale Verantwortung für Partizipation  &amp; Beschwerden haben; in den letzten 2 Jahren gibt's sehr positive  Entwicklungen zu vermelden...</name><type>topic</type><refers_to><sep>132</sep><sep>134</sep><sep>135</sep><sep>136</sep><sep>137</sep></refers_to><referred_from><sep>111</sep></referred_from><content/></item><item id="131"><name>Test1</name><type>topic</type><refers_to><sep>133</sep></refers_to><referred_from><sep>111</sep></referred_from><content/></item><item id="132"><name>Test2</name><type>topic</type><refers_to/><referred_from><sep>111</sep><sep>130</sep></referred_from><content/></item><item id="133"><name>Ich mach' jetzt mal 'nen Test mit über 60 Zeichen. Das soll </name><type>topic</type><refers_to/><referred_from><sep>131</sep></referred_from><content/></item><item id="134"><name>myTest2</name><type>topic</type><refers_to/><referred_from><sep>130</sep></referred_from><content/></item><item id="135"><name>DryTest</name><type>topic</type><refers_to/><referred_from><sep>130</sep></referred_from><content/></item><item id="136"><name>additionalTest</name><type>topic</type><refers_to/><referred_from><sep>130</sep></referred_from><content/></item><item id="137"><name>Testosteron</name><type>topic</type><refers_to/><referred_from><sep>130</sep></referred_from><content/></item></db_root>

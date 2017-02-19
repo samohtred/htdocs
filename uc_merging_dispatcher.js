@@ -870,7 +870,7 @@ function uc_browsing_dispatcher_init()
   this.load_setup();
   // prepare data sources (default parents and discussion content)
   this.def_parent_storage = new lib_data_cookie("X-Tree-M", "Default_Parents");
-  this.db_obj = new lib_data_dispatcher(this.def_parent_storage, uc_browsing_setup.tree_data_src_type, uc_browsing_setup.tree_data_src_path, uc_browsing_setup.tree_data_src_params);
+  this.db_obj = new lib_data_dispatcher(this.def_parent_storage, uc_browsing_setup.tree_data_src_type, uc_browsing_setup.tree_data_src_path, uc_browsing_setup.tree_data_src_params, global_setup);
   // load Menu and Tool Bar                                                  
   this.menubar = new uc_browsing_menubar( 'div_menubar', 'uc_browsing', 'menubar', this.cb_clicked_at_str, c_LANG_UC_BROWSING_MENUBAR); 
   this.toolbar = new uc_browsing_toolbar( 'div_toolbar', this.cb_clicked_at_str);     

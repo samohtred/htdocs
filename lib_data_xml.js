@@ -14,12 +14,14 @@
 
 
 // Class 'lib_data_xml'
-function lib_data_xml(data_src_path, data_src_params, defaultParentStorage)
+function lib_data_xml(data_src_path, data_src_params, defaultParentStorage, global_setup)
 {
   // import params
   this.data_src_path = data_src_path;
   this.data_src_params = data_src_params;
   this.defaultParentStorage = defaultParentStorage;
+  this.data_root_id = data_src_params.root_item;
+  this.global_setup = global_setup;   // don't change any of these setups since they're just copied by reference !!!
   
   // tree functions
   this.write_tree = lib_data_xml_write_tree.bind(this);
@@ -78,7 +80,7 @@ function lib_data_xml(data_src_path, data_src_params, defaultParentStorage)
 //function lib_data_xml_get_children_max_id(currItem)
 //{
 //  var childIds = this.get_tree_item_children(currItem);
-//  if (currItem == uc_browsing_setup.tree_data_src_params.root_item)
+//  if (currItem == this.data_root_id)
 //    var maxId = 0;
 //  else
 //    var maxId = Number(currItem);
@@ -130,7 +132,7 @@ function lib_data_xml_get_children_max_id(currItem)
       while (no_sibling_found)
       {
         // either Tree Root has no children at all or all elements have been parsed
-        if (myCurrItem == uc_browsing_setup.tree_data_src_params.root_item) 
+        if (myCurrItem == this.data_root_id) 
           return maxId;
 
         parentItem = myStack[(--myStackSize)-1];
@@ -240,7 +242,7 @@ function lib_data_xml_get_tree_nodes(iparams)  // iparams = {elem_id, explorer_p
     my_parents = [];
     my_parents[0] = iparams.explorer_path[0];
   }
-  else  // element == uc_browsing_setup.tree_data_src_params.root_item
+  else  // element == this.data_root_id
   {
     tree_nodes[retval_ct] = {};                            
     tree_nodes[retval_ct].parent_elem_id = null;    
@@ -296,7 +298,7 @@ function lib_data_xml_get_tree_nodes(iparams)  // iparams = {elem_id, explorer_p
                                     // change children found out in this level to parents for next level
     my_parents = curr_level_children;
     level_ct = level_ct + 1;
-  } while ((my_parents.length > 0) && (level_ct < global_setup.tree_max_child_depth));
+  } while ((my_parents.length > 0) && (level_ct < this.global_setup.tree_max_child_depth));
   return tree_nodes;
 }
 
@@ -338,7 +340,7 @@ function lib_data_xml_req_tree(iparams)  // iparams = {elemId, lock_id, favIds, 
       }
       else
       { 
-        this.rts_ret_struct.fav[i] = this.get_explorer_path({elem_id:iparams_cp.favIds[i], lock_id:uc_browsing_setup.tree_data_src_params.root_item});
+        this.rts_ret_struct.fav[i] = this.get_explorer_path({elem_id:iparams_cp.favIds[i], lock_id:this.data_root_id});
         var myself_elem = {};
         myself_elem.elem_id = iparams_cp.favIds[i];
         myself_elem.name = this.get_tree_item_field(iparams_cp.favIds[i], "name");
@@ -448,11 +450,11 @@ function lib_data_xml_load_db_obj()
 
   if (this.db_buffer == null)  
   {
-    alert(c_LANG_LIB_DATA_MSG_DATABASE_DOESNT_EXIST[global_setup.curr_lang]);
+    alert(c_LANG_LIB_DATA_MSG_DATABASE_DOESNT_EXIST[this.global_setup.curr_lang]);
   }
   else
   {
-    this.next_id = this.get_children_max_id(uc_browsing_setup.tree_data_src_params.root_item) + 1;
+    this.next_id = this.get_children_max_id(this.data_root_id) + 1;
   }
 }
 
@@ -634,7 +636,7 @@ function lib_data_xml_create_tree_item( iparams )  // iparams = {parent_elem_id,
     referToItem.appendChild(parentRefersToEntry);
   }
   else
-    alert(c_LANG_WARNING_PARENT_MISSING[global_setup.curr_lang]);
+    alert(c_LANG_WARNING_PARENT_MISSING[this.global_setup.curr_lang]);
 //  this.dump_tree();
   this.update_db();                
   this.req_tree({elemId:[iparams_cp.parent_elem_id], lock_id:iparams_cp.lock_id, favIds:[], tickerIds:[], cb_fct_call:iparams_cp.cb_fctn_str, mode:"tree_only"});
@@ -649,7 +651,7 @@ function lib_data_xml_delete_tree_item(iparams)  // iparams = {parentId, itemId,
                                     // save params
   var iparams_cp = jQuery.extend(true, {}, iparams);
     
-  if (iparams_cp.itemId != uc_browsing_setup.tree_data_src_params.root_item)
+  if (iparams_cp.itemId != this.data_root_id)
   {
     var itemsToErase = [];      
     var currItems = [iparams_cp.itemId]
@@ -699,7 +701,7 @@ function lib_data_xml_delete_tree_item(iparams)  // iparams = {parentId, itemId,
     }
   }    
   else
-    alert(c_LANG_LIB_DATA_ROOT_ITEM_NOT_ERASABLE[global_setup.curr_lang]);
+    alert(c_LANG_LIB_DATA_ROOT_ITEM_NOT_ERASABLE[this.global_setup.curr_lang]);
 
   this.update_db();                
   this.req_tree({elemId:[iparams_cp.parentId], lock_id:iparams_cp.lock_id, favIds:[], tickerIds:[], cb_fct_call:iparams_cp.cb_fctn_str, mode:"tree_only"});
@@ -725,7 +727,7 @@ function lib_data_xml_get_tree_item_parents(itemId)
     return parentIds;
   }
   else
-//    alert(c_LANG_WARNING_CURRENT_MISSING[global_setup.curr_lang]);
+//    alert(c_LANG_WARNING_CURRENT_MISSING[this.global_setup.curr_lang]);
   return [];
 }
 
@@ -748,7 +750,7 @@ function lib_data_xml_get_tree_item_children(itemId)
     return childIds;
   }
   else
-    alert(c_LANG_WARNING_CURRENT_MISSING[global_setup.curr_lang]);
+    alert(c_LANG_WARNING_CURRENT_MISSING[this.global_setup.curr_lang]);
   return [];
 }
 
@@ -813,7 +815,7 @@ function lib_data_xml_attach_to_parent(parentId, itemId)
     }
   }
   else
-    alert(c_LANG_WARNING_CURRENT_MISSING[global_setup.curr_lang]);
+    alert(c_LANG_WARNING_CURRENT_MISSING[this.global_setup.curr_lang]);
   this.dump_tree();
 }
 
@@ -855,7 +857,7 @@ function lib_data_xml_detach_from_parent(parentId, itemId)
     }
   }
   else
-    alert(c_LANG_WARNING_CURRENT_MISSING[global_setup.curr_lang]);
+    alert(c_LANG_WARNING_CURRENT_MISSING[this.global_setup.curr_lang]);
   this.dump_tree();
 }
 
@@ -882,12 +884,12 @@ function lib_data_xml_create_tree_item_field(itemId, fieldId, content)
     else
     {
                                         // output if field already exists	
-      alert(c_LANG_WARNING_FIELD_REDUNDANCE[global_setup.curr_lang] + fieldId + " !");
+      alert(c_LANG_WARNING_FIELD_REDUNDANCE[this.global_setup.curr_lang] + fieldId + " !");
     }
   }
   else
   { 
-    alert(c_LANG_WARNING_ITEM_MISSING[global_setup.curr_lang] + itemId + " !");
+    alert(c_LANG_WARNING_ITEM_MISSING[this.global_setup.curr_lang] + itemId + " !");
   }
   this.dump_tree();
   
@@ -916,12 +918,12 @@ function lib_data_xml_change_tree_item_field(iparams)      // iparams = {items, 
     else
     {
       this.create_tree_item_field(iparams_cp.items[0].elem_id, iparams_cp.field_id, iparams_cp.content);
-//      alert(c_LANG_MSG_FIELD_CREATED[global_setup.curr_lang] + iparams_cp.field_id + " !");
+//      alert(c_LANG_MSG_FIELD_CREATED[this.global_setup.curr_lang] + iparams_cp.field_id + " !");
     }
   }
   else
   { 
-    alert(c_LANG_WARNING_ITEM_MISSING[global_setup.curr_lang] + iparams_cp.field_id + " !");
+    alert(c_LANG_WARNING_ITEM_MISSING[this.global_setup.curr_lang] + iparams_cp.field_id + " !");
   }
   this.update_db();                
 //  this.dump_tree();
@@ -960,7 +962,7 @@ function lib_data_xml_get_tree_item_field(itemId, fieldId)
   }
   else
   { 
-    alert(c_LANG_WARNING_ITEM_MISSING[global_setup.curr_lang] + itemId + " !");
+    alert(c_LANG_WARNING_ITEM_MISSING[this.global_setup.curr_lang] + itemId + " !");
   }
   this.dump_tree();
   return undefined;

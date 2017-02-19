@@ -3,9 +3,10 @@
 
   <head>                    
     <title>X-Tree-M</title>               
-    <script src="jquery.js"></script>                                                                                                                                                                
+    <script src="https://code.jquery.com/jquery-1.12.3.min.js"></script>                                                                                                                                                                
     <script src="global_defs.js"></script>
     <script src="global_functions.js"></script>
+    <script src="lib_dbg_log.js"></script>
     <script src="lib_tree_lang.js"></script>
     <script src="lib_tree.js"></script>
     <script src="lib_data_html.js"></script>    

@@ -124,7 +124,7 @@ function lib_tree_print_tree(tree_obj, sel_elem_id)
   {
                                     // prepare variables
     var gui_id = tree_obj.explorer_path[i].gui_id + "_a";
-    var on_click_str = "return window." + this.cb_clicked_at_str + "(\'" + this.current_usecase + "\', \'" + this.current_panel + "\', \'explorer_select\', this.id, c_KEYB_MODE_NONE);";
+    var on_click_str = "return window." + this.cb_clicked_at_str + "(\'" + this.current_usecase + "\', \'" + this.current_panel + "\', \'explorer_select\', this.id, c_KEYB_MODE_NONE, event);";
     var on_click_str_multi = "";  
                                     // root element (selected element is used as Explorer Bar)
     if (i == (tree_obj.explorer_path.length-1))
@@ -139,12 +139,12 @@ function lib_tree_print_tree(tree_obj, sel_elem_id)
       if (i==0)
       {
         predecessor = selected_item_in_tree;
-        on_click_str_multi = "return window." + this.cb_clicked_at_str + "(\'" + this.current_usecase + "\', \'" + this.current_panel + "\', \'open_parent_menu\', \'" + selected_item_in_tree.gui_id + "_a\', c_KEYB_MODE_NONE);";       
+        on_click_str_multi = "return window." + this.cb_clicked_at_str + "(\'" + this.current_usecase + "\', \'" + this.current_panel + "\', \'open_parent_menu\', \'" + selected_item_in_tree.gui_id + "_a\', c_KEYB_MODE_NONE, event);";       
       }
       else
       {
         predecessor = tree_obj.explorer_path[i-1];
-        on_click_str_multi = "return window." + this.cb_clicked_at_str + "(\'" + this.current_usecase + "\', \'" + this.current_panel + "\', \'open_parent_menu\', \'" + tree_obj.explorer_path[i-1].gui_id + "_a\', c_KEYB_MODE_NONE);";          
+        on_click_str_multi = "return window." + this.cb_clicked_at_str + "(\'" + this.current_usecase + "\', \'" + this.current_panel + "\', \'open_parent_menu\', \'" + tree_obj.explorer_path[i-1].gui_id + "_a\', c_KEYB_MODE_NONE, event);";          
       }
 
                                     // multi-parent item
@@ -176,7 +176,7 @@ function lib_tree_print_tree(tree_obj, sel_elem_id)
   treeRootDiv.appendChild(treeRootUl);
 
                                     // print stub elements
-  var on_click_str = "return window." + this.cb_clicked_at_str + "(\'" + this.current_usecase + "\', \'" + this.current_panel + "\', \'tree_select\', this.id, c_KEYB_MODE_NONE );";
+  var on_click_str = "return window." + this.cb_clicked_at_str + "(\'" + this.current_usecase + "\', \'" + this.current_panel + "\', \'tree_select\', this.id, c_KEYB_MODE_NONE, event);";
   var start_idx = 0;
   while (tree_obj.tree_nodes[start_idx].parent_gui_id == tree_obj.tree_nodes[0].parent_gui_id)
   {                                                     
@@ -266,7 +266,7 @@ function lib_tree_print_multi_parent_menu(parent_list)
   var gui_context = document.getElementById(this.gui_tree_context);
   for(var a=0; a<parent_list.length; a++)
   {
-    var on_click_str = "return window." + this.cb_clicked_at_str + "(\'" + this.current_usecase + "\', \'" + this.current_panel + "\', \'parent_menu_select\', this.id, c_KEYB_MODE_NONE);"; 
+    var on_click_str = "return window." + this.cb_clicked_at_str + "(\'" + this.current_usecase + "\', \'" + this.current_panel + "\', \'parent_menu_select\', this.id, c_KEYB_MODE_NONE, event);"; 
     html_text = html_text + '&nbsp;<a id=\"' + parent_list[a].elem_id + '_a\" onclick=\"' + on_click_str + '\">' + parent_list[a].name + '</a><br>';
   }
   setInnerHTML(gui_context, html_text);
@@ -381,7 +381,7 @@ function lib_tree_print_item(parent_gui_id, item_gui_id, itemName, itemType)
   //   <UL ... /UL>
   // </LI>  
                                     // prepare input form GUI element for displaying
-  var on_click_str = "return window." + this.cb_clicked_at_str + "(\'" + this.current_usecase + "\', \'" + this.current_panel + "\', \'tree_select\', this.id, c_KEYB_MODE_NONE);"; 
+  var on_click_str = "return window." + this.cb_clicked_at_str + "(\'" + this.current_usecase + "\', \'" + this.current_panel + "\', \'tree_select\', this.id, c_KEYB_MODE_NONE, event);"; 
   var newLiItem = document.createElement("li");
       newLiItem.id = new String(item_gui_id+"_li");
 	    newLiItem.style.cssText = 'display: block; list-style: none; width:100%; margin: 0.1em; padding: 0; vertical-align: top; margin-left:-1.5em; padding: 0;';

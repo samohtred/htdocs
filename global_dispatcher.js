@@ -1,21 +1,18 @@
 var extra_keys = c_KEYB_MODE_NONE;
 var my_path = "";
+var log_var = [];
 
-function global_dispatcher_key_processing(e)
+function global_dispatcher_log_keys(extra_keys, my_key, dispatched)
 {
-  var is_ie = false; 
-                                      // special treatment for Internet Explorer
-  if (e==undefined)
-  {   
-    is_ie = true;
-    var e = window.event;
-  }
+  var log_item = {};
+  log_item.ekeys = extra_keys;
+  log_item.my_key = my_key;
+  log_item.dispatched = dispatched;
+  log_var[log_var.length] = log_item;
+}  
 
-                                      // suppress default scrolling of cursor keys
-//  if([37, 38, 39, 40].indexOf(e.keyCode) > -1) {
-//        e.preventDefault();
-//  }
-
+function global_dispatcher_process_extra_keys(e)
+{
   extra_keys = c_KEYB_MODE_NONE;
 
   if (e.shiftKey)
@@ -24,23 +21,36 @@ function global_dispatcher_key_processing(e)
     extra_keys = extra_keys + c_KEYB_MODE_CTRL_ONLY;
   if (e.altKey)
     extra_keys = extra_keys + c_KEYB_MODE_ALT_ONLY;
+  global_dispatcher_log_keys(extra_keys, e.keyCode, false);
+}
 
-  if (e.type=='keyup' || is_ie)
+function global_dispatcher_key_processing(e)
+{
+
+  var my_key = e.keyCode;
+                                      // suppress default scrolling of cursor keys
+  if([37, 38, 39, 40].indexOf(my_key) > -1) {
+        e.preventDefault();
+  }
+
+
+  var dispatched = false;
+  if (my_key != undefined)
   {
-    var my_key = e.keyCode;
-    if (my_key != undefined)
-    {
-      if (my_key != 16 && my_key != 17 && my_key != 18 && my_key < 115)
-      {                 
-        this.curr_uc_dispatcher.keyb_proc(my_key, extra_keys, e);
-      }
+    if ((my_key != 16) && (my_key != 17) && (my_key != 18) && (my_key < 115))
+    {                 
+      global_dispatcher_process_extra_keys(e);
+      this.curr_uc_dispatcher.keyb_proc(my_key, extra_keys, e);
+      dispatched = true;
     }
   }
+  // global_dispatcher_log_keys(extra_keys, my_key, dispatched);
+
 }
 
 
 // catch mouse clicks and process forwarded keyboard inputs
-function global_dispatcher_clicked_at(receiver, sender, submodule, item, mode)
+function global_dispatcher_clicked_at(receiver, sender, submodule, item, mode, event)
 {
   // choose element type
   if (receiver == "global_disp")
@@ -49,6 +59,8 @@ function global_dispatcher_clicked_at(receiver, sender, submodule, item, mode)
   }
   else
   {
+    if (event != undefined)
+      global_dispatcher_process_extra_keys(event);
     this.curr_uc_dispatcher.clicked_at(sender, submodule, item, extra_keys);
   }
 }
@@ -311,5 +323,23 @@ function global_dispatcher_init()
     break;
   }
                                     // install keyboard listener
-  global_dispatcher_setup_keyboard_events();                                    
+//  global_dispatcher_setup_keyboard_events();                                    
+
+  $(document).ready(function() {
+     $(document).keydown(function(event) {
+       global_dispatcher_process_extra_keys(event);
+     });
+     $(document).keyup(function(event) {
+       global_dispatcher_key_processing(event);
+     });
+  });
+
 }
+
+
+
+
+
+
+
+

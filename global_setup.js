@@ -105,6 +105,12 @@ var c_DEFAULT_GLOBAL_SETUP = {};
  *                              Microsoft Word)
  * V0.1.4.3     2016/05/04      Export functionality has improved (fulltext now exportable); multi-parent operations in new
  *                              XML libary now seem to work fine
+ * V0.1.4.4     2016/05/11      linked source code to help menu, word length limitation, first steps for Cloning
+ * V0.1.4.5     2016/05/16      Debugging of wrong Keyboard event behaviour (release of Ctrl Key not always registered) 
+ *                              -> keyboard events are now registered through jQuery and on Clicked At events the current state
+ *                              of Ctrl, Alt and Shift is checked; if there is no sibling upwards from current position, the
+ *                              parent item is now chosen on strike of "up arrow"
+ * V0.1.4.6     2016/05/31      Send Error logs through Email
  * ---------------------------------------------------------------------------------------
  */
 
@@ -112,8 +118,8 @@ var c_DEFAULT_GLOBAL_SETUP = {};
 main_version_hi = 0;
 main_version_lo = 1;
 sub_version_hi = 4;
-sub_version_lo = 3;
-var plugin_date = "2016/05/04";
+sub_version_lo = 6;
+var plugin_date = "2016/05/31";
                                     // Version Text for printing
 var plugin_version = main_version_hi + "." + main_version_lo + "." + sub_version_hi + "." + sub_version_lo;
 // ###### ===========> VERSION-SETUPS END <================= ######
@@ -131,7 +137,9 @@ c_DEFAULT_GLOBAL_SETUP.default_usecase = "uc_browsing";
 
 c_DEFAULT_GLOBAL_SETUP.tree_max_parent_depth = 1;                       
 c_DEFAULT_GLOBAL_SETUP.tree_max_child_depth = 20;
+c_DEFAULT_GLOBAL_SETUP.tree_item_max_letters = 60;
 
+c_DEFAULT_GLOBAL_SETUP.dbg_log_max_entries = 30;
 c_DEFAULT_GLOBAL_SETUP.debugMode = false;
 
 var global_setup = jQuery.extend(true, {}, c_DEFAULT_GLOBAL_SETUP);

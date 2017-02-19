@@ -15,12 +15,14 @@
 
 
 // Class 'lib_data_disco'
-function lib_data_disco(data_src_path, data_src_params, default_parent_setup_obj)
+function lib_data_disco(data_src_path, data_src_params, default_parent_setup_obj, global_setup)
 {
   // import params
   this.data_src_path = data_src_path;
   this.data_src_params = data_src_params;
   this.default_parent_setup_obj = default_parent_setup_obj;
+  this.data_root_id = data_src_params.root_item;
+  this.global_setup = global_setup;   // don't change any of these setups since they're just copied by reference !!!
   
   // tree functions
   this.write_tree = lib_data_disco_write_tree.bind(this);
@@ -607,7 +609,7 @@ function lib_data_disco_req_tree(iparams)   // iparams = {elemId, lock_id, favId
                   
                 
                 // # update current tree item
-                if (global_setup.debugMode)
+                if (this.global_setup.debugMode)
                   ret_struct.tree_nodes[curr_item_offs].name = my_name +'('+my_ref_type+','+offline_queue[0].PostTypeId+')';
                 else
                   ret_struct.tree_nodes[curr_item_offs].name = my_name;
@@ -616,7 +618,7 @@ function lib_data_disco_req_tree(iparams)   // iparams = {elemId, lock_id, favId
                 ret_struct.tree_nodes[curr_item_offs].isMultiPar = is_multi;
         
                 // # Max. number of levels reached or no further child levels available ?
-                if ((level_ct >= global_setup.tree_max_child_depth) || (offline_queue[0].initData.ReferredFrom == undefined))
+                if ((level_ct >= this.global_setup.tree_max_child_depth) || (offline_queue[0].initData.ReferredFrom == undefined))
                 {            
                   this.req_tree_state = "rts_proc_tree_items";
                 } else 

@@ -25,6 +25,8 @@ function uc_browsing_dispatcher( cb_clicked_at_str )    // notwendige DISCO-Ände
                                     // Storage Objects
   this.db_obj;
   this.def_parent_storage;
+  this.dbg_log;
+
                                     // GUI Objects
   this.menubar;
   this.toolbar;
@@ -40,6 +42,7 @@ function uc_browsing_dispatcher( cb_clicked_at_str )    // notwendige DISCO-Ände
   this.panel1_elem_type = 0;
   this.panel1_new_tree_item_input = false;
   this.panel1_saved_rename_item = null;
+  this.panel1_input_too_long_occured = false;
   this.text_focus = 0;
   this.my_path = "";
 
@@ -197,7 +200,8 @@ function uc_browsing_dispatcher_process_elem_menu(item)
   switch (item)
   {
     case "input_item" :
-        this.text_focus = 1;                                      
+        this.text_focus = 1;  
+        this.panel1_input_too_long_occured = false;                                    
         // input new item
         if (this.panel1_selected_items.length==1)
         {
@@ -209,6 +213,7 @@ function uc_browsing_dispatcher_process_elem_menu(item)
         break;          
     case "change_item" :
         this.text_focus = 1;    
+        this.panel1_input_too_long_occured = false;        
         if (this.panel1_selected_items.length==1)
         {
           this.panel1_saved_rename_item = this.panel1_selected_items[0];
@@ -241,6 +246,9 @@ function uc_browsing_dispatcher_process_elem_menu(item)
         }
         else
           alert(c_LANG_WARNING_NOTHING_SELECTED[global_setup.curr_lang]);
+        break;
+    case "clone_item" :
+        alert("Not yet implemented !");
         break;
     case "copy_item"   :
         this.panel1_copied_items = jQuery.extend(true, [], this.panel1_selected_items);
@@ -445,6 +453,34 @@ function uc_browsing_dispatcher_process_fav_menu(item)
 
 function uc_browsing_dispatcher_keyb_proc(my_key, my_extra_keys, e)
 {
+  this.dbg_log.add_entry({module:"uc_brow_disp_keyb_proc", sub_function:my_key, side_condition:my_extra_keys, action:e.originalEvent.type});
+
+  // check for too long inputs in tree panel
+  if (this.text_focus == 1)
+  {
+    var my_item = null;
+    if (this.panel1_new_tree_item_input == true)
+    {
+                                    // get new name from lib_tree
+      my_item = document.getElementById("N0_input");
+    }
+    if (this.panel1_saved_rename_item != null)
+    {
+      my_item = document.getElementById(this.panel1_saved_rename_item.gui_id + "_input");
+    }
+    if (my_item != null)
+    {
+      var my_name = htmlEntities(my_item.value);
+      if (my_name.length > c_DEFAULT_GLOBAL_SETUP.tree_item_max_letters)
+      {
+        my_item.style.color = "red";
+      }
+      else
+      {
+        my_item.style.color = "black";
+      }
+    }
+  }  
                                     // ... otherwise use these options
   switch (my_extra_keys)
   {
@@ -472,7 +508,7 @@ function uc_browsing_dispatcher_keyb_proc(my_key, my_extra_keys, e)
             if ((this.panel1_new_tree_item_input == true) || (this.panel1_saved_rename_item != null))
             {
               this.text_focus = 0;
-              this.clicked_at("enter_key", "", "input_done", c_KEYB_MODE_NONE)
+              this.clicked_at("enter_key", "", "input_done", c_KEYB_MODE_NONE);
             }
           break;
 
@@ -482,7 +518,7 @@ function uc_browsing_dispatcher_keyb_proc(my_key, my_extra_keys, e)
             if ((this.panel1_new_tree_item_input == true) || (this.panel1_saved_rename_item != null))
             {
               this.text_focus = 0;            
-              this.clicked_at("esc_key", "", "cancel_item", c_KEYB_MODE_NONE)            
+              this.clicked_at("esc_key", "", "cancel_item", c_KEYB_MODE_NONE);
             }
           break;
 
@@ -537,7 +573,10 @@ function uc_browsing_dispatcher_keyb_proc(my_key, my_extra_keys, e)
                 this.content_panel.load_item_content(this.tree_panel.get_item_data(this.tree_panel.get_gui_id(uc_browsing_setup.tree_last_selected)[0]));                                    
               }
               else
+              {
+                this.select_item("tree_select", "E0", c_KEYB_MODE_NONE)
                 document.getElementById('div_panel1_content').scrollTop = 0;
+              }
               window.scrollTo(0, 0);              
             }
           break;
@@ -595,24 +634,27 @@ function uc_browsing_dispatcher_keyb_proc(my_key, my_extra_keys, e)
         switch (my_key)
         {
           // CTRL + C
-          case 67 :
+          case 67 : 
             //alert("CTRL-C");
-            if (this.text_focus == 0)            
-              this.clicked_at("menubar", c_LANG_UC_BROWSING_MENUBAR[0][0][0], "copy_item", c_KEYB_MODE_CTRL_ONLY);
+            this.clicked_at("menubar", c_LANG_UC_BROWSING_MENUBAR[0][0][0], "clone_item", c_KEYB_MODE_CTRL_ONLY);
+          break; 
+          
+          // CTRL + L
+          case 76 :
+            //alert("CTRL-L");
+            this.clicked_at("menubar", c_LANG_UC_BROWSING_MENUBAR[0][0][0], "copy_item", c_KEYB_MODE_CTRL_ONLY);
           break;
 
           // CTRL + V
           case 86 :
             //alert("CTRL-V");
-            if (this.text_focus == 0)                        
-              this.clicked_at("menubar", c_LANG_UC_BROWSING_MENUBAR[0][0][0], "paste_item", c_KEYB_MODE_CTRL_ONLY);
+            this.clicked_at("menubar", c_LANG_UC_BROWSING_MENUBAR[0][0][0], "paste_item", c_KEYB_MODE_CTRL_ONLY);
           break;
           
           // CTRL + X
           case 88 :
             //alert("CTRL-X");
-            if (this.text_focus == 0)                        
-              this.clicked_at("menubar", c_LANG_UC_BROWSING_MENUBAR[0][0][0], "cut_item", c_KEYB_MODE_CTRL_ONLY);
+            this.clicked_at("menubar", c_LANG_UC_BROWSING_MENUBAR[0][0][0], "cut_item", c_KEYB_MODE_CTRL_ONLY);
           break;
 
           default : break;
@@ -711,7 +753,7 @@ function uc_browsing_dispatcher_keyb_proc(my_key, my_extra_keys, e)
 function uc_browsing_dispatcher_create_db(iparams)  // {start_elem_id}
 {
                                         // create new database object
-  this.db_obj = new lib_data_dispatcher(this.def_parent_storage, uc_browsing_setup.tree_data_src_type, uc_browsing_setup.tree_data_src_path, uc_browsing_setup.tree_data_src_params);                                            
+  this.db_obj = new lib_data_dispatcher(this.def_parent_storage, uc_browsing_setup.tree_data_src_type, uc_browsing_setup.tree_data_src_path, uc_browsing_setup.tree_data_src_params, global_setup);                                            
 //  this.db_html_export = new lib_data_dispatcher(this.def_parent_storage, c_DATA_SOURCE_TYPE_ID_HTML, "local", {db_name:"uc_browsing_tree_db_html.xml", php_name:"uc_browsing_html_export.php", root_item:"root"});                                              
                                         // reload tree
   var req_tree_cb_str = "window." + this.cb_clicked_at_str + "(\'uc_browsing\', \'panel1\', \'load_all\', \'" + "T0_a\', c_KEYB_MODE_NONE);";            
@@ -721,7 +763,7 @@ function uc_browsing_dispatcher_create_db(iparams)  // {start_elem_id}
 
 function uc_browsing_dispatcher_clicked_at(sender, submodule, item, mode)
 {
-//  alert("Sender : " + sender + " # Submodule : " + submodule + " # Item : " + item);
+  this.dbg_log.add_entry({module:"uc_browsing_disp_clicked_at", sender:sender, submodule:submodule, item:item, mode:mode});
   
   switch (sender)
   {
@@ -785,11 +827,20 @@ function uc_browsing_dispatcher_clicked_at(sender, submodule, item, mode)
                   global_setup = jQuery.extend(true, {}, c_DEFAULT_GLOBAL_SETUP);
                   global_dispatcher_save_setup();
                 break;
+                case "send_err_log" :
+                  this.dbg_log.create_email();
+                break;
                 case "display_hint" :
                   alert(c_LANG_UC_BROWSING_HELP_HINTS[global_setup.curr_lang]);
                 break;
-                default :              
+                case "source_code" :
+                  window.open('https://github.com/samohtred/htdocs', 'X-Tree-M Source Code');                  
+                break; 
+                case "display_version" :
                   alert(plugin_name + '\n ' + '\n' + c_LANG_UC_BROWSING_HELP_VERSION[global_setup.curr_lang] + plugin_version + '\n' + c_LANG_UC_BROWSING_HELP_CREATED[global_setup.curr_lang] + plugin_date);
+                break;
+                default :              
+                  alert(c_LANG_UC_BROWSING_MSG_UNKNOWN_COMMAND[global_setup.curr_lang] + item);                  
                 break;
               }
               break;          
@@ -802,8 +853,9 @@ function uc_browsing_dispatcher_clicked_at(sender, submodule, item, mode)
     case "enter_key" :
         if (this.panel1_new_tree_item_input == true)
         {
-                                    // get new name from lib_tree
+                                    // get new name from lib_tree and limit number of letters
           var item_name = htmlEntities(document.getElementById("N0_input").value);
+          item_name = item_name.substring(0, c_DEFAULT_GLOBAL_SETUP.tree_item_max_letters);
                                     // clear flag
           this.panel1_new_tree_item_input = false;
                                     // create item in database
@@ -812,8 +864,9 @@ function uc_browsing_dispatcher_clicked_at(sender, submodule, item, mode)
         }
         if (this.panel1_saved_rename_item != null)
         {
-                                    // get new name from lib_tree
-          var item_name = document.getElementById(this.panel1_saved_rename_item.gui_id + "_input").value;
+                                    // get new name from lib_tree and limit number of letters
+          var item_name = htmlEntities(document.getElementById(this.panel1_saved_rename_item.gui_id + "_input").value);
+          item_name = item_name.substring(0, c_DEFAULT_GLOBAL_SETUP.tree_item_max_letters);
                                     // clear flag
           this.panel1_saved_rename_item = null;
                                     // create item in database
@@ -1037,6 +1090,7 @@ function uc_browsing_dispatcher_save_setup()
 
 function uc_browsing_dispatcher_init()
 {
+  this.dbg_log = new lib_dbg_log();
                                     // get Sub-Directory name of instance and delete all slashes
   var my_path_raw = window.location.pathname;
   this.my_path = my_path_raw.replace(/\//g,''); 

@@ -217,7 +217,7 @@
         var my_path_raw = window.location.pathname;
         my_path = my_path_raw.replace(/\//g,''); 
         var def_parent_storage = new lib_data_cookie("X-Tree-M-Export", my_path, "Default_Parents");
-        db_obj = new lib_data_dispatcher(def_parent_storage, param_db_type, param_db_path, {root_item:param_root_item, db_name:param_db_name, php_name:param_php_name });
+        db_obj = new lib_data_dispatcher(def_parent_storage, param_db_type, param_db_path, {root_item:param_root_item, db_name:param_db_name, php_name:param_php_name }, global_setup );
         var req_tree_cb_str = "window.process_tree();";            
         db_obj.command({elemId:[param_item_id], lock_id:param_item_id, favIds:[], tickerIds:[param_item_id, param_item_id], cb_fct_call:req_tree_cb_str, mode:"tree_only"}, "req_tree");          
       }

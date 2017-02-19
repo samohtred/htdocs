@@ -6,7 +6,8 @@ var c_LANG_UC_BROWSING_MENUBAR =    //                 # English                
         [    "input_item"                               ,"New (Alt-N)"                          ,"Neu (Alt-N)"                          ],
         [    "change_item"                              ,"Change (F2)"                          ,"&Auml;ndern (F2)"                     ],
         [    "delete_item"                              ,"Delete (Del)"                         ,"L&ouml;schen (Entf)"                  ],
-        [    "copy_item"                                ,"Copy (Ctrl-C)"                        ,"Kopieren (Strg-C)"                    ],
+        [    "copy_item"                                ,"Copy by Ref (Ctrl-L)"                 ,"Link Kopieren (Strg-L)"               ],
+        [    "clone_item"                               ,"Clone (Ctrl-C)"                       ,"Vollst. Kopieren (Strg-C)"              ],
         [    "cut_item"                                 ,"Cut (Ctrl-X)"                         ,"Ausschn. (Strg-X)"                    ],
         [    "paste_item"                               ,"Paste (Ctrl-V)"                       ,"Einf&uumlgen (Strg-V)"                ],
         [    "export_item"                              ,"Export (Ctrl-Shift-Alt-E)"            ,"Exportieren (Strg-Shift-Alt-E)"       ],
@@ -56,7 +57,9 @@ var c_LANG_UC_BROWSING_MENUBAR =    //                 # English                
         ["help_menu"                                    ,"Help"                                 ,"Hilfe"                                ],
 //        [    "tutorial"                                   ,"Tutorial"                             ,"Tutorial"                           ],
         [    "erase_cookies"                            ,"Clear Cookies"                        ,"Cookies löschen"                      ],
+        [    "send_err_log"                             ,"Send Error Log"                       ,"Fehlerbericht senden"                 ],
         [    "display_hint"                             ,"Hints"                                ,"Tips"                                 ],
+        [    "source_code"                              ,"Source Code"                          ,"Quellcode"                            ],
         [    "display_version"                          ,"Current Version"                      ,"Aktuelle Version"                     ]
     ]
 
@@ -153,4 +156,11 @@ var c_LANG_UC_BROWSING_MSG_SETUP_LOADING_FAILED =
       "do_nothing"          ,
       "User Setup loading failed. Using Default Values.",
       "Laden der User-Einstellungen fehlgeschlagen. Es werden die Standard-Einstellungen verwendet."
+];
+
+
+var c_LANG_UC_BROWSING_MSG_ITEM_TOO_LONG =
+[ "do_nothing",
+  "Attention ! Name too long -> will be cut on saving.",
+  "Achtung ! Name zu lang -> wird beim Speichern abgeschnitten."
 ];

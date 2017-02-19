@@ -4,13 +4,14 @@
 // http://knockoutjs.com/examples/clickCounter.html
 
 
-function lib_data_dispatcher(defaultParentStorage, data_src_type, data_src_path, data_src_params)
+function lib_data_dispatcher(defaultParentStorage, data_src_type, data_src_path, data_src_params, global_setup)
 {
   // take over params
   this.defaultParentStorage = defaultParentStorage;
   this.data_src_type = data_src_type;
   this.data_src_path = data_src_path;
   this.data_src_params = data_src_params;
+  this.global_setup = global_setup;
   
   // bind local functions
   this.init = lib_data_dispatcher_init.bind(this);
@@ -32,13 +33,13 @@ function lib_data_dispatcher_init()
   switch (this.data_src_type)
   {                               
     case c_DATA_SOURCE_TYPE_ID_HTML :
-        this.db_obj                     = new lib_data_html(this.data_src_path, this.data_src_params, this.defaultParentStorage);     
+        this.db_obj                     = new lib_data_html(this.data_src_path, this.data_src_params, this.defaultParentStorage, this.global_setup);     
     break;
     case c_DATA_SOURCE_TYPE_ID_XML :
-        this.db_obj                     = new lib_data_xml(this.data_src_path, this.data_src_params, this.defaultParentStorage); 
+        this.db_obj                     = new lib_data_xml(this.data_src_path, this.data_src_params, this.defaultParentStorage, this.global_setup); 
     break;
     case c_DATA_SOURCE_TYPE_ID_DISCO :
-        this.db_obj                     = new lib_data_disco(this.data_src_path, this.data_src_params, this.defaultParentStorage);  
+        this.db_obj                     = new lib_data_disco(this.data_src_path, this.data_src_params, this.defaultParentStorage, this.global_setup);  
     break;
     default :
     break;
